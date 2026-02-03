@@ -50,7 +50,7 @@ module.exports = async (client, message) => {
       .setFooter({ text: `${message.author.tag} | ${lang}` })
       .setTimestamp();
 
-    const isSuccess = output.success && !output.stderr && output.exitCode === 0;
+    const isSuccess = output.success && output.exitCode === 0;
 
     if (output.stdout) {
       embed.addFields({
@@ -101,12 +101,27 @@ module.exports = async (client, message) => {
         filter: (i) => i.user.id === message.author.id,
       });
 
+      let explained = false;
+
       collector.on("collect", async (interaction) => {
         if (interaction.customId !== "explain_fix") {
           return;
         }
 
-        await interaction.deferUpdate();
+        // Check if the button has already been clicked to avoid multiple explanations
+        if (explained) {
+          await interaction.deferUpdate().catch(() => {});
+          return;
+        }
+        explained = true;
+
+        // Defer the reply to prevent the interaction from timing out
+        try {
+          await interaction.deferReply();
+        } catch (error) {
+          console.error("Failed to defer reply:", error);
+          return;
+        }
 
         const content = [`Given the following code:`, codeBlock(lang, code)];
 
@@ -122,30 +137,42 @@ module.exports = async (client, message) => {
           `Explain the error and provide a way to fix it as short as possible.`,
         );
 
-        const fixCompletion = await groq.chat.completions.create({
-          messages: [
-            {
-              role: "user",
-              content: content.join("\n"),
-            },
-          ],
-          model: "llama-3.3-70b-versatile",
-          temperature: 0.8,
-          max_completion_tokens: 640,
-        });
+        try {
+          const fixCompletion = await groq.chat.completions.create({
+            messages: [{ role: "user", content: content.join("\n") }],
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.8,
+            max_completion_tokens: 640,
+          });
 
-        const fixText = fixCompletion.choices[0].message.content
-          .trim()
-          .slice(0, 1900);
+          const fixText = fixCompletion.choices[0].message.content
+            .trim()
+            .slice(0, 1900);
 
-        const fixEmbed = new EmbedBuilder()
-          .setTitle("🛠️ Error Fix")
-          .setDescription(fixText)
-          .setColor(0x18d272)
-          .setFooter({ text: `${message.author.tag} | ${lang}` })
-          .setTimestamp();
+          const fixEmbed = new EmbedBuilder()
+            .setTitle("🛠️ Error Fix")
+            .setDescription(fixText)
+            .setColor(0x18d272)
+            .setFooter({ text: `${message.author.tag} | ${lang}` })
+            .setTimestamp();
 
-        return interaction.followUp({ embeds: [fixEmbed] });
+          await interaction.message.edit({ components: [] });
+          await interaction.followUp({ embeds: [fixEmbed] });
+
+          collector.stop();
+        } catch (error) {
+          explained = false;
+          console.error("An error occurred while explaining the error:", error);
+
+          const embed = new EmbedBuilder()
+            .setTitle("❌ Error explaining error")
+            .setDescription(`An error occurred while explaining the error`)
+            .setColor(0xd21872)
+            .setFooter({ text: `${message.author.tag} | ${lang}` })
+            .setTimestamp();
+
+          await interaction.followUp({ embeds: [embed] }).catch(() => {});
+        }
       });
 
       collector.on("ignore", (i) => {
@@ -153,6 +180,12 @@ module.exports = async (client, message) => {
           content: "This button is not for you.",
           flags: MessageFlags.Ephemeral,
         }).catch(() => {});
+      });
+
+      collector.on("end", () => {
+        if (!explained) {
+          sent.edit({ components: [] }).catch(() => {});
+        }
       });
     } else {
       await message.reply({ embeds: [embed] });
@@ -192,9 +225,10 @@ async function runCode(lang, code) {
 
       return {
         success: true,
-        stdout,
-        stderr,
         exitCode: code,
+        // Replace backticks with non-breaking spaces
+        stdout: stdout?.replace(/```/g, "`\u200b``"),
+        stderr: stderr?.replace(/```/g, "`\u200b``"),
       };
     }
   } catch (error) {
