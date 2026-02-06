@@ -1,0 +1,14 @@
+name: DevHub Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+  issues:
+    types: [opened]
+
+jobs:
+  devhub-bot:
+    uses: open-devhub/devhub-bot/.github/workflows/bot.yml@main
+    secrets:
+      DEVHUB_APP_ID: ${{ secrets.DEVHUB_APP_ID }}
+      DEVHUB_APP_PRIVATE_KEY: ${{ secrets.DEVHUB_APP_PRIVATE_KEY }}
