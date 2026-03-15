@@ -49,8 +49,8 @@ module.exports = async (client, message) => {
     const embed = new EmbedBuilder()
       .setFooter({ text: `${message.author.tag} | ${lang}` })
       .setTimestamp();
-
-    const isSuccess = output.success && output.exitCode === 0;
+    const isSuccess =
+      output.success && (!output.stderr || output.stderr.trim() === "");
 
     if (output.stdout) {
       embed.addFields({
@@ -202,38 +202,62 @@ module.exports = async (client, message) => {
   }
 };
 
+let wandboxCompilers = null;
+
+async function getCompilers() {
+  if (wandboxCompilers) return wandboxCompilers;
+
+  const res = await fetch("https://wandbox.org/api/list.json");
+  const data = await res.json();
+
+  wandboxCompilers = data;
+  return data;
+}
+
 async function runCode(lang, code) {
   try {
-    const res = await fetch("https://emkc.org/api/v2/piston/execute", {
+    const compilers = await getCompilers();
+
+    const compiler = compilers.find((c) =>
+      c.name.toLowerCase().includes(lang.toLowerCase()),
+    );
+
+    if (!compiler) {
+      return {
+        success: false,
+        stderr: `Unsupported language: ${lang}`,
+      };
+    }
+
+    const res = await fetch("https://wandbox.org/api/compile.json", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        language: lang,
-        version: "*",
-        files: [{ content: code }],
+        compiler: compiler.name,
+        code,
       }),
     });
 
-    if (res.ok) {
-      const data = await res.json();
-
-      if (!data.run) {
-        return { success: false };
-      }
-
-      const { stdout, stderr, code } = data.run;
-
-      return {
-        success: true,
-        exitCode: code,
-        // Replace backticks with non-breaking spaces
-        stdout: stdout?.replace(/```/g, "`\u200b``"),
-        stderr: stderr?.replace(/```/g, "`\u200b``"),
-      };
+    if (!res.ok) {
+      return { success: false };
     }
-  } catch (error) {
-    console.error("An error occurred while trying to run code:", error);
-  }
 
-  return { success: false };
+    const data = await res.json();
+
+    return {
+      success: true,
+      exitCode: data.status ?? 0,
+      stdout: data.program_output?.replace(/```/g, "`\u200b``"),
+      stderr: data.program_error?.replace(/```/g, "`\u200b``"),
+    };
+  } catch (err) {
+    console.error("Code execution error:", err);
+
+    return {
+      success: false,
+      stderr: "Failed to execute code",
+    };
+  }
 }
