@@ -20,35 +20,74 @@ export default async (client, message) => {
   if (message.author.bot) return;
   if (!message.content.startsWith(";compile")) return;
 
-  const match = message.content.match(/```([\w#+.-]+)\n([\s\S]*?)```/);
+  const codeBlockMatch = message.content.match(/```([\w#+.-]+)\n([\s\S]*?)```/);
+  const linkMatch = message.content.match(
+    /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
+  );
 
-  if (!match) {
+  let lang, code;
+
+  if (codeBlockMatch) {
+    // PRIORITIZE code block in current message
+    lang = codeBlockMatch[1];
+    code = codeBlockMatch[2].trim();
+  } else if (linkMatch) {
+    // fetch message by link
+    const [_, guildId, channelId, messageId] = linkMatch;
+
+    try {
+      const guild = client.guilds.cache.get(guildId);
+      if (!guild) throw new Error("Guild not found");
+
+      const channel = guild.channels.cache.get(channelId);
+      if (!channel?.isTextBased())
+        throw new Error("Channel not found or not text-based");
+
+      const fetchedMessage = await channel.messages.fetch(messageId);
+      const fetchedCodeBlock = fetchedMessage.content.match(
+        /```([\w#+.-]+)\n([\s\S]*?)```/,
+      );
+
+      if (!fetchedCodeBlock) {
+        const embed = new EmbedBuilder()
+          .setTitle("❌ No code found in linked message!")
+          .setColor(0xd21872)
+          .setTimestamp();
+        return message.reply({ embeds: [embed] });
+      }
+
+      lang = fetchedCodeBlock[1];
+      code = fetchedCodeBlock[2].trim();
+    } catch (err) {
+      const embed = new EmbedBuilder()
+        .setTitle("❌ Failed to fetch message")
+        .setDescription(err.message)
+        .setColor(0xd21872)
+        .setTimestamp();
+      return message.reply({ embeds: [embed] });
+    }
+  } else {
     const embed = new EmbedBuilder()
       .setTitle("❌ Format error!")
       .setDescription(
-        `Use ;compile command with code block under (language specified)`,
+        `Use ;compile with either a code block or a message link containing a code block.`,
       )
       .setColor(0xd21872)
       .setTimestamp();
-
     await message.react("❌");
-
     return message.reply({ embeds: [embed] });
   }
 
+  // Now we have `lang` and `code`, proceed with the existing compilation logic
   try {
     const reaction = await message.react("⏳");
-
-    const lang = match[1];
-    const code = match[2].trim();
-
     const output = await runCode(lang, code);
-
     await reaction.remove().catch(() => {});
 
     const embed = new EmbedBuilder()
       .setFooter({ text: `${message.author.tag} | ${lang}` })
       .setTimestamp();
+
     const isSuccess =
       output.success && (!output.stderr || output.stderr.trim() === "");
 
@@ -68,20 +107,16 @@ export default async (client, message) => {
 
     if (isSuccess) {
       embed.setTitle("🧪 Output").setColor(0x4caf50);
-
       await message.react("✅");
-      await message.reply({ embeds: [embed] });
-
-      return;
+      return message.reply({ embeds: [embed] });
     }
 
     embed.setTitle("❌ Compilation error!").setColor(0xd21872);
 
-    if (!output.success) {
+    if (!output.success)
       embed.setDescription("Failed to request code execution.");
-    } else if (output.exitCode !== 0) {
+    else if (output.exitCode !== 0)
       embed.setDescription(`Exit code: ${output.exitCode}`);
-    }
 
     await message.react("❌");
 
@@ -104,35 +139,19 @@ export default async (client, message) => {
       let explained = false;
 
       collector.on("collect", async (interaction) => {
-        if (interaction.customId !== "explain_fix") {
-          return;
-        }
-
-        // Check if the button has already been clicked to avoid multiple explanations
+        if (interaction.customId !== "explain_fix") return;
         if (explained) {
           await interaction.deferUpdate().catch(() => {});
           return;
         }
         explained = true;
-
-        // Defer the reply to prevent the interaction from timing out
-        try {
-          await interaction.deferReply();
-        } catch (error) {
-          console.error("Failed to defer reply:", error);
-          return;
-        }
+        await interaction.deferReply();
 
         const content = [`Given the following code:`, codeBlock(lang, code)];
-
-        if (output.stdout) {
+        if (output.stdout)
           content.push(`With stdout:`, codeBlock(output.stdout.slice(0, 1000)));
-        }
-
-        if (output.stderr) {
+        if (output.stderr)
           content.push(`With stderr:`, codeBlock(output.stderr.slice(0, 1000)));
-        }
-
         content.push(
           `Explain the error and provide a way to fix it as short as possible.`,
         );
@@ -158,7 +177,6 @@ export default async (client, message) => {
 
           await interaction.message.edit({ components: [] });
           await interaction.followUp({ embeds: [fixEmbed] });
-
           collector.stop();
         } catch (error) {
           explained = false;
@@ -183,9 +201,7 @@ export default async (client, message) => {
       });
 
       collector.on("end", () => {
-        if (!explained) {
-          sent.edit({ components: [] }).catch(() => {});
-        }
+        if (!explained) sent.edit({ components: [] }).catch(() => {});
       });
     } else {
       await message.reply({ embeds: [embed] });
