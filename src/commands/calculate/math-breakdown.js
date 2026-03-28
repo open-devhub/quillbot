@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
 
@@ -8,19 +8,11 @@ export default {
   name: "math-breakdown",
   description:
     "Provides a step-by-step breakdown of a mathematical expression.",
-  options: [
-    {
-      name: "expression",
-      description: "The mathematical expression to break down.",
-      type: ApplicationCommandOptionType.String,
-      required: true,
-    },
-  ],
+  aliases: ["math"],
+  callback: async (client, message, args) => {
+    const expression = args[0];
 
-  callback: async (client, interaction) => {
-    const expression = interaction.options.getString("expression");
-
-    if (interaction.user.bot) return;
+    if (message.author.bot || !args || !expression || !message) return;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
@@ -37,13 +29,14 @@ export default {
       stop: null,
     });
 
+    message.channel.sendTyping();
     let breakdown = "";
     for await (const chunk of chatCompletion) {
       breakdown += chunk.choices[0]?.delta?.content || "";
     }
 
     if (!breakdown.trim()) {
-      return interaction.reply("⚠️ No breakdown available.");
+      return message.reply("⚠️ No breakdown available.");
     }
     const safeBreakdown = breakdown.slice(0, 1900);
 
@@ -51,9 +44,9 @@ export default {
       .setTitle("🧮 Math Breakdown")
       .setDescription(safeBreakdown)
       .setColor(0x18d272)
-      .setFooter({ text: `${interaction.user.tag} | math` })
+      .setFooter({ text: `${message.author.tag} | math` })
       .setTimestamp();
 
-    interaction.reply({ embeds: [embed] });
+    message.reply({ embeds: [embed] });
   },
 };

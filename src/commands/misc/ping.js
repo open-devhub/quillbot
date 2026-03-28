@@ -1,16 +1,12 @@
 export default {
   name: "ping",
-  description: "Replies with the bot ping!",
-
-  callback: async (client, interaction) => {
-    await interaction.deferReply();
-
-    const reply = await interaction.fetchReply();
-
-    const ping = reply.createdTimestamp - interaction.createdTimestamp;
-
-    interaction.editReply(
-      `Pong! Client ${ping}ms | Websocket: ${client.ws.ping}ms`,
-    );
+  description: "Pong!",
+  callback(client, message, args) {
+    try {
+      const ping = Date.now() - message.createdTimestamp;
+      message.reply(`Pong! ${ping}ms | Websocket: ${client.ws.ping}ms`);
+    } catch (err) {
+      console.error(err);
+    }
   },
 };
