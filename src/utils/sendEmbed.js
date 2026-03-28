@@ -1,6 +1,6 @@
-const { EmbedBuilder } = require('discord.js');
+import { EmbedBuilder } from "discord.js";
 
-module.exports = ({
+export default ({
   interaction,
   channel = interaction.channel,
   title,
@@ -11,8 +11,8 @@ module.exports = ({
   reply = false,
 }) => {
   const embed = new EmbedBuilder()
-    .setTitle(title || '')
-    .setDescription(description || '')
+    .setTitle(title || "")
+    .setDescription(description || "")
     .setColor(color);
 
   if (fields && fields.length) embed.addFields(fields);

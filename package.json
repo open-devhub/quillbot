@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "start": "node .",
     "dev": "node --watch ."
   },
   "keywords": [],
   "author": "Caleb Ephrem",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "discord.js": "^14.25.0",
     "dotenv": "^17.2.3",

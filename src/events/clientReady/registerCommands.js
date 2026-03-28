@@ -1,18 +1,21 @@
-const { guildId } = require('../../../config.json');
-const areCommandsDifferent = require('../../utils/areCommandsDifferent');
-const getApplicationCommands = require('../../utils/getApplicationCommands');
-const getLocalCommands = require('../../utils/getLocalCommands');
+import areCommandsDifferent from "../../utils/areCommandsDifferent.js";
+import getApplicationCommands from "../../utils/getApplicationCommands.js";
+import getConfig from "../../utils/getConfig.js";
+import getLocalCommands from "../../utils/getLocalCommands.js";
 
-module.exports = async (client) => {
+export default async (client) => {
   try {
-    const localCommands = getLocalCommands();
+    const { guildId } = getConfig();
+    const localCommands = await getLocalCommands();
     const applicationCommands = await getApplicationCommands(client, guildId);
+    console.log(localCommands);
 
-    for (const localCommand of localCommands) {
+    for (const localCommandModule of localCommands) {
+      const localCommand = localCommandModule.default;
       const { name, description, options } = localCommand;
 
       const existingCommand = await applicationCommands.cache.find(
-        (cmd) => cmd.name === name
+        (cmd) => cmd.name === name,
       );
 
       if (existingCommand) {
@@ -33,7 +36,7 @@ module.exports = async (client) => {
       } else {
         if (localCommand.deleted) {
           console.log(
-            `⏩ Skipping registering command "${name}" as it's set to delete.`
+            `⏩ Skipping registering command "${name}" as it's set to delete.`,
           );
           continue;
         }
@@ -49,5 +52,6 @@ module.exports = async (client) => {
     }
   } catch (error) {
     console.log(`There was an error: ${error}`);
+    console.dir(error, { depth: null });
   }
 };

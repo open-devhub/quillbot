@@ -1,14 +1,14 @@
-const { Groq } = require("groq-sdk");
-const {
-  EmbedBuilder,
+import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   codeBlock,
-} = require("discord.js");
-const { ComponentType } = require("discord.js");
-const { MessageFlags } = require("discord.js");
-require("dotenv").config();
+  ComponentType,
+  EmbedBuilder,
+  MessageFlags,
+} from "discord.js";
+import "dotenv/config";
+import { Groq } from "groq-sdk";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -16,7 +16,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
  * @param {import("discord.js").Client} client
  * @param {import("discord.js").Message} message
  */
-module.exports = async (client, message) => {
+export default async (client, message) => {
   if (message.author.bot) return;
   if (!message.content.startsWith(";compile")) return;
 

@@ -1,13 +1,13 @@
-const { ActivityType } = require('discord.js');
+import { ActivityType } from "discord.js";
 
-module.exports = (client) => {
+export default (client) => {
   client.user.setPresence({
     activities: [
       {
-        name: 'use ;compile to compile or ;suggest for code suggestions | QuillBot',
+        name: "use ;compile to compile or ;suggest for code suggestions | QuillBot",
         type: ActivityType.Playing,
       },
     ],
-    status: 'online',
+    status: "online",
   });
 };

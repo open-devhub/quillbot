@@ -1,13 +1,13 @@
-const getLocalCommands = require('../../utils/getLocalCommands');
+import getLocalCommands from "../../utils/getLocalCommands.js";
 
-module.exports = async (client, interaction) => {
+export default async (client, interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  const localCommands = getLocalCommands();
+  const localCommands = await getLocalCommands();
 
   try {
     const commandObject = localCommands.find(
-      (cmd) => cmd.name === interaction.commandName
+      (cmd) => cmd.name === interaction.commandName,
     );
 
     if (!commandObject) return;
@@ -16,7 +16,7 @@ module.exports = async (client, interaction) => {
       for (const permission of commandObject.permissionsRequired) {
         if (!interaction.member.permissions.has(permission)) {
           interaction.reply({
-            content: 'Not enough permissions.',
+            content: "Not enough permissions.",
             ephemeral: true,
           });
           return;

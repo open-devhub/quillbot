@@ -1,6 +1,6 @@
-module.exports = {
-  name: 'ping',
-  description: 'Replies with the bot ping!',
+export default {
+  name: "ping",
+  description: "Replies with the bot ping!",
 
   callback: async (client, interaction) => {
     await interaction.deferReply();
@@ -10,7 +10,7 @@ module.exports = {
     const ping = reply.createdTimestamp - interaction.createdTimestamp;
 
     interaction.editReply(
-      `Pong! Client ${ping}ms | Websocket: ${client.ws.ping}ms`
+      `Pong! Client ${ping}ms | Websocket: ${client.ws.ping}ms`,
     );
   },
 };
