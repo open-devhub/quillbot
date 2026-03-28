@@ -51,4 +51,9 @@ for i in range(0, 10):
 
 ## ⚖️ License
 
-This project is licensed under MIT License.
+Quill Bot is released under the **DevHub Source-Available License (DSAL)**.
+
+You are free to view, study, modify, and contribute to the code.
+Commercial use, re-hosting, and production deployment are **not allowed**
+
+See the `LICENSE` file for full terms.
