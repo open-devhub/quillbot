@@ -1,19 +1,22 @@
-const path = require('path');
-const getAllFiles = require('../utils/getAllFiles');
+import path from "path";
+import { fileURLToPath } from "url";
+import getAllFiles from "../utils/getAllFiles.js";
 
-module.exports = (client) => {
-  const eventFolders = getAllFiles(path.join(__dirname, '..', 'events'), true);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default (client) => {
+  const eventFolders = getAllFiles(path.join(__dirname, "..", "events"), true);
 
   for (const eventFolder of eventFolders) {
     let eventFiles = getAllFiles(eventFolder);
     eventFiles.sort();
 
-    const eventName = eventFolder.replace(/\\/g, '/').split('/').pop();
+    const eventName = eventFolder.replace(/\\/g, "/").split("/").pop();
 
     client.on(eventName, async (arg) => {
       for (const eventFile of eventFiles) {
-        const eventFunction = require(eventFile);
-        await eventFunction(client, arg);
+        const eventFunction = await import(eventFile);
+        await eventFunction.default(client, arg);
       }
     });
   }

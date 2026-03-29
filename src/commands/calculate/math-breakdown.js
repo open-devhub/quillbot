@@ -1,36 +1,27 @@
-const { calculate } = require('../../utils/calculate');
-const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
-const { Groq } = require('groq-sdk');
-require('dotenv').config();
+import { EmbedBuilder } from "discord.js";
+import "dotenv/config";
+import { Groq } from "groq-sdk";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-module.exports = {
-  name: 'math-breakdown',
+export default {
+  name: "math-breakdown",
   description:
-    'Provides a step-by-step breakdown of a mathematical expression.',
-  options: [
-    {
-      name: 'expression',
-      description: 'The mathematical expression to break down.',
-      type: ApplicationCommandOptionType.String,
-      required: true,
-    },
-  ],
+    "Provides a step-by-step breakdown of a mathematical expression.",
+  aliases: ["math"],
+  callback: async (client, message, args) => {
+    const expression = args[0];
 
-  callback: async (client, interaction) => {
-    const expression = interaction.options.getString('expression');
-
-    if (interaction.user.bot) return;
+    if (message.author.bot || !args || !expression || !message) return;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
-          role: 'user',
+          role: "user",
           content: `Provide a step-by-step breakdown of how to solve the following mathematical expression:\n\`\`\`\n${expression}\n\`\`\``,
         },
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: "llama-3.3-70b-versatile",
       temperature: 0.8,
       max_completion_tokens: 640,
       top_p: 1,
@@ -38,23 +29,24 @@ module.exports = {
       stop: null,
     });
 
-    let breakdown = '';
+    message.channel.sendTyping();
+    let breakdown = "";
     for await (const chunk of chatCompletion) {
-      breakdown += chunk.choices[0]?.delta?.content || '';
+      breakdown += chunk.choices[0]?.delta?.content || "";
     }
 
     if (!breakdown.trim()) {
-      return interaction.reply('⚠️ No breakdown available.');
+      return message.reply("⚠️ No breakdown available.");
     }
     const safeBreakdown = breakdown.slice(0, 1900);
 
     const embed = new EmbedBuilder()
-      .setTitle('🧮 Math Breakdown')
+      .setTitle("🧮 Math Breakdown")
       .setDescription(safeBreakdown)
       .setColor(0x18d272)
-      .setFooter({ text: `${interaction.user.tag} | math` })
+      .setFooter({ text: `${message.author.tag} | math` })
       .setTimestamp();
 
-    return interaction.reply({ embeds: [embed] });
+    message.reply({ embeds: [embed] });
   },
 };

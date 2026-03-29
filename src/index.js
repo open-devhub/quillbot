@@ -1,6 +1,6 @@
-require('dotenv').config();
-const { Client, IntentsBitField } = require('discord.js');
-const eventHandler = require('./handlers/eventHandler');
+import { Client, IntentsBitField } from "discord.js";
+import "dotenv/config";
+import eventHandler from "./handlers/eventHandler.js";
 
 const client = new Client({
   intents: [
@@ -17,7 +17,7 @@ const client = new Client({
     eventHandler(client);
 
     client.login(process.env.TOKEN).catch((err) => {
-      console.error('Discord login error:', err);
+      console.error("Discord login error:", err);
     });
   } catch (err) {
     console.error(err);

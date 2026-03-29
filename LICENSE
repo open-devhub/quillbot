@@ -1,21 +1,63 @@
-MIT License
+DevHub Source-Available License (DSAL) v1.0
 
-Copyright (c) DevHub
+Copyright (c) 2026 DevHub
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software, known as “Quill Bot”, is developed and maintained by DevHub.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Permission is hereby granted to any person obtaining a copy of this software and associated documentation files (the “Software”) to view, study, modify, and contribute to the Software, subject to the following conditions:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+────────────────────────
+ALLOWED USES
+────────────────────────
+You ARE allowed to:
+- View and study the source code
+- Modify the Software for learning or contribution purposes
+- Run and host the Software locally or privately for testing, debugging, or development related to contributions
+- Submit pull requests or contributions to the official DevHub repository
+- Share feedback, suggestions, and improvements
+
+────────────────────────
+RESTRICTIONS
+────────────────────────
+You are NOT allowed to:
+
+1. Commercial Use
+   - Sell, sublicense, rent, or monetize the Software or any derivative work
+   - Use the Software in any paid product or service without explicit written permission from DevHub
+
+2. Re-Hosting
+   - Host, deploy, or operate the Software publicly or privately as a running bot
+     (including Discord servers, SaaS platforms, or managed services)
+     WITHOUT explicit written permission from DevHub
+   - Temporary hosting strictly for testing and contribution purposes is allowed
+
+3. Competition / Cloning
+   - Rebrand or deploy the Software as a competing or alternative bot
+   - Present the Software or any derivative work as your own project
+
+4. License & Attribution
+   - Remove, modify, or obscure this license
+   - Remove DevHub attribution, copyright notices, or references
+
+────────────────────────
+EXCLUSIVITY
+────────────────────────
+Quill Bot is intended to operate only within the official DevHub Discord server
+unless otherwise permitted in writing by DevHub.
+All production usage rights are reserved by DevHub.
+
+────────────────────────
+ENFORCEMENT
+────────────────────────
+Any violation of this license will result in automatic termination of the rights granted under this license and may lead to further action.
+
+────────────────────────
+PERMISSIONS
+────────────────────────
+Re-hosting, extended deployment, or special use cases may be granted
+ONLY with explicit written permission from DevHub.
+
+────────────────────────
+DISCLAIMER
+────────────────────────
+The Software is provided “AS IS”, without warranty of any kind, express or implied.
