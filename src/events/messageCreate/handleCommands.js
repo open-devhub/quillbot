@@ -36,7 +36,7 @@ export default async (client, message) => {
       COOLDOWN_SECONDS * 1000,
     );
 
-    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const args = message.content.slice(prefix.length).trim().split(/\s+/);
     const commandName = args.shift().toLowerCase();
     const prefixCommandsPath = join(__dirname, "..", "..", "commands");
 
@@ -69,9 +69,10 @@ export default async (client, message) => {
 
     const serverName = client.guilds.cache.get(premiumServer)?.name || "";
     if (commandObject.premium) {
-      const member = await message.guild.members
-        .fetch(message.author.id)
-        .catch(() => null);
+      const premiumGuild = client.guilds.cache.get(premiumServer);
+      const member = premiumGuild
+        ? await premiumGuild.members.fetch(message.author.id).catch(() => null)
+        : null;
       if (!member) {
         const embed = new EmbedBuilder()
           .setTitle("💎 Premium Command")
@@ -118,5 +119,14 @@ export default async (client, message) => {
     await commandObject.callback(client, message, args);
   } catch (err) {
     console.error("Prefix Command Error:", err);
+    try {
+      const errorEmbed = new EmbedBuilder()
+        .setTitle("❌ Command Error")
+        .setDescription("An error occurred while running that command.")
+        .setColor(0xff0000);
+      await message.reply({ embeds: [errorEmbed] });
+    } catch (replyErr) {
+      console.error("Failed to send error reply:", replyErr);
+    }
   }
 };
