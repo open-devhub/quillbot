@@ -69,7 +69,10 @@ export default async (client, message) => {
 
     const serverName = client.guilds.cache.get(premiumServer)?.name || "";
     if (commandObject.premium) {
-      if (!message.member?.guilds?.cache?.has(premiumServer)) {
+      const member = await message.guild.members
+        .fetch(message.author.id)
+        .catch(() => null);
+      if (!member) {
         const embed = new EmbedBuilder()
           .setTitle("💎 Premium Command")
           .setDescription(
