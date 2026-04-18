@@ -35,7 +35,7 @@ export default {
         const fetchedMessage = await channel.messages.fetch(messageId);
 
         const fetchedCodeBlock = fetchedMessage.content.match(
-          /```(\w+)\n([\s\S]*?)```/,
+          /```([\w#+.-]+)\n([\s\S]*?)```/,
         );
 
         if (!fetchedCodeBlock) {
