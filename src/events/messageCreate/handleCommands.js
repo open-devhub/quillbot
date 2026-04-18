@@ -1,6 +1,13 @@
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+} from "discord.js";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
 import getAllFiles from "../../utils/getAllFiles.js";
+import getConfig from "../../utils/getConfig.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -8,6 +15,7 @@ const COOLDOWN_SECONDS = 3;
 const USER_COOLDOWNS = new Map();
 
 export default async (client, message) => {
+  const { premiumServer, premiumServerInvite, devs } = await getConfig();
   if (!message || !message.guild || message.author?.bot) return;
 
   const now = Date.now();
@@ -17,7 +25,7 @@ export default async (client, message) => {
   }
 
   try {
-    const prefixes = [";", "-"];
+    const prefixes = [";"];
     const prefix = prefixes.find((p) => message.content.startsWith(p));
     if (!prefix) return;
 
@@ -28,7 +36,7 @@ export default async (client, message) => {
       COOLDOWN_SECONDS * 1000,
     );
 
-    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const args = message.content.slice(prefix.length).trim().split(/\s+/);
     const commandName = args.shift().toLowerCase();
     const prefixCommandsPath = join(__dirname, "..", "..", "commands");
 
@@ -57,6 +65,49 @@ export default async (client, message) => {
     })?.default;
     if (!commandObject) return;
 
+    // if user is member of the premium server, use this command anywhere, if not, request to join
+
+    const serverName = client.guilds.cache.get(premiumServer)?.name || "";
+    if (commandObject.premium) {
+      const premiumGuild = client.guilds.cache.get(premiumServer);
+      const member = premiumGuild
+        ? await premiumGuild.members.fetch(message.author.id).catch(() => null)
+        : null;
+      if (!member) {
+        const embed = new EmbedBuilder()
+          .setTitle("💎 Premium Command")
+          .setDescription(
+            `This command is only available to members of the premium server${serverName ? ` (${serverName})` : ""}. Please join the server to use this command anywhere you want.`,
+          )
+          .setColor(0xff0000);
+
+        const button = new ButtonBuilder()
+          .setLabel("Join Premium Server")
+          .setStyle(ButtonStyle.Link)
+          .setURL(premiumServerInvite)
+          .setEmoji("💎");
+        const row = new ActionRowBuilder().addComponents(button);
+
+        message.reply({ embeds: [embed], components: [row] });
+
+        return;
+      }
+    }
+
+    if (commandObject.devOnly) {
+      if (!devs.includes(message.author.id)) {
+        const embed = new EmbedBuilder()
+          .setTitle("🔒 Developer Only Command")
+          .setDescription(
+            "This command is only available to the bot developers.",
+          )
+          .setColor(0xff0000);
+
+        message.reply({ embeds: [embed] });
+        return;
+      }
+    }
+
     if (commandObject.permissionsRequired?.length) {
       for (const permission of commandObject.permissionsRequired) {
         if (!message.member.permissions.has(permission)) {
@@ -65,8 +116,17 @@ export default async (client, message) => {
         }
       }
     }
-    await await commandObject.callback(client, message, args);
+    await commandObject.callback(client, message, args);
   } catch (err) {
     console.error("Prefix Command Error:", err);
+    try {
+      const errorEmbed = new EmbedBuilder()
+        .setTitle("❌ Command Error")
+        .setDescription("An error occurred while running that command.")
+        .setColor(0xff0000);
+      await message.reply({ embeds: [errorEmbed] });
+    } catch (replyErr) {
+      console.error("Failed to send error reply:", replyErr);
+    }
   }
 };
