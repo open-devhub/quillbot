@@ -15,7 +15,8 @@ const COOLDOWN_SECONDS = 3;
 const USER_COOLDOWNS = new Map();
 
 export default async (client, message) => {
-  const { premiumServer, premiumServerInvite, devs } = await getConfig();
+  const { premiumServer, premiumServerInvite, devs, prefixes } =
+    await getConfig();
   if (!message || !message.guild || message.author?.bot) return;
 
   const now = Date.now();
@@ -25,7 +26,6 @@ export default async (client, message) => {
   }
 
   try {
-    const prefixes = [";"];
     const prefix = prefixes.find((p) => message.content.startsWith(p));
     if (!prefix) return;
 
