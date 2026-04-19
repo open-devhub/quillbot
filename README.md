@@ -3,22 +3,24 @@
 Quill Bot is a versatile assistant designed for developers, students, and problem‑solvers. It can:
 
 - ⚡ Compile code snippets
+- 🚩 Detect programming languages from a codeblock
 - 💡 Suggest code improvements
 - 🔢 Break down mathematical expressions step‑by‑step
 
 ## 🚀 Features
 
-- **Code Compilation**: Run code directly from chat using `;compile`.
+- **Code Compilation**: Run code directly from chat using `;run`.
+- **Language Detecting**: Detect programming languages from code block using `;whatlang`
 - **Code Suggestions**: Get improvements or alternative approaches using `;suggest`.
-- **Math Breakdown**: Simplify and explain math expressions step‑by‑step with `/math-breakdown`.
+- **Math Breakdown**: Simplify and explain math expressions step‑by‑step with `;math`.
 
 ## 📦 Installation
 
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/yourusername/quill-bot.git
-cd quill-bot
+git clone https://github.com/yourusername/quillbot.git
+cd quillbot
 npm install
 ```
 
@@ -46,7 +48,7 @@ for i in range(0, 10):
 ### Math Breakdown
 
 ```
-/math-breakdown sqrt(3x - 1) + (1 + x)^2
+;math-breakdown sqrt(3x - 1) + (1 + x)^2
 ```
 
 ## ⚖️ License
