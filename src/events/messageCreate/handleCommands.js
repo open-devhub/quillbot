@@ -116,6 +116,11 @@ export default async (client, message) => {
         }
       }
     }
+
+    if (commandObject.react) {
+      await message.react(commandObject.react).catch(() => null);
+    }
+
     await commandObject.callback(client, message, args);
   } catch (err) {
     console.error("Prefix Command Error:", err);
