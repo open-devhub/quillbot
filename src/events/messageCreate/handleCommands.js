@@ -82,7 +82,7 @@ export default async (client, message) => {
           .setColor(0xff0000);
 
         const button = new ButtonBuilder()
-          .setLabel("Join Premium Server")
+          .setLabel(`Join ${serverName || "Premium Server"}`)
           .setStyle(ButtonStyle.Link)
           .setURL(premiumServerInvite)
           .setEmoji("💎");
