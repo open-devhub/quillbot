@@ -24,31 +24,43 @@ cd quillbot
 npm install
 ```
 
-## 🛠️ Usage
+## 🛠️ Example Usage
 
 ### Code Compilation
 
-;compile
-
-```
-<code>
-```
-
-### Code Suggestion
-
-;suggest
+;run
 
 ```py
 for i in range(0, 10):
     print(i)
 ```
 
-> note that you should specify the language type in the codeblock, ie. ```[lang]
+### Code Suggestion
+
+;suggest
+
+```c
+struct leaf_text_defines {
+        size_t tlen;
+        size_t nlen;
+        const char *text;
+        const char *name;
+        struct leaf_text_slot slots[];
+};
+
+struct leaf_text {
+        size_t dlen;
+        struct leaf_text_defines defines[];
+};
+```
+
+> [!NOTE]
+> You should specify the language type in the codeblock, ie. ```[lang]
 
 ### Math Breakdown
 
 ```
-;math-breakdown sqrt(3x - 1) + (1 + x)^2
+;math √3x-1 + (1 + x)²
 ```
 
 ## ⚖️ License
