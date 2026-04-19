@@ -9,6 +9,7 @@ export default {
   name: "repo",
   description: "Get information about a GitHub repository",
   aliases: ["githubrepo", "ghrepo"],
+  react: "📦",
   callback(client, message, args) {
     try {
       const repoUrl = args[0];

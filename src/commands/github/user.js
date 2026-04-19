@@ -8,6 +8,7 @@ import {
 export default {
   name: "user",
   description: "Get information about a GitHub user",
+  react: "💻",
   callback(client, message, args) {
     try {
       const username = args[0];
