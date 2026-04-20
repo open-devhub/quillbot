@@ -10,7 +10,7 @@ export default {
     "Provides a step-by-step breakdown of a mathematical expression.",
   aliases: ["math"],
   callback: async (client, message, args) => {
-    const expression = args[0];
+    const expression = args.join(" ");
 
     if (message.author.bot || !args || !expression || !message) return;
 

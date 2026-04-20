@@ -1,59 +1,122 @@
-# 🖋️ Quill Bot
+# 🪶 Quill
 
-Quill Bot is a versatile assistant designed for developers, students, and problem‑solvers. It can:
+Quill is an advanced Discord developer assistant bot built to help programmers code faster, learn better, and debug smarter, directly inside Discord.
 
-- ⚡ Compile code snippets
-- 💡 Suggest code improvements
-- 🔢 Break down mathematical expressions step‑by‑step
+It combines **code execution, AI assistance, documentation lookup, and developer tooling** into one unified workflow.
 
 ## 🚀 Features
 
-- **Code Compilation**: Run code directly from chat using `;compile`.
-- **Code Suggestions**: Get improvements or alternative approaches using `;suggest`.
-- **Math Breakdown**: Simplify and explain math expressions step‑by‑step with `/math-breakdown`.
+### ⚙️ Code Execution Engine
 
-## 📦 Installation
+Quill can compile and run code in multiple programming languages using a secure sandbox execution system.
 
-Clone the repository and install dependencies:
+- Run code instantly inside Discord
+- Supports 60+ languages (JS, Python, C++, Java, etc.)
+- Displays clean output and error logs
+- Helps debug runtime and compilation issues
 
-```bash
-git clone https://github.com/yourusername/quill-bot.git
-cd quill-bot
-npm install
-```
+### 🤖 AI Code Assistant
 
-## 🛠️ Usage
+Powered by AI, Quill helps you write and improve code.
 
-### Code Compilation
+- Code suggestions and improvements
+- Bug detection and fixes
+- Code explanation in simple terms
+- Optimization recommendations
 
-;compile
+### 🧠 Language Detection
 
-```
-<code>
-```
+Automatically detects programming languages from code snippets.
 
-### Code Suggestion
+- No need to specify language manually
+- Works with multi-language snippets
 
-;suggest
+### 📚 MDN Web Docs Search
 
-```py
-for i in range(0, 10):
-    print(i)
-```
+Search official web development documentation directly from Discord.
 
-> note that you should specify the language type in the codeblock, ie. ```[lang]
+- JavaScript reference lookup
+- HTML/CSS documentation access
+- Fast results
 
-### Math Breakdown
+### 🌐 Wikipedia Search
 
-```
-/math-breakdown sqrt(3x - 1) + (1 + x)^2
-```
+Get quick explanations for any topic.
 
-## ⚖️ License
+- Simple summaries
+- Clean, readable results
+- Useful for quick access to information found on wikipedia
 
-Quill Bot is released under the **DevHub Source-Available License (DSAL)**.
+### 📦 GitHub Repository Info
 
-You are free to view, study, modify, and contribute to the code.
-Commercial use, re-hosting, and production deployment are **not allowed**
+Fetch and display GitHub repository information.
 
-See the `LICENSE` file for full terms.
+- Stars
+- Forks
+- Language
+- Watchers
+- Open Issues
+- License
+
+### 👤 GitHub User Lookup
+
+Fetch and display GitHub user profiles.
+
+- Followers / following count
+- Public repositories
+- Profile picture
+- Profile details
+
+### 🧮 Step-by-Step Math Solver
+
+Breaks down math problems into understandable steps.
+
+- Shows full working process
+- Beginner-friendly explanations
+- Helps learning instead of just giving answers
+
+## 🧠 Why Quill?
+
+Quill is designed for:
+
+- Developers
+- Students learning to code
+- Debugging workflows
+- Quick knowledge lookup
+- AI-assisted programming inside Discord
+
+Instead of switching between tools, Quill brings everything into one place.
+
+## ⚡ Tech Stack
+
+- Node.js
+- Discord.js
+- Judge0 API (code execution)
+- Groq API (code understanding & generation)
+- GitHub REST API
+- MDN + Wikipedia APIs
+
+## 📌 Commands Overview
+
+- `;run` – Execute code
+- `;suggest` – AI code suggestion
+- `;whatlang` – Detect programming language from codeblock
+- `;repo` – GitHub repository info
+- `;user [username]` – Fetch GitHub user data
+- `;mdn [term]` – Search web docs
+- `;wiki [term]` – Wikipedia search
+- `;math [expression]` – Step-by-step solving
+- `;ai` – Code suggestions & fixes
+- `;ping` - Bot response time
+- `;help` - Display help text
+
+## 📄 License
+
+This project is licensed under **DSAL v1.0**.
+See the [LICENSE](./LICENSE) file for more details.
+
+## 🪶 Closing Note
+
+Quill is actively evolving into a full developer intelligence assistant for Discord, focused on making coding faster, clearer, and more accessible.
+
+Built with care for developers who want to stay in flow.
