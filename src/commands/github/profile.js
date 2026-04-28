@@ -6,8 +6,9 @@ import {
 } from "discord.js";
 
 export default {
-  name: "user",
-  description: "Get information about a GitHub user",
+  name: "profile",
+  description: "Get information about a GitHub user/profile",
+  aliases: ["githubprofile", "user"],
   react: "💻",
   callback(client, message, args) {
     try {
