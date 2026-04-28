@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import getConfig from "../../utils/getConfig.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -10,8 +11,10 @@ export default {
   aliases: ["detectlang", "whichlang"],
   callback: async (client, message, args) => {
     if (message.author.bot) return;
+    const { emojis } = await getConfig();
+    const { check, x, loading, warn } = emojis;
 
-    await message.react("⏳");
+    await message.react(loading);
     const codeBlockMatch = message.content.match(
       /```(?:([\w#+.-]+)\n)?([\s\S]*?)```/,
     );
@@ -40,7 +43,7 @@ export default {
 
         if (!fetchedCodeBlock) {
           await message.reactions.removeAll();
-          await message.react("❌");
+          await message.react(x);
           return message.reply({
             embeds: [
               new EmbedBuilder()
@@ -53,7 +56,7 @@ export default {
         code = fetchedCodeBlock[2].trim();
       } catch (err) {
         await message.reactions.removeAll();
-        await message.react("❌");
+        await message.react(x);
         return message.reply({
           embeds: [
             new EmbedBuilder()
@@ -72,7 +75,7 @@ export default {
         .setColor(0xd21872)
         .setTimestamp();
       await message.reactions.removeAll();
-      await message.react("❌");
+      await message.react(x);
       return message.reply({ embeds: [embed] });
     }
 
@@ -100,7 +103,7 @@ export default {
     } catch (err) {
       console.error("Suggest command error:", err);
       await message.reactions.removeAll();
-      await message.react("⚠️");
+      await message.react(warn);
       return message.reply({
         embeds: [
           new EmbedBuilder()
@@ -112,7 +115,7 @@ export default {
 
     if (!langsDetected.trim()) {
       await message.reactions.removeAll();
-      await message.react("⚠️");
+      await message.react(warn);
       return message.reply("⚠️ No languages detected.");
     }
 
@@ -133,7 +136,7 @@ export default {
       .setFooter({ text: `${message.author.tag} | ${safeLangsDetected[0]}` })
       .setTimestamp();
     await message.reactions.removeAll();
-    await message.react("✅");
+    await message.react(check);
     return message.reply({ embeds: [embed] });
   },
 };

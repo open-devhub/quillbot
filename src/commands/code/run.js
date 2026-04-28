@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import getConfig from "../../utils/getConfig.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -107,6 +108,8 @@ export default {
   description: "Compile and run code snippets with Judge0 API",
   aliases: ["compile", "execute", "exec"],
   callback: async (client, message, args) => {
+    const { emojis } = await getConfig();
+    const { check, x, tick } = emojis;
     if (message.author.bot) return;
 
     const codeBlockMatch = message.content.match(
@@ -160,7 +163,7 @@ export default {
         });
       }
     } else {
-      await message.react("❌");
+      await message.react(x);
       return message.reply({
         embeds: [
           new EmbedBuilder()
@@ -172,7 +175,7 @@ export default {
     }
 
     try {
-      const reaction = await message.react("⏳");
+      const reaction = await message.react(tick);
 
       const output = await runCode(lang, code);
 
@@ -200,13 +203,13 @@ export default {
 
       if (isSuccess) {
         embed.setTitle("🧪 Output").setColor(0x4caf50);
-        await message.react("✅");
+        await message.react(check);
         return message.reply({ embeds: [embed] });
       }
 
       embed.setTitle("❌ Compilation error!").setColor(0xd21872);
 
-      await message.react("❌");
+      await message.react(x);
 
       if (output.stderr) {
         const row = new ActionRowBuilder().addComponents(
@@ -273,7 +276,7 @@ export default {
         await message.reply({ embeds: [embed] });
       }
     } catch (err) {
-      await message.react("❌");
+      await message.react(x);
       return message.reply({
         embeds: [
           new EmbedBuilder()

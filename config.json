@@ -3,5 +3,11 @@
   "premiumServer": "1429026875946172459",
   "premiumServerInvite": "https://discord.gg/MuZFAeVHgp",
   "devs": ["1411006542916091975"],
-  "prefixes": [";"]
+  "prefixes": [";"],
+  "emojis": {
+    "check": "1498722901023522906",
+    "x": "1498721194013233172",
+    "warn": "1498718743977660506",
+    "tick": "1498723377177690122"
+  }
 }
