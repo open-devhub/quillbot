@@ -24,9 +24,7 @@ export default {
     const categoriesData = await Promise.all(
       prefixCommandsCategories.map(async (category) => {
         const categoryName = path.basename(category);
-        const commandFiles = getAllFiles(category).filter(
-          (file) => !file.endsWith("help.js"),
-        );
+        const commandFiles = getAllFiles(category);
         const allCommands = await Promise.all(
           commandFiles.map(async (file) => {
             let rel = path.relative(__dirname, file).replace(/\\/g, "/");
@@ -40,12 +38,17 @@ export default {
 
         const commandsInCategory = devs.includes(message.author.id)
           ? allCommands.map(
-              (cmd) => `\`${cmd.default.name}\`: ${cmd.default.description}`,
+              (cmd) =>
+                `${cmd.default.devOnly ? "⧉" : cmd.default.premium ? "★" : "⌬"} \`${cmd.default.name}\` • ${cmd.default.description}`,
             )
           : commands.map(
-              (cmd) => `\`${cmd.default.name}\`: ${cmd.default.description}`,
+              (cmd) =>
+                `${cmd.default.premium ? "★" : "⌬"}\`${cmd.default.name} \` • ${cmd.default.description}`,
             );
-        return `**${categoryName}**\n${commandsInCategory.join("\n")}`;
+        return `**${categoryName
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")}**\n${commandsInCategory.join("\n")}`;
       }),
     );
     const helpText = `

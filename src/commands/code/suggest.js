@@ -7,7 +7,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export default {
   name: "suggest",
-  description: "Get suggestions to improve your code",
+  description: "Get concise suggestions to improve a code snippet using AI",
   aliases: ["suggestion", "improve", "codesuggestion"],
   premium: true,
   callback: async (client, message, args) => {

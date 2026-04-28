@@ -105,7 +105,7 @@ async function runCode(lang, code) {
 
 export default {
   name: "run",
-  description: "Compile and run code snippets with Judge0 API",
+  description: "Run code snippets in various programming languages",
   aliases: ["compile", "execute", "exec"],
   callback: async (client, message, args) => {
     const { emojis } = await getConfig();

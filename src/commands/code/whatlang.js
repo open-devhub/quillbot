@@ -7,7 +7,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export default {
   name: "whatlang",
-  description: "Detect programming language from code block",
+  description: "Detect the programming language of a code snippet",
   aliases: ["detectlang", "whichlang"],
   callback: async (client, message, args) => {
     if (message.author.bot) return;
