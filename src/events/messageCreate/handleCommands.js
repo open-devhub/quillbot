@@ -50,25 +50,25 @@ export default async (client, message) => {
 
   const userId = message.author.id;
 
-  let userData = cooldownCache.get(userId);
-
-  if (!userData) {
-    userData = { count: 0 };
-  }
-
-  userData.count += 1;
-
-  if (userData.count > MAX_COMMANDS) {
-    return message.reply(
-      "Woah, slow down! You've used too many commands too quickly.",
-    );
-  }
-
-  cooldownCache.set(userId, userData);
-
   try {
     const prefix = prefixes.find((p) => message.content.startsWith(p));
     if (!prefix) return;
+
+    let userData = cooldownCache.get(userId);
+
+    if (!userData) {
+      userData = { count: 0 };
+    }
+
+    userData.count += 1;
+
+    if (userData.count > MAX_COMMANDS) {
+      return message.reply(
+        "Woah, slow down! You've used too many commands too quickly.",
+      );
+    }
+
+    cooldownCache.set(userId, userData);
 
     const args = message.content.slice(prefix.length).trim().split(/\s+/);
     const commandName = args.shift().toLowerCase();
