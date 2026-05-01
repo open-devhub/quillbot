@@ -102,9 +102,9 @@ export default async (client, message) => {
         const embed = new EmbedBuilder()
           .setTitle("💎 Premium Command")
           .setDescription(
-            `This command is only available to members of the premium server${
-              serverName ? ` (${serverName})` : ""
-            }.`,
+            `This command is only available to members of ${
+              serverName || "the premium"
+            } server. Join the server to access this command anywhere, and support the bot development!`,
           )
           .setColor(0xff0000);
 

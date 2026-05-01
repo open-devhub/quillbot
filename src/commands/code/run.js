@@ -187,18 +187,29 @@ export default {
 
       const isSuccess = output.success && output.exitCode === 3;
 
+      if (!output.stdout && !output.stderr) {
+        embed
+          .setTitle("✅ Success!")
+          .setDescription("Code executed without output.")
+          .setColor(0x4caf50);
+        await message.react(check);
+        return message.reply({ embeds: [embed] });
+      }
+
       if (output.stdout) {
-        embed.addFields({
-          name: "Stdout:",
-          value: codeBlock(output.stdout.slice(0, 1000)),
-        });
+        // embed.addFields({
+        //   name: "Stdout:",
+        //   value: codeBlock(output.stdout.slice(0, 1000)),
+        // });
+        embed.setDescription(codeBlock(output.stdout.slice(0, 1000)));
       }
 
       if (output.stderr) {
-        embed.addFields({
-          name: "Stderr:",
-          value: codeBlock(output.stderr.slice(0, 1000)),
-        });
+        // embed.addFields({
+        //   name: "Stderr:",
+        //   value: codeBlock(output.stderr.slice(0, 1000)),
+        // });
+        embed.setDescription(codeBlock(output.stderr.slice(0, 1000)));
       }
 
       if (isSuccess) {
