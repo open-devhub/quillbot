@@ -12,10 +12,13 @@
   "author": "Caleb Ephrem",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.100",
     "discord.js": "^14.25.0",
     "dotenv": "^17.2.3",
     "groq-sdk": "^0.37.0",
     "node-cache": "^5.1.2",
-    "turndown": "^7.2.4"
+    "prettier": "^3.8.3",
+    "turndown": "^7.2.4",
+    "unique-custom-id": "^3.3.0"
   }
 }
