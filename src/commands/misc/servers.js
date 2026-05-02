@@ -9,6 +9,7 @@ export default {
   callback(client, message, args) {
     try {
       const servers = client.guilds.cache
+        .sort((a, b) => b.memberCount - a.memberCount)
         .map((guild) => {
           return `**${guild.name}** (ID: ${guild.id}) - ${guild.memberCount} members`;
         })

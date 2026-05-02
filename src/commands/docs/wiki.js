@@ -8,14 +8,14 @@ import fetch from "node-fetch";
 
 export default {
   name: "wiki",
-  description: "Search Wikipedia",
+  description: "Search Wikipedia articles",
   aliases: ["wikipedia", "wikisearch"],
   react: "📚",
   callback: async (client, message, args) => {
     try {
       const query = args.join(" ");
       if (!query) {
-        return message.channel.send(
+        return message.reply(
           "Please provide a search term, e.g. `++wiki JavaScript`",
         );
       }
@@ -32,7 +32,7 @@ export default {
       const data = await res.json();
 
       if (!data.query || !data.query.search || data.query.search.length === 0) {
-        return message.channel.send(
+        return message.reply(
           `¯\\_(ツ)_/¯ No Wikipedia results found for **${query}**`,
         );
       }
@@ -70,15 +70,13 @@ export default {
         .setURL(url);
       const row = new ActionRowBuilder().addComponents(button);
 
-      return message.channel.send({ embeds: [embed], components: [row] });
+      return message.reply({ embeds: [embed], components: [row] });
     } catch (err) {
       if (err.name === "AbortError" || err.code === "ETIMEDOUT") {
-        return message.channel.send(
-          "Request timed out. Please try again later.",
-        );
+        return message.reply("Request timed out. Please try again later.");
       } else {
         console.error(err);
-        return message.channel.send("Error fetching Wikipedia articles.");
+        return message.reply("Error fetching Wikipedia articles.");
       }
     }
   },

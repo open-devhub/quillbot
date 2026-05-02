@@ -23,5 +23,5 @@ export default ({
 
   if (shouldEdit) return interaction.editReply({ embeds: [embed] });
 
-  return channel.send({ embeds: [embed] });
+  return reply({ embeds: [embed] });
 };

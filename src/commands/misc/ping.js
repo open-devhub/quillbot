@@ -1,6 +1,6 @@
 export default {
   name: "ping",
-  description: "Pong!",
+  description: "Check the bot's latency and websocket ping",
   callback(client, message, args) {
     try {
       const ping = Date.now() - message.createdTimestamp;

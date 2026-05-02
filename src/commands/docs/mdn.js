@@ -12,7 +12,7 @@ export default {
     try {
       const query = args.join(" ");
       if (!query) {
-        return message.channel.send(
+        return message.reply(
           "Please provide a search term, e.g. `++mdn WeakMap`",
         );
       }
@@ -23,7 +23,7 @@ export default {
       const data = await res.json();
 
       if (!data.documents || data.documents.length === 0) {
-        return message.channel.send(
+        return message.reply(
           `¯\\_(ツ)_/¯ No MDN results found for **${query}**`,
         );
       }
@@ -33,10 +33,10 @@ export default {
       const markdownExcerpt = rawExcerpt ? turndown.turndown(rawExcerpt) : "";
       const url = `https://developer.mozilla.org${doc.mdn_url}`;
 
-      return message.channel.send(`${doc.title}: ${url}\n${markdownExcerpt}`);
+      return message.reply(`${doc.title}: ${url}\n${markdownExcerpt}`);
     } catch (err) {
       console.error(err);
-      return message.channel.send("Error fetching MDN docs.");
+      return message.reply("Error fetching MDN docs.");
     }
   },
 };

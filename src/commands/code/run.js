@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import getConfig from "../../utils/getConfig.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -104,10 +105,11 @@ async function runCode(lang, code) {
 
 export default {
   name: "run",
-  description: "Compile and run code snippets with Judge0 API",
+  description: "Run code snippets in various programming languages",
   aliases: ["compile", "execute", "exec"],
   callback: async (client, message, args) => {
-    if (message.author.bot) return;
+    const { emojis } = await getConfig();
+    const { check, x, tick } = emojis;
 
     const codeBlockMatch = message.content.match(
       /```([\w#+.-]+)\n([\s\S]*?)```/,
@@ -160,7 +162,7 @@ export default {
         });
       }
     } else {
-      await message.react("❌");
+      await message.react(x);
       return message.reply({
         embeds: [
           new EmbedBuilder()
@@ -172,7 +174,7 @@ export default {
     }
 
     try {
-      const reaction = await message.react("⏳");
+      const reaction = await message.react(tick);
 
       const output = await runCode(lang, code);
 
@@ -184,29 +186,40 @@ export default {
 
       const isSuccess = output.success && output.exitCode === 3;
 
+      if (!output.stdout && !output.stderr) {
+        embed
+          .setTitle("✅ Success!")
+          .setDescription("Code executed without output.")
+          .setColor(0x4caf50);
+        await message.react(check);
+        return message.reply({ embeds: [embed] });
+      }
+
       if (output.stdout) {
-        embed.addFields({
-          name: "Stdout:",
-          value: codeBlock(output.stdout.slice(0, 1000)),
-        });
+        // embed.addFields({
+        //   name: "Stdout:",
+        //   value: codeBlock(output.stdout.slice(0, 1000)),
+        // });
+        embed.setDescription(codeBlock(output.stdout.slice(0, 1000)));
       }
 
       if (output.stderr) {
-        embed.addFields({
-          name: "Stderr:",
-          value: codeBlock(output.stderr.slice(0, 1000)),
-        });
+        // embed.addFields({
+        //   name: "Stderr:",
+        //   value: codeBlock(output.stderr.slice(0, 1000)),
+        // });
+        embed.setDescription(codeBlock(output.stderr.slice(0, 1000)));
       }
 
       if (isSuccess) {
         embed.setTitle("🧪 Output").setColor(0x4caf50);
-        await message.react("✅");
+        await message.react(check);
         return message.reply({ embeds: [embed] });
       }
 
       embed.setTitle("❌ Compilation error!").setColor(0xd21872);
 
-      await message.react("❌");
+      await message.react(x);
 
       if (output.stderr) {
         const row = new ActionRowBuilder().addComponents(
@@ -273,7 +286,7 @@ export default {
         await message.reply({ embeds: [embed] });
       }
     } catch (err) {
-      await message.react("❌");
+      await message.react(x);
       return message.reply({
         embeds: [
           new EmbedBuilder()
