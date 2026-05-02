@@ -95,6 +95,7 @@ Instead of switching between tools, Quill brings everything into one place.
 - Groq API (code understanding & generation)
 - GitHub REST API
 - MDN + Wikipedia APIs
+- RDAP api
 
 ## 📌 Commands Overview
 
