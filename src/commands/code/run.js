@@ -143,7 +143,7 @@ export default {
           return message.reply({
             embeds: [
               new EmbedBuilder()
-                .setTitle("❌ No code found to compile!")
+                .setTitle("❌ No code found to run!")
                 .setColor(0xd21872),
             ],
           });
@@ -167,7 +167,7 @@ export default {
         embeds: [
           new EmbedBuilder()
             .setTitle("❌ Format error!")
-            .setDescription("Use ;compile with a code block or message link.")
+            .setDescription("Use ;run with a code block or message link.")
             .setColor(0xd21872),
         ],
       });
