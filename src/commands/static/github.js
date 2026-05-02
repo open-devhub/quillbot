@@ -1,0 +1,47 @@
+import { EmbedBuilder } from "discord.js";
+import fetch from "node-fetch";
+
+export default {
+  name: "github",
+  description: "Get the GitHub repository link for this bot",
+  callback: {
+    repo(client, message, args) {
+      return message.reply("https://github.com/open-devhub/quillbot");
+    },
+    issues(client, message, args) {
+      return message.reply("https://github.com/open-devhub/quillbot/issues");
+    },
+    prs(client, message, args) {
+      return message.reply("https://github.com/open-devhub/quillbot/pulls");
+    },
+    async contributors(client, message, args) {
+      // list contributors from GitHub API
+      const contributors = await fetch(
+        "https://api.github.com/repos/open-devhub/quillbot/contributors",
+      )
+        .then((res) => res.json())
+        .then((data) => data.map((contributor) => contributor.login))
+        .catch(() => "Unable to fetch contributors");
+
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("💻 GitHub Contributors")
+            .setDescription(
+              contributors
+                .slice(0, 30)
+                .map((c) => `- [@${c}](https://github.com/${c})`)
+                .join("\n") +
+                (contributors.length > 30
+                  ? `\nand ${contributors.length - 30} more...`
+                  : ""),
+            )
+            .setColor(0x7289da),
+        ],
+      });
+    },
+    org(client, message, args) {
+      return message.reply("https://github.com/open-devhub");
+    },
+  },
+};
