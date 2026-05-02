@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 
 export default {
   name: "github",
-  description: "Get the GitHub repository link for this bot",
+  description: "Get the GitHub information for Quill bot.",
   callback: {
     repo(client, message, args) {
       return message.reply("https://github.com/open-devhub/quillbot");
