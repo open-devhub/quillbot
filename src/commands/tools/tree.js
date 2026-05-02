@@ -68,8 +68,6 @@ export default {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;
 
-    if (message.author.bot) return;
-
     const depth = Math.min(parseInt(args[1]) || 2, 5);
 
     const match = args[0].match(

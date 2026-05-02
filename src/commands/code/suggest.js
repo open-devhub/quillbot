@@ -13,7 +13,6 @@ export default {
   callback: async (client, message, args) => {
     const { emojis } = await getConfig();
     const { check, x, tick, warn } = emojis;
-    if (message.author.bot) return;
 
     await message.react(tick);
     const codeBlockMatch = message.content.match(/```(\w+)\n([\s\S]*?)```/);

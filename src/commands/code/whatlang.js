@@ -10,7 +10,6 @@ export default {
   description: "Detect the programming language of a code snippet",
   aliases: ["detectlang", "whichlang"],
   callback: async (client, message, args) => {
-    if (message.author.bot) return;
     const { emojis } = await getConfig();
     const { check, x, loading, warn } = emojis;
 

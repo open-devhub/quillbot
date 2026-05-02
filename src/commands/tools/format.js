@@ -35,8 +35,6 @@ export default {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;
 
-    if (message.author.bot) return;
-
     const codeBlockMatch = message.content.match(
       /```([\w#+.-]*)\n([\s\S]*?)```/,
     );

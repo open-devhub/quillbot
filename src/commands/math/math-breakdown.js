@@ -12,7 +12,7 @@ export default {
   callback: async (client, message, args) => {
     const expression = args.join(" ");
 
-    if (message.author.bot || !args || !expression || !message) return;
+    if (!args || !expression || !message) return;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
