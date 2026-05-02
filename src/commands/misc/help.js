@@ -51,6 +51,12 @@ export default {
           .join(" ")}**\n${commandsInCategory.join("\n")}`;
       }),
     );
+    categoriesData.push(
+      ...categoriesData.splice(
+        categoriesData.findIndex((c) => c.toLowerCase().includes("support")),
+        1,
+      ),
+    );
     const helpText = `
     Usage: \`${prefixes[0]}command\`
     \n${categoriesData.join("\n\n")}
