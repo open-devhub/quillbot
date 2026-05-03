@@ -31,49 +31,75 @@ Automatically detects programming languages from code snippets.
 - No need to specify language manually
 - Works with multi-language snippets
 
-### 📚 MDN Web Docs Search
+### 🔍 Documentation & Knowledge Search
 
-Search official web development documentation directly from Discord.
+Access reliable information without leaving Discord.
 
-- JavaScript reference lookup
-- HTML/CSS documentation access
-- Fast results
+- **MDN Web Docs Search**
+  - JavaScript reference lookup
+  - HTML/CSS documentation access
+  - Fast, relevant results
 
-### 🌐 Wikipedia Search
+- **Wikipedia Search**
+  - Quick summaries for any topic
+  - Clean and readable explanations
+  - Great for fast learning and context
 
-Get quick explanations for any topic.
+### 🐙 GitHub Integration
 
-- Simple summaries
-- Clean, readable results
-- Useful for quick access to information found on wikipedia
+Work with GitHub data directly inside Discord.
 
-### 📦 GitHub Repository Info
+- **Repository Info**
+  - Stars, forks, watchers
+  - Primary language
+  - Open issues
+  - License details
 
-Fetch and display GitHub repository information.
+- **User Profiles**
+  - Followers / following
+  - Public repositories
+  - Profile bio and avatar
 
-- Stars
-- Forks
-- Language
-- Watchers
-- Open Issues
-- License
+- **Repository Tools**
+  - View repository structure (`;tree`)
 
-### 👤 GitHub User Lookup
+### 🧰 Developer Tools
 
-Fetch and display GitHub user profiles.
+A collection of utilities to streamline development workflows.
 
-- Followers / following count
-- Public repositories
-- Profile picture
-- Profile details
+- `;http` - Make HTTP requests and inspect responses (Postman-style)
+- `;regex` - Test and debug regular expressions
+- `;format` - Format code using Prettier
+- `;color` - Preview colors and gradients
+- `;id` - Generate unique IDs (60+ formats)
+- `;whois` - Perform WHOIS domain lookups
+- `;npm` - Fetch npm package details
 
-### 🧮 Step-by-Step Math Solver
+### 🧮 Smart Math Solver
 
-Breaks down math problems into understandable steps.
+Understand math problems step by step.
 
-- Shows full working process
+- Full breakdown of solution
 - Beginner-friendly explanations
-- Helps learning instead of just giving answers
+- Focus on learning, not just answers
+
+### ⚡ Productivity & Utility Commands
+
+Helpful commands for everyday usage and interaction.
+
+- `;run` - Execute code instantly
+- `;suggest` - Improve or generate code
+- `;whatlang` - Detect language from code
+- `;ping` - Check bot latency
+- `;help` - Display command list and usage
+
+### 💡 Feedback & Interaction
+
+Built to evolve with its users.
+
+- `;feature` – Request new features
+- `;report` – Report bugs or issues
+- `;github` – View bot’s GitHub repository
 
 ## 🧠 Why Quill?
 
@@ -85,7 +111,7 @@ Quill is designed for:
 - Quick knowledge lookup
 - AI-assisted programming inside Discord
 
-Instead of switching between tools, Quill brings everything into one place.
+Instead of switching between tools and platforms, Quill brings everything into one place.
 
 ## ⚡ Tech Stack
 
@@ -103,11 +129,21 @@ Instead of switching between tools, Quill brings everything into one place.
 - `;suggest` – AI code suggestion
 - `;whatlang` – Detect programming language from codeblock
 - `;repo` – GitHub repository info
-- `;user [username]` – Fetch GitHub user data
+- `;profile [username]` – Fetch GitHub user data
 - `;mdn [term]` – Search web docs
 - `;wiki [term]` – Wikipedia search
 - `;math [expression]` – Step-by-step solving
-- `;ai` – Code suggestions & fixes
+- `;npm` - Fetch and display information about a npm package
+- `;github` - Bot's github information
+- `;feature` - Request a feature to be added
+- `;report` - Report a bug
+- `;color` - Color (gradient) preview
+- `;format` - Format code with prettier
+- `;http` - Make HTTP requests and inspect responses (like postman)
+- `;id` - Generate unique IDs (60+ id formats)
+- `;regex` - Test regular expressions
+- `;tree` - View GitHub repository structure
+- `;whois` - WHOIS domain lookup
 - `;ping` - Bot response time
 - `;help` - Display help text
 

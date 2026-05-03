@@ -114,6 +114,7 @@ function parseColor(input) {
 export default {
   name: "color",
   description: "Preview a color or gradient",
+  aliases: ["gradient"],
   callback: async (client, message, args) => {
     try {
       const inputs = args;
