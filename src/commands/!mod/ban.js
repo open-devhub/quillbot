@@ -19,6 +19,8 @@ export default {
 
       const guildId = args[0] || message.guild?.id;
 
+      if (guildId == premiumServer) return;
+
       if (!guildId) {
         return message.reply("Provide a guild ID.");
       }
