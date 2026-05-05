@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   EmbedBuilder,
 } from "discord.js";
+import "dotenv/config";
 import NodeCache from "node-cache";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
@@ -45,6 +46,12 @@ await loadCommands();
 export default async (client, message) => {
   const { premiumServer, premiumServerInvite, devs, prefixes } =
     await getConfig();
+
+  if (
+    process.env.NODE_ENV.toLowerCase() === "dev" &&
+    !devs.includes(message.author.id)
+  )
+    return;
 
   if (!message || !message.guild || message.author?.bot) return;
 
