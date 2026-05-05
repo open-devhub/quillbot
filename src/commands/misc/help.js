@@ -19,7 +19,10 @@ export default {
     const prefixCommandsPath = join(__dirname, "..", "..", "commands");
     const { prefixes, devs } = await getConfig();
 
-    const prefixCommandsCategories = getAllFiles(prefixCommandsPath, true);
+    const prefixCommandsCategories = getAllFiles(
+      prefixCommandsPath,
+      true,
+    ).filter((category) => !category.startsWith("!"));
 
     const categoriesData = await Promise.all(
       prefixCommandsCategories.map(async (category) => {
