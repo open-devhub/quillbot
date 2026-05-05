@@ -41,7 +41,7 @@ export default {
           .addFields(
             {
               name: "Server",
-              value: `${guild?.name || "Unknown"} (${guildId})`,
+              value: `${guildId}`,
             },
             {
               name: "Mod",

@@ -123,8 +123,8 @@ export default {
         return message.reply("Provide at least one color.");
       }
 
-      if (inputs.length > 20) {
-        return message.reply("Number of colors can't be greater than 20.");
+      if (inputs.length > 15) {
+        return message.reply("Number of colors can't be greater than 15.");
       }
 
       const colors = inputs.map((c) => {
@@ -150,13 +150,10 @@ export default {
         const brightness = (c.r * 299 + c.g * 587 + c.b * 114) / 1000;
         ctx.fillStyle = brightness > 128 ? "#000" : "#fff";
 
-        ctx.font = "bold 22px Sans";
+        ctx.font = "bold 18px Sans";
         ctx.textAlign = "center";
 
-        ctx.fillText(c.hex.toUpperCase(), 150, 65);
-        ctx.font = "16px Sans";
-        ctx.fillText(`RGB(${c.r}, ${c.g}, ${c.b})`, 150, 95);
-        ctx.fillText(`HSL(${c.hsl.h}, ${c.hsl.s}%, ${c.hsl.l}%)`, 150, 120);
+        ctx.fillText(c.hex.toUpperCase(), 150, 75);
       } else {
         const gradient = ctx.createLinearGradient(
           0,
@@ -173,11 +170,6 @@ export default {
 
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 16px Sans";
-        ctx.textAlign = "center";
-        ctx.fillText("Gradient", 150, 75);
       }
 
       const buffer = canvas.toBuffer("image/png");
@@ -187,7 +179,7 @@ export default {
       });
 
       const embed = new EmbedBuilder()
-        .setTitle("🎨 Color Preview")
+        .setTitle(`🎨 ${colors.length === 1 ? "Color" : "Gradient"} Preview`)
         .setImage("attachment://color.png")
         .setColor(parseInt(colors[0].hex.replace("#", ""), 16));
 
