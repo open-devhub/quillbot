@@ -10,6 +10,7 @@ export default {
   name: "help",
   description:
     "Provides information about available commands and how to use them.",
+  aliases: ["welp"],
   /**
    *
    * @param {Client} client
@@ -46,7 +47,7 @@ export default {
             )
           : commands.map(
               (cmd) =>
-                `${cmd.default.premium ? "★" : "⌬"}\`${cmd.default.name} \` • ${cmd.default.description}`,
+                `${cmd.default.premium ? "★" : "⌬"} \`${cmd.default.name}\` • ${cmd.default.description}`,
             );
         return `**${categoryName
           .split(" ")
