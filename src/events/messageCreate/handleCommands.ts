@@ -1,0 +1,225 @@
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Client,
+  EmbedBuilder,
+  Message,
+} from "discord.js";
+import "dotenv/config";
+import NodeCache from "node-cache";
+import path, { join } from "path";
+import { fileURLToPath } from "url";
+import getAllFiles from "../../utils/getAllFiles.js";
+import getConfig from "../../utils/getConfig.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const COOLDOWN_SECONDS = 5;
+const MAX_COMMANDS = 3;
+
+const cooldownCache = new NodeCache({
+  stdTTL: COOLDOWN_SECONDS,
+  checkperiod: 900, // 15 minutes
+});
+
+const prefixCommandsPath = join(__dirname, "..", "..", "commands");
+const prefixCommandsCategories = getAllFiles(prefixCommandsPath, true);
+
+let cachedCommands: CachedCommand[] = [];
+
+async function loadCommands() {
+  const commandPromises = [];
+
+  for (const category of prefixCommandsCategories) {
+    const commandFiles = getAllFiles(category);
+    for (const file of commandFiles) {
+      commandPromises.push(import(file));
+    }
+  }
+
+  const imported = await Promise.all(commandPromises);
+  cachedCommands = imported.map((cmd) => cmd.default).filter(Boolean);
+}
+
+// load at startup
+await loadCommands();
+
+export default async (client: Client, message: Message) => {
+  const { premiumServer, premiumServerInvite, devs, prefixes } =
+    await getConfig();
+
+  if (
+    process.env.NODE_ENV!.toLowerCase() === "dev" &&
+    !devs.includes(message.author.id)
+  )
+    return;
+
+  if (!message || !message.guild || message.author?.bot) return;
+
+  const userId = message.author.id;
+
+  try {
+    const prefix = prefixes.find((p: string) => message.content.startsWith(p));
+    if (!prefix) return;
+
+    let userData: { count: number } | undefined = cooldownCache.get(userId);
+
+    if (!userData) {
+      userData = { count: 0 };
+    }
+
+    userData.count += 1;
+
+    if (userData.count > MAX_COMMANDS) {
+      return message.reply(
+        "Woah, slow down! You've used too many commands too quickly.",
+      );
+    }
+
+    cooldownCache.set(userId, userData);
+
+    const args = message.content.slice(prefix.length).trim().split(/\s+/);
+    const commandName = args.shift()?.toLowerCase();
+
+    if (!commandName) return;
+
+    const commandObject = cachedCommands.find((command) => {
+      if (!command?.name) return false;
+
+      if (command.name.toLowerCase() === commandName) return true;
+
+      if (Array.isArray(command.aliases)) {
+        return command.aliases
+          .map((a: string) => a.toLowerCase())
+          .includes(commandName);
+      }
+
+      return false;
+    });
+
+    if (!commandObject) return;
+
+    const serverName = client.guilds.cache.get(premiumServer)?.name || "";
+
+    if (commandObject.premium) {
+      const premiumGuild = client.guilds.cache.get(premiumServer);
+
+      const member = premiumGuild
+        ? await premiumGuild.members.fetch(userId).catch(() => null)
+        : null;
+
+      if (!member) {
+        const embed = new EmbedBuilder()
+          .setTitle("💎 Premium Command")
+          .setDescription(
+            `This command is only available to members of ${
+              serverName || "the premium"
+            } server. Join the server to access this command anywhere, and support the bot development!`,
+          )
+          .setColor(0xff0000);
+
+        const button = new ButtonBuilder()
+          .setLabel(`Join ${serverName || "Premium Server"}`)
+          .setStyle(ButtonStyle.Link)
+          .setURL(premiumServerInvite)
+          .setEmoji("💎");
+
+        const row = new ActionRowBuilder().addComponents(button);
+
+        return message.reply({ embeds: [embed], components: [row.toJSON()] });
+      }
+    }
+
+    if (commandObject.devOnly) {
+      if (!devs.includes(userId)) {
+        const embed = new EmbedBuilder()
+          .setTitle("🔒 Developer Only Command")
+          .setDescription(
+            "This command is only available to the bot developers.",
+          )
+          .setColor(0xff0000);
+
+        return message.reply({ embeds: [embed] });
+      }
+    }
+
+    if (commandObject.permissionsRequired?.length) {
+      for (const permission of commandObject.permissionsRequired) {
+        if (!message.member?.permissions.has(permission)) {
+          return message.reply("Not enough permissions to run this command.");
+        }
+      }
+    }
+
+    if (commandObject.react) {
+      await message.react(commandObject.react).catch(() => null);
+    }
+
+    // if (commandObject.callback.subCommands) {
+    //   const subCommand = args.shift()?.toLowerCase();
+    //   const subCommandObject = commandObject.callback.subCommands[subCommand];
+
+    //   if (subCommandObject) {
+    //     await subCommandObject(client, message, args);
+    //     return;
+    //   }
+    // }
+
+    if (typeof commandObject.callback === "function") {
+      await commandObject.callback(client, message, args);
+    } else if (typeof commandObject.callback === "object") {
+      const subCommandName = args.shift()?.toLowerCase();
+      
+      if (!subCommandName) {
+        return message.reply({
+          embeds: [
+            new EmbedBuilder().setTitle("📘 Usage").setDescription(
+              `\`${prefix}${commandObject.name} <subcommand>\`\n\nAvailable subcommands:\n${Object.keys(
+                commandObject.callback,
+              )
+                .map((sc) => `- \`${sc}\``)
+                .join("\n")}`,
+            ),
+          ],
+        });
+      }
+
+      const subCommand = commandObject.callback[subCommandName] as Function | undefined;
+
+      if (subCommand && typeof subCommand === "function") {
+        await subCommand(client, message, args);
+      } else {
+        return message.reply({
+          embeds: [
+            new EmbedBuilder().setTitle("📘 Usage").setDescription(
+              `\`${prefix}${commandObject.name} <subcommand>\`\n\nAvailable subcommands:\n${Object.keys(
+                commandObject.callback,
+              )
+                .map((sc) => `- \`${sc}\``)
+                .join("\n")}`,
+            ),
+          ],
+        });
+      }
+    } else {
+      console.error(
+        `Invalid command configuration for command: ${commandObject.name}`,
+      );
+      return message.reply("Invalid command configuration.");
+    }
+  } catch (err) {
+    console.error("Prefix Command Error:", err);
+
+    try {
+      const errorEmbed = new EmbedBuilder()
+        .setTitle("❌ Command Error")
+        .setDescription("An error occurred while running that command.")
+        .setColor(0xff0000);
+
+      await message.reply({ embeds: [errorEmbed] });
+    } catch (replyErr) {
+      console.error("Failed to send error reply:", replyErr);
+    }
+  }
+};

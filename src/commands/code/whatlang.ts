@@ -1,0 +1,148 @@
+import { Client, EmbedBuilder, Message } from "discord.js";
+import "dotenv/config";
+import { Groq } from "groq-sdk";
+import getConfig from "../../utils/getConfig.js";
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+export default {
+  name: "whatlang",
+  description: "Detect the programming language of a code snippet",
+  aliases: ["detectlang", "whichlang"],
+  callback: async (client: Client, message: Message, args: string[]) => {
+    const { emojis } = await getConfig();
+    const { check, x, loading, warn } = emojis;
+
+    await message.react(loading);
+    const codeBlockMatch = message.content.match(
+      /```(?:([\w#+.-]+)\n)?([\s\S]*?)```/,
+    );
+    const linkMatch = args[0]?.match(
+      /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
+    );
+
+    let code = "";
+
+    if (codeBlockMatch) {
+      const [, , codeMatch] = codeBlockMatch;
+      code = (codeMatch ?? "").trim();
+    } else if (linkMatch) {
+      const [, guildId, channelId, messageId] = linkMatch;
+      if (!guildId || !channelId || !messageId)
+        throw new Error("Invalid message link");
+      try {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) throw new Error("Guild not found");
+
+        const channel = guild.channels.cache.get(channelId);
+        if (!channel?.isTextBased()) throw new Error("Channel not found");
+
+        const fetchedMessage = await channel.messages.fetch(messageId);
+
+        const fetchedCodeBlock = fetchedMessage.content.match(
+          /```(?:([\w#+.-]+)\n)?([\s\S]*?)```/,
+        );
+
+        if (!fetchedCodeBlock) {
+          await message.reactions.removeAll();
+          await message.react(x);
+          return message.reply({
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("❌ No code block found!")
+                .setColor(0xd21872),
+            ],
+          });
+        }
+
+        const [, , fetchedCode] = fetchedCodeBlock;
+        code = (fetchedCode ?? "").trim();
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        await message.reactions.removeAll();
+        await message.react(x);
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ Failed to fetch message")
+              .setDescription(errorMessage)
+              .setColor(0xd21872),
+          ],
+        });
+      }
+    } else {
+      const embed = new EmbedBuilder()
+        .setTitle("❌ Format error!")
+        .setDescription(
+          `Use ;whatlang command with code block (or pass a message link)`,
+        )
+        .setColor(0xd21872)
+        .setTimestamp();
+      await message.reactions.removeAll();
+      await message.react(x);
+      return message.reply({ embeds: [embed] });
+    }
+
+    let langsDetected = "";
+    try {
+      const chatCompletion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "user",
+            content: `List all the programming languages this code is valid in. Only return programming language names, separated by commas if multiple.
+
+\`\`\`\n${code}\n\`\`\``,
+          },
+        ],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.8,
+        max_completion_tokens: 640,
+        top_p: 1,
+      });
+
+      const completionChoice = chatCompletion.choices?.[0] as
+        | { message?: { content?: string }; text?: string }
+        | undefined;
+
+      langsDetected =
+        completionChoice?.message?.content ?? completionChoice?.text ?? "";
+    } catch (err) {
+      console.error("Suggest command error:", err);
+      await message.reactions.removeAll();
+      await message.react(warn);
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("⚠️ Failed to get language detection")
+            .setColor(0xd21872),
+        ],
+      });
+    }
+
+    if (!langsDetected.trim()) {
+      await message.reactions.removeAll();
+      await message.react(warn);
+      return message.reply("⚠️ No languages detected.");
+    }
+
+    const safeLangsDetected = langsDetected
+      .split(",")
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
+
+    const embed = new EmbedBuilder()
+      .setTitle(
+        `💡 Detected Language${safeLangsDetected.length > 1 ? "s" : ""}`,
+      )
+      .setDescription(
+        safeLangsDetected.map((l, i) => `${i + 1}. **${l}**`).join("\n") ||
+          "No languages detected",
+      )
+      .setColor(0x18d272)
+      .setFooter({ text: `${message.author.tag} | ${safeLangsDetected[0]}` })
+      .setTimestamp();
+    await message.reactions.removeAll();
+    await message.react(check);
+    return message.reply({ embeds: [embed] });
+  },
+};
