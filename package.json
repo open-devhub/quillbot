@@ -1,15 +1,15 @@
 {
   "name": "quillbot",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/index.js",
+  "description": "An advanced Discord developer assistant bot built to help programmers code faster, learn better, and debug smarter, directly inside Discord.",
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node .",
-    "dev": "node --watch ."
+    "build": "tsup",
+    "start": "node ."
   },
   "keywords": [],
-  "author": "Caleb Ephrem",
+  "author": "Open DevHub",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@napi-rs/canvas": "^0.1.100",
