@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   EmbedBuilder,
 } from "discord.js";
+import "dotenv/config";
 import NodeCache from "node-cache";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
@@ -45,6 +46,12 @@ await loadCommands();
 export default async (client, message) => {
   const { premiumServer, premiumServerInvite, devs, prefixes } =
     await getConfig();
+
+  if (
+    process.env.NODE_ENV.toLowerCase() === "dev" &&
+    !devs.includes(message.author.id)
+  )
+    return;
 
   if (!message || !message.guild || message.author?.bot) return;
 
@@ -145,7 +152,43 @@ export default async (client, message) => {
       await message.react(commandObject.react).catch(() => null);
     }
 
-    await commandObject.callback(client, message, args);
+    // if (commandObject.callback.subCommands) {
+    //   const subCommand = args.shift()?.toLowerCase();
+    //   const subCommandObject = commandObject.callback.subCommands[subCommand];
+
+    //   if (subCommandObject) {
+    //     await subCommandObject(client, message, args);
+    //     return;
+    //   }
+    // }
+
+    if (typeof commandObject.callback === "function") {
+      await commandObject.callback(client, message, args);
+    } else if (typeof commandObject.callback === "object") {
+      const subCommandName = args.shift()?.toLowerCase();
+      const subCommand = commandObject.callback[subCommandName];
+
+      if (subCommand && typeof subCommand === "function") {
+        await subCommand(client, message, args);
+      } else {
+        return message.reply({
+          embeds: [
+            new EmbedBuilder().setTitle("📘 Usage").setDescription(
+              `\`${prefix}${commandObject.name} <subcommand>\`\n\nAvailable subcommands:\n${Object.keys(
+                commandObject.callback,
+              )
+                .map((sc) => `- \`${sc}\``)
+                .join("\n")}`,
+            ),
+          ],
+        });
+      }
+    } else {
+      console.error(
+        `Invalid command configuration for command: ${commandObject.name}`,
+      );
+      return message.reply("Invalid command configuration.");
+    }
   } catch (err) {
     console.error("Prefix Command Error:", err);
 

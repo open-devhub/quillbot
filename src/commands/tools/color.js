@@ -1,6 +1,5 @@
 import { createCanvas } from "@napi-rs/canvas";
 import { AttachmentBuilder, EmbedBuilder } from "discord.js";
-import getConfig from "../../utils/getConfig.js";
 
 function hexToRgb(hex) {
   const clean = hex.replace("#", "");
@@ -80,73 +79,98 @@ function hslToRgb(h, s, l) {
   };
 }
 
+function parseColor(input) {
+  input = input.toLowerCase();
+
+  let r, g, b;
+
+  if (/^#?[0-9a-f]{3,6}$/.test(input)) {
+    let hex = input.replace("#", "");
+
+    if (hex.length === 3) {
+      hex = hex
+        .split("")
+        .map((c) => c + c)
+        .join("");
+    }
+
+    ({ r, g, b } = hexToRgb(hex));
+  } else if (input.startsWith("rgb")) {
+    const nums = input.match(/\d+/g);
+    if (!nums || nums.length < 3) throw new Error();
+    [r, g, b] = nums.map(Number);
+  } else if (input.startsWith("hsl")) {
+    const nums = input.match(/\d+/g);
+    if (!nums || nums.length < 3) throw new Error();
+    const [h, s, l] = nums.map(Number);
+    ({ r, g, b } = hslToRgb(h, s, l));
+  } else {
+    throw new Error();
+  }
+
+  return { r, g, b };
+}
+
 export default {
   name: "color",
-  description: "Preview a color",
+  description: "Preview a color or gradient",
+  aliases: ["gradient"],
   callback: async (client, message, args) => {
-    const { emojis } = await getConfig();
-    const { check } = emojis;
-
     try {
-      const input = args.join(" ").toLowerCase();
+      const inputs = args;
 
-      let r, g, b;
-
-      // hex
-      if (/^#?[0-9a-f]{3,6}$/.test(input)) {
-        let hex = input.replace("#", "");
-
-        if (hex.length === 3) {
-          hex = hex
-            .split("")
-            .map((c) => c + c)
-            .join("");
-        }
-
-        ({ r, g, b } = hexToRgb(hex));
+      if (!inputs.length) {
+        return message.reply("Provide at least one color.");
       }
 
-      // RGB
-      else if (input.startsWith("rgb")) {
-        const nums = input.match(/\d+/g);
-        if (!nums || nums.length < 3) throw new Error();
-
-        [r, g, b] = nums.map(Number);
+      if (inputs.length > 15) {
+        return message.reply("Number of colors can't be greater than 15.");
       }
 
-      // HSL
-      else if (input.startsWith("hsl")) {
-        const nums = input.match(/\d+/g);
-        if (!nums || nums.length < 3) throw new Error();
+      const colors = inputs.map((c) => {
+        const { r, g, b } = parseColor(c);
+        return {
+          r,
+          g,
+          b,
+          hex: rgbToHex(r, g, b),
+          hsl: rgbToHsl(r, g, b),
+        };
+      });
 
-        const [h, s, l] = nums.map(Number);
-        ({ r, g, b } = hslToRgb(h, s, l));
-      } else {
-        throw new Error();
-      }
-
-      const hex = rgbToHex(r, g, b);
-      const hsl = rgbToHsl(r, g, b);
-
-      // smol canvas
       const canvas = createCanvas(300, 150);
       const ctx = canvas.getContext("2d");
 
-      ctx.fillStyle = hex;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (colors.length === 1) {
+        const c = colors[0];
 
-      // contrast
-      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-      ctx.fillStyle = brightness > 128 ? "#000" : "#fff";
+        ctx.fillStyle = c.hex;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.font = "bold 22px Sans";
-      ctx.textAlign = "center";
+        const brightness = (c.r * 299 + c.g * 587 + c.b * 114) / 1000;
+        ctx.fillStyle = brightness > 128 ? "#000" : "#fff";
 
-      ctx.fillText(hex.toUpperCase(), 150, 65);
+        ctx.font = "bold 18px Sans";
+        ctx.textAlign = "center";
 
-      ctx.font = "16px Sans";
-      ctx.fillText(`RGB(${r}, ${g}, ${b})`, 150, 95);
-      ctx.fillText(`HSL(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, 150, 120);
+        ctx.fillText(c.hex.toUpperCase(), 150, 75);
+      } else {
+        const gradient = ctx.createLinearGradient(
+          0,
+          0,
+          canvas.width,
+          canvas.height,
+        );
+
+        const step = 1 / (colors.length - 1);
+
+        colors.forEach((c, i) => {
+          gradient.addColorStop(i * step, c.hex);
+        });
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
       const buffer = canvas.toBuffer("image/png");
 
@@ -155,12 +179,9 @@ export default {
       });
 
       const embed = new EmbedBuilder()
-        .setTitle(`🎨 Color Preview`)
-        // .setDescription(
-        //   `HEX: \`${hex}\`\nRGB: \`${r}, ${g}, ${b}\`\nHSL: \`${hsl.h}, ${hsl.s}%, ${hsl.l}%\``,
-        // )
+        .setTitle(`🎨 ${colors.length === 1 ? "Color" : "Gradient"} Preview`)
         .setImage("attachment://color.png")
-        .setColor(parseInt(hex.replace("#", ""), 16));
+        .setColor(parseInt(colors[0].hex.replace("#", ""), 16));
 
       return message.reply({
         embeds: [embed],

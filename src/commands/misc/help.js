@@ -10,6 +10,7 @@ export default {
   name: "help",
   description:
     "Provides information about available commands and how to use them.",
+  aliases: ["welp"],
   /**
    *
    * @param {Client} client
@@ -19,7 +20,10 @@ export default {
     const prefixCommandsPath = join(__dirname, "..", "..", "commands");
     const { prefixes, devs } = await getConfig();
 
-    const prefixCommandsCategories = getAllFiles(prefixCommandsPath, true);
+    const prefixCommandsCategories = getAllFiles(
+      prefixCommandsPath,
+      true,
+    ).filter((category) => !category.startsWith("!"));
 
     const categoriesData = await Promise.all(
       prefixCommandsCategories.map(async (category) => {
@@ -43,13 +47,19 @@ export default {
             )
           : commands.map(
               (cmd) =>
-                `${cmd.default.premium ? "★" : "⌬"}\`${cmd.default.name} \` • ${cmd.default.description}`,
+                `${cmd.default.premium ? "★" : "⌬"} \`${cmd.default.name}\` • ${cmd.default.description}`,
             );
         return `**${categoryName
           .split(" ")
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" ")}**\n${commandsInCategory.join("\n")}`;
       }),
+    );
+    categoriesData.push(
+      ...categoriesData.splice(
+        categoriesData.findIndex((c) => c.toLowerCase().includes("support")),
+        1,
+      ),
     );
     const helpText = `
     Usage: \`${prefixes[0]}command\`
