@@ -10,5 +10,5 @@ export default defineConfig({
   minifyWhitespace: true,
   minifySyntax: true,
   onSuccess:
-    "cp config.json dist/config.json && cp package.json dist/package.json && cp .env dist/.env",
+    "cp config.json dist/config.json && cp package.json dist/package.json && cp .env dist/.env && cp .npmrc dist/.npmrc",
 });
