@@ -1,5 +1,15 @@
 # 🪶 Quill
 
+![Banner](./assets/banner.png)
+
+![Node.js](https://img.shields.io/badge/Node.js-v20+-6CC24A?style=for-the-badge&logo=node.js&logoColor=white)
+![Discord.js](https://img.shields.io/badge/Discord.js-v14-5865F2?style=for-the-badge&logo=discord&logoColor=white)
+![Judge0](https://img.shields.io/badge/code_execution-Judge0-2DA581?style=for-the-badge&logo=codeforces&logoColor=white)
+![Inference](https://img.shields.io/badge/inference-Groq-F43E01?style=for-the-badge&logo=lightning&logoColor=white)
+![RDAP](https://img.shields.io/badge/network-RDAP-0A66C2?style=for-the-badge&logo=icloud&logoColor=white)
+![Firebase](https://img.shields.io/badge/backend-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white)
+![PRs Welcome](https://img.shields.io/badge/prs-welcome-brightgreen?style=for-the-badge&logo=github&logoColor=white)
+
 Quill is an advanced Discord developer assistant bot built to help programmers code faster, learn better, and debug smarter, directly inside Discord.
 
 It combines **code execution, AI assistance, documentation lookup, and developer tooling** into one unified workflow.
@@ -157,3 +167,5 @@ See the [LICENSE](./LICENSE) file for more details.
 Quill is actively evolving into a full developer intelligence assistant for Discord, focused on making coding faster, clearer, and more accessible.
 
 Built with care for developers who want to stay in flow.
+
+© 2026 DevHub. All rights reserved.

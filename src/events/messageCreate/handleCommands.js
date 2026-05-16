@@ -10,6 +10,7 @@ import path, { join } from "path";
 import { fileURLToPath } from "url";
 import getAllFiles from "../../utils/getAllFiles.js";
 import getConfig from "../../utils/getConfig.js";
+import { trackCommandStat } from "../../utils/stats.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -189,8 +190,16 @@ export default async (client, message) => {
       );
       return message.reply("Invalid command configuration.");
     }
+
+    // Track command statistics
+    await trackCommandStat(
+      commandObject.name,
+      message.guildId,
+      commandObject.devOnly || false,
+      client,
+    );
   } catch (err) {
-    console.error("Prefix Command Error:", err);
+    console.error(`Error executing ${commandObject.name} command: ${err}`);
 
     try {
       const errorEmbed = new EmbedBuilder()
@@ -200,7 +209,9 @@ export default async (client, message) => {
 
       await message.reply({ embeds: [errorEmbed] });
     } catch (replyErr) {
-      console.error("Failed to send error reply:", replyErr);
+      console.error(
+        `Failed to send error reply for ${commandObject.name} command: ${replyErr}`,
+      );
     }
   }
 };
