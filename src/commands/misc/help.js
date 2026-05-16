@@ -23,7 +23,9 @@ export default {
     const prefixCommandsCategories = getAllFiles(
       prefixCommandsPath,
       true,
-    ).filter((category) => !category.startsWith("!"));
+    ).filter((c) => !c.split("/").at(-1).startsWith("!"));
+
+    console.log(prefixCommandsCategories);
 
     const categoriesData = await Promise.all(
       prefixCommandsCategories.map(async (category) => {
