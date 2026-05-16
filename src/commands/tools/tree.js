@@ -68,6 +68,19 @@ export default {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;
 
+    if (!args[0]) {
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("Invalid usage")
+            .setDescription(
+              "Usage: `;tree <github repo link> [depth]`\nExample: `;tree https://github.com/user/repo 2`",
+            )
+            .setColor(0xd21872),
+        ],
+      });
+    }
+
     const depth = Math.min(parseInt(args[1]) || 2, 5);
 
     const match = args[0].match(
