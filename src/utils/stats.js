@@ -45,28 +45,6 @@ async function flushStatsOnExit() {
   await saveStats();
 }
 
-process.once("beforeExit", () => {
-  flushStatsOnExit().catch((err) =>
-    console.error("[STATS] Failed to flush stats before exit:", err),
-  );
-});
-
-process.once("SIGINT", () => {
-  flushStatsOnExit()
-    .catch((err) =>
-      console.error("[STATS] Failed to flush stats on SIGINT:", err),
-    )
-    .finally(() => process.exit());
-});
-
-process.once("SIGTERM", () => {
-  flushStatsOnExit()
-    .catch((err) =>
-      console.error("[STATS] Failed to flush stats on SIGTERM:", err),
-    )
-    .finally(() => process.exit());
-});
-
 /**
  * Track command usage statistics
  * @param {string} commandName - The original command name (not alias)
@@ -93,14 +71,14 @@ export async function trackCommandStat(
         guildName = guild.name;
       } catch (e) {}
     }
+    serverBuffer[guildId] = { commandCount: 0, guildName };
   }
-  serverBuffer[guildId] = { commandCount: 0, guildName };
-}
 
-serverBuffer[guildId].commandCount++;
+  serverBuffer[guildId].commandCount++;
 
-if (globalCommandCount % SAVE_THRESHOLD === 0) {
-  await saveStats();
+  if (globalCommandCount % SAVE_THRESHOLD === 0) {
+    await saveStats();
+  }
 }
 
 /**
