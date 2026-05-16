@@ -30,7 +30,7 @@ export default {
       await createDocument("bannedGuilds", guildId, {
         reason: args.slice(1).join(" ") || "No reason provided",
         mod: message.author.id,
-        bannedAt: Date.now(),
+        date: Date.now(),
       });
 
       await message.delete().catch(() => {});

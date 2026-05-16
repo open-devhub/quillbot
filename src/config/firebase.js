@@ -1,3 +1,4 @@
+import "dotenv/config";
 import admin from "firebase-admin";
 
 if (!admin.apps.length) {

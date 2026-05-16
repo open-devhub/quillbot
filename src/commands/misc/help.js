@@ -25,8 +25,6 @@ export default {
       true,
     ).filter((c) => !c.split("/").at(-1).startsWith("!"));
 
-    console.log(prefixCommandsCategories);
-
     const categoriesData = await Promise.all(
       prefixCommandsCategories.map(async (category) => {
         const categoryName = path.basename(category);
