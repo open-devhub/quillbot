@@ -6,33 +6,35 @@ let commandBuffer = {};
 let serverBuffer = {};
 
 /**
- * Get the expiration date for a period
+ * Get the start date of the current period
  * @param {string} period - 'daily', 'weekly', or 'monthly'
- * @returns {string} ISO date string
+ * @returns {string} ISO date string (YYYY-MM-DD)
  */
-function getExpirationDate(period) {
+function getPeriodStartDate(period) {
   const now = new Date();
-  let expDate = new Date(now);
+  now.setHours(0, 0, 0, 0);
 
   if (period === "daily") {
-    expDate.setDate(expDate.getDate() + 1);
+    return now.toISOString().split("T")[0];
   } else if (period === "weekly") {
-    expDate.setDate(expDate.getDate() + 7);
+    const start = new Date(now);
+    start.setDate(start.getDate() - start.getDay());
+    return start.toISOString().split("T")[0];
   } else if (period === "monthly") {
-    expDate.setMonth(expDate.getMonth() + 1);
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return start.toISOString().split("T")[0];
   }
-
-  return expDate.toISOString().split("T")[0];
 }
 
 /**
- * Get the current period date for grouping
+ * Check if a period has expired and should be reset
+ * @param {string} storedPeriodStart - Stored period start date
  * @param {string} period - 'daily', 'weekly', or 'monthly'
- * @returns {string} ISO date string
+ * @returns {boolean} Whether the period should be reset
  */
-function getPeriodDate(period) {
-  const now = new Date();
-  return now.toISOString().split("T")[0];
+function isPeriodExpired(storedPeriodStart, period) {
+  const currentStart = getPeriodStartDate(period);
+  return storedPeriodStart !== currentStart;
 }
 
 function getBufferedCommandCount() {
@@ -107,24 +109,24 @@ async function updateGlobalStats(commandCount) {
   try {
     const globalDoc = await getDocument("stats", "global");
 
-    const dailyExpires = getExpirationDate("daily");
-    const weeklyExpires = getExpirationDate("weekly");
-    const monthlyExpires = getExpirationDate("monthly");
+    const dailyStart = getPeriodStartDate("daily");
+    const weeklyStart = getPeriodStartDate("weekly");
+    const monthlyStart = getPeriodStartDate("monthly");
 
     if (!globalDoc) {
       await createDocument("stats", "global", {
         totalCommandsRan: commandCount,
         daily: {
           commandsRan: commandCount,
-          expiresAt: dailyExpires,
+          periodStart: dailyStart,
         },
         weekly: {
           commandsRan: commandCount,
-          expiresAt: weeklyExpires,
+          periodStart: weeklyStart,
         },
         monthly: {
           commandsRan: commandCount,
-          expiresAt: monthlyExpires,
+          periodStart: monthlyStart,
         },
       });
     } else {
@@ -132,33 +134,42 @@ async function updateGlobalStats(commandCount) {
         totalCommandsRan: (globalDoc.totalCommandsRan || 0) + commandCount,
       };
 
-      if (globalDoc.daily && globalDoc.daily.expiresAt === dailyExpires) {
+      if (
+        globalDoc.daily &&
+        !isPeriodExpired(globalDoc.daily.periodStart, "daily")
+      ) {
         updates["daily.commandsRan"] =
           globalDoc.daily.commandsRan + commandCount;
       } else {
         updates["daily"] = {
           commandsRan: commandCount,
-          expiresAt: dailyExpires,
+          periodStart: dailyStart,
         };
       }
 
-      if (globalDoc.weekly && globalDoc.weekly.expiresAt === weeklyExpires) {
+      if (
+        globalDoc.weekly &&
+        !isPeriodExpired(globalDoc.weekly.periodStart, "weekly")
+      ) {
         updates["weekly.commandsRan"] =
           globalDoc.weekly.commandsRan + commandCount;
       } else {
         updates["weekly"] = {
           commandsRan: commandCount,
-          expiresAt: weeklyExpires,
+          periodStart: weeklyStart,
         };
       }
 
-      if (globalDoc.monthly && globalDoc.monthly.expiresAt === monthlyExpires) {
+      if (
+        globalDoc.monthly &&
+        !isPeriodExpired(globalDoc.monthly.periodStart, "monthly")
+      ) {
         updates["monthly.commandsRan"] =
           globalDoc.monthly.commandsRan + commandCount;
       } else {
         updates["monthly"] = {
           commandsRan: commandCount,
-          expiresAt: monthlyExpires,
+          periodStart: monthlyStart,
         };
       }
 
@@ -199,8 +210,8 @@ async function updateMostUsedCommands() {
  */
 async function updateServerStats() {
   try {
-    const dailyExpires = getExpirationDate("daily");
-    const weeklyExpires = getExpirationDate("weekly");
+    const dailyStart = getPeriodStartDate("daily");
+    const weeklyStart = getPeriodStartDate("weekly");
 
     for (const [guildId, serverData] of Object.entries(serverBuffer)) {
       const serverDoc = await getDocument("servers", guildId);
@@ -213,11 +224,11 @@ async function updateServerStats() {
           totalCommandsRan: commandCount,
           daily: {
             commandsRan: commandCount,
-            expiresAt: getExpirationDate("daily"),
+            periodStart: dailyStart,
           },
           weekly: {
             commandsRan: commandCount,
-            expiresAt: getExpirationDate("weekly"),
+            periodStart: weeklyStart,
           },
         });
       } else {
@@ -229,23 +240,29 @@ async function updateServerStats() {
           updates.name = guildName;
         }
 
-        if (serverDoc.daily && serverDoc.daily.expiresAt === dailyExpires) {
+        if (
+          serverDoc.daily &&
+          !isPeriodExpired(serverDoc.daily.periodStart, "daily")
+        ) {
           updates["daily.commandsRan"] =
             serverDoc.daily.commandsRan + commandCount;
         } else {
           updates["daily"] = {
             commandsRan: commandCount,
-            expiresAt: dailyExpires,
+            periodStart: dailyStart,
           };
         }
 
-        if (serverDoc.weekly && serverDoc.weekly.expiresAt === weeklyExpires) {
+        if (
+          serverDoc.weekly &&
+          !isPeriodExpired(serverDoc.weekly.periodStart, "weekly")
+        ) {
           updates["weekly.commandsRan"] =
             serverDoc.weekly.commandsRan + commandCount;
         } else {
           updates["weekly"] = {
             commandsRan: commandCount,
-            expiresAt: weeklyExpires,
+            periodStart: weeklyStart,
           };
         }
 
