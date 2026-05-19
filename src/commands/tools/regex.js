@@ -3,6 +3,7 @@ import { EmbedBuilder } from "discord.js";
 export default {
   name: "regex",
   description: "Test and analyze regex patterns",
+  usage: "%pregex <pattern> | <text>",
   aliases: ["regexp"],
   callback: async (client, message, args) => {
     try {

@@ -9,6 +9,7 @@ import fetch from "node-fetch";
 export default {
   name: "npm",
   description: "Search npm packages",
+  usage: "%pnpm <package name>",
   aliases: ["npmpkg"],
   react: "📦",
   callback: async (client, message, args) => {

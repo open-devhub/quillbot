@@ -10,6 +10,7 @@ export default {
   name: "help",
   description:
     "Provides information about available commands and how to use them.",
+  usage: "%phelp [command]",
   aliases: ["welp", "h"],
   /**
    *
@@ -27,7 +28,6 @@ export default {
       ).filter((c) => !c.split("/").at(-1).startsWith("!"));
 
       if (args[0]) {
-        // if there is an argument passed to ;help command, check if that command exists (or it's alias), and display only that command's info
         const allCommands = [];
         for (const category of prefixCommandsCategories) {
           const commandFiles = getAllFiles(category);
@@ -66,7 +66,12 @@ export default {
           .setTitle(`${command.premium ? "★" : "⌬"} ${command.name}`)
           .setDescription(command.description)
           .addFields(
-            { name: "Usage", value: `\`${prefixes[0]}${command.name}\`` },
+            {
+              name: "Usage",
+              value:
+                `\`${command.usage.replace("%p", prefixes[0])}\`` ||
+                `\`${prefixes[0]}${command.name}\``,
+            },
             {
               name: "Aliases",
               value:

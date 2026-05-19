@@ -107,6 +107,7 @@ export default {
   name: "run",
   description: "Run code snippets in various programming languages",
   aliases: ["compile", "execute", "exec"],
+  usage: "%prun\n<codeblock | message link>",
   callback: async (client, message, args) => {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;

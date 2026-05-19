@@ -5,6 +5,7 @@ import { map } from "unique-custom-id/format";
 export default {
   name: "id",
   description: "Generate a unique ID",
+  usage: "%pid [format]",
   aliases: ["uuid", "uid"],
   callback: async (client, message, args) => {
     try {

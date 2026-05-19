@@ -63,6 +63,7 @@ function formatTree(obj, prefix = "") {
 export default {
   name: "tree",
   description: "View GitHub repository structure",
+  usage: "%ptree <github repo link> [depth]",
   premium: true,
   callback: async (client, message, args) => {
     const { emojis } = await getConfig();

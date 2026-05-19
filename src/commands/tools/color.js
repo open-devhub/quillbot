@@ -114,6 +114,7 @@ function parseColor(input) {
 export default {
   name: "color",
   description: "Preview a color or gradient",
+  usage: "%pcolor <color1> [color2] ... [color15]",
   aliases: ["gradient"],
   callback: async (client, message, args) => {
     try {

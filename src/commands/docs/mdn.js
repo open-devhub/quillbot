@@ -7,6 +7,7 @@ export default {
   name: "mdn",
   description: "Search MDN Web Docs",
   aliases: ["mozilla", "mdnsearch"],
+  usage: "%pmdn <term>",
   react: "📚",
   callback: async (client, message, args) => {
     try {

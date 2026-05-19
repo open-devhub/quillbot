@@ -8,6 +8,7 @@ export default {
   name: "math-breakdown",
   description:
     "Provides a step-by-step breakdown of a mathematical expression.",
+  usage: "%pmath-breakdown <expression>",
   aliases: ["math"],
   callback: async (client, message, args) => {
     const expression = args.join(" ");

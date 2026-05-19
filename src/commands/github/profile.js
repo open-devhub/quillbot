@@ -8,6 +8,7 @@ import {
 export default {
   name: "profile",
   description: "Get information about a GitHub user/profile",
+  usage: "%pprofile <username | profile URL>",
   aliases: ["githubprofile", "user"],
   react: "💻",
   callback(client, message, args) {

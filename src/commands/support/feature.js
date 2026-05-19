@@ -5,6 +5,7 @@ import getConfig from "../../utils/getConfig.js";
 export default {
   name: "feature",
   description: "Suggest a feature to be added",
+  usage: "%pfeature <description> [image attachment]",
   aliases: ["feat", "newfeature", "newfeat"],
   callback: async (client, message, args) => {
     try {

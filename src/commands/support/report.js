@@ -5,6 +5,7 @@ import getConfig from "../../utils/getConfig.js";
 export default {
   name: "report",
   description: "Report a bug or issue with the bot",
+  usage: "%preport <description> [image attachment]",
   aliases: ["bug", "issue"],
   callback: async (client, message, args) => {
     try {

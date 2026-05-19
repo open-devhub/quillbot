@@ -8,6 +8,7 @@ import {
 export default {
   name: "repo",
   description: "Get information about a GitHub repository",
+  usage: "%prepo <repository URL>",
   aliases: ["githubrepo", "ghrepo"],
   react: "📦",
   callback(client, message, args) {

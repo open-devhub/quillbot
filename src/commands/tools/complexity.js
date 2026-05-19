@@ -3,6 +3,7 @@ import { EmbedBuilder } from "discord.js";
 export default {
   name: "complexity",
   description: "Estimate Big-O complexity of code",
+  usage: "%pcomplexity\n<codeblock | message link>",
   aliases: ["bigo", "big-o", "algo"],
 
   callback: async (client, message, args) => {

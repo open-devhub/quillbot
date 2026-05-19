@@ -4,6 +4,8 @@ import fetch from "node-fetch";
 export default {
   name: "http",
   description: "Make HTTP requests and inspect responses",
+  usage:
+    "%phttp <url> [method]\n```json\n<optional JSON body for POST/PUT/PATCH>\n```",
   aliases: ["postman", "fetch", "insomnia"],
 
   callback: async (client, message, args) => {

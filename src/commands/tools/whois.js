@@ -3,6 +3,7 @@ import { EmbedBuilder } from "discord.js";
 export default {
   name: "whois",
   description: "Lookup domain WHOIS info",
+  usage: "%pwhois <domain>",
   callback: async (client, message, args) => {
     const domain = args[0];
 

@@ -9,6 +9,7 @@ import fetch from "node-fetch";
 export default {
   name: "wiki",
   description: "Search Wikipedia articles",
+  usage: "%pwiki <term>",
   aliases: ["wikipedia", "wikisearch"],
   react: "📚",
   callback: async (client, message, args) => {

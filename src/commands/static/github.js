@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 export default {
   name: "github",
   description: "Get the GitHub information for Quill bot.",
+  usage: "%pgithub <repo | issues | prs | contributors | org>",
   callback: {
     repo(client, message, args) {
       return message.reply("https://github.com/open-devhub/quillbot");
