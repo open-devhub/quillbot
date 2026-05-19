@@ -71,7 +71,14 @@ export default {
       return message.reply({ embeds: [embed] });
     } catch (err) {
       console.error(err);
-      return message.reply("Regex processing error.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Regex error")
+            .setDescription("An error occurred while processing the regex.")
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

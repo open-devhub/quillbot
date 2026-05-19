@@ -8,7 +8,16 @@ export default {
     const domain = args[0];
 
     if (!domain) {
-      return message.reply("Provide a domain (e.g. google.com)");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ No domain provided")
+            .setDescription(
+              "Please provide a domain to lookup.\nExample: `;whois example.com`",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
 
     try {
@@ -57,7 +66,16 @@ export default {
       return message.reply({ embeds: [embed] });
     } catch (err) {
       console.error(err);
-      return message.reply("Failed to fetch WHOIS info.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Failed to fetch WHOIS info")
+            .setDescription(
+              "An error occurred while fetching the WHOIS information.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

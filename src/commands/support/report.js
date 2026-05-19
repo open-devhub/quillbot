@@ -17,7 +17,16 @@ export default {
 
       const content = args.join(" ");
       if (!content) {
-        return message.reply("Please describe the issue you want to report.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ No description provided")
+              .setDescription(
+                "Please provide a description of the issue you're experiencing.",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       const guild = await client.guilds.fetch(premiumServer);
@@ -25,7 +34,16 @@ export default {
 
       if (!guild || !reportsChannel) {
         console.error("Reporting system not configured properly.");
-        return message.reply("Reporting system not configured yet.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ Reporting system unavailable")
+              .setDescription(
+                "The reporting system is not set up correctly. Please contact the bot developers.",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       const attachment = message.attachments.first();
@@ -83,7 +101,14 @@ export default {
       });
     } catch (err) {
       console.error(err);
-      return message.reply("Error reporting issue to bot developers.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Error reporting issue")
+            .setDescription("An error occurred while submitting your report.")
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

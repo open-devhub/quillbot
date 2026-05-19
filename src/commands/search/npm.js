@@ -131,7 +131,16 @@ export default {
       });
     } catch (err) {
       console.error(err);
-      return message.reply("Error fetching npm packages.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Failed to fetch npm results")
+            .setDescription(
+              "An error occurred while fetching results from npm.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

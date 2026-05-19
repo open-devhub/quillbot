@@ -43,7 +43,16 @@ export default {
 
     try {
       if (!url || !/^https?:\/\//.test(url)) {
-        return message.reply("Invalid URL (must start with http/https)");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ Invalid URL")
+              .setDescription(
+                "Please provide a valid URL starting with http:// or https://",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       if (!validMethods.includes(method)) {
@@ -55,7 +64,16 @@ export default {
         try {
           body = JSON.stringify(JSON.parse(rawBody));
         } catch {
-          return message.reply("Invalid JSON body.");
+          return message.reply({
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("❌ Invalid JSON body")
+                .setDescription(
+                  "Please provide valid JSON for the request body.",
+                )
+                .setColor(0xd21872),
+            ],
+          });
         }
       }
 
@@ -133,7 +151,14 @@ export default {
       return message.reply({ embeds: [embed] });
     } catch (err) {
       console.error(err);
-      return message.reply("Request failed (network or timeout error).");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Request failed")
+            .setDescription("The request failed (network or timeout error).")
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

@@ -74,10 +74,28 @@ export default {
       return message.reply({ embeds: [embed], components: [row] });
     } catch (err) {
       if (err.name === "AbortError" || err.code === "ETIMEDOUT") {
-        return message.reply("Request timed out. Please try again later.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("⏱️ Wikipedia request timed out")
+              .setDescription(
+                "The request to Wikipedia took too long and was aborted.",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       } else {
         console.error(err);
-        return message.reply("Error fetching Wikipedia articles.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ Failed to fetch Wikipedia results")
+              .setDescription(
+                "An error occurred while fetching results from Wikipedia.",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
     }
   },

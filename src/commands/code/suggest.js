@@ -115,7 +115,16 @@ export default {
     if (!suggestion.trim()) {
       await message.reactions.removeAll();
       await message.react(warn);
-      return message.reply("⚠️ No suggestions available.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("⚠️ No suggestions available")
+            .setDescription(
+              "No suggestions could be generated for the provided code.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
 
     const safeSuggestion = suggestion.slice(0, 1900);

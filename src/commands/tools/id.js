@@ -23,7 +23,14 @@ export default {
       return message.reply({ embeds: [embed] });
     } catch (err) {
       console.error(err);
-      return message.reply("Error generating unique ID.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Failed to generate ID")
+            .setDescription("An error occurred while generating the unique ID.")
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

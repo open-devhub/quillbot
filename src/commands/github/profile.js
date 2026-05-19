@@ -15,7 +15,16 @@ export default {
     try {
       const username = args[0];
       if (!username) {
-        return message.reply("Please provide a GitHub username.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ No username provided")
+              .setDescription(
+                "Please provide a GitHub username or profile URL.\nExample: `;profile octocat` or `;profile https://github.com/octocat`",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       // match URLs like:
@@ -27,7 +36,16 @@ export default {
           /^(?:https?:\/\/)?(?:www\.)?github\.com\/([^\/]+)(?:\/([^\/]+))?(?:\.git)?$/i,
         ) || username.match(/^([^\/]+)$/);
       if (!match) {
-        return message.reply("Please provide a valid GitHub username.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ Invalid username or URL")
+              .setDescription(
+                "Please provide a valid GitHub username or profile URL.\nExample: `;profile octocat` or `;profile https://github.com/octocat`",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
       const user = match[1];
       const apiUrl = `https://api.github.com/users/${user}`;

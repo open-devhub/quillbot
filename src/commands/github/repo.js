@@ -15,7 +15,16 @@ export default {
     try {
       const repoUrl = args[0];
       if (!repoUrl) {
-        return message.reply("Please provide a GitHub repository URL.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ No repository URL provided")
+              .setDescription(
+                "Please provide a GitHub repository URL.\nExample: `;repo https://github.com/owner/repo`",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       // match URLs like:
@@ -27,7 +36,16 @@ export default {
           /^(?:https?:\/\/)?(?:www\.)?github\.com\/([^\/]+)\/([^\/]+)(?:\.git)?$/i,
         ) || repoUrl.match(/^([^\/]+)\/([^\/]+)$/);
       if (!match) {
-        return message.reply("Please provide a valid GitHub repository URL.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ Invalid repository URL")
+              .setDescription(
+                "Please provide a valid GitHub repository URL.\nExample: `;repo https://github.com/owner/repo`",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
       const owner = match[1];
       const repo = match[2].replace(/\.git$/, ""); // Remove .git if present

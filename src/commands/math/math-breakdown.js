@@ -37,7 +37,16 @@ export default {
     }
 
     if (!breakdown.trim()) {
-      return message.reply("⚠️ No breakdown available.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("⚠️ No breakdown generated")
+            .setDescription(
+              "The bot was unable to generate a breakdown for the provided expression.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
     const safeBreakdown = breakdown.slice(0, 1900);
 

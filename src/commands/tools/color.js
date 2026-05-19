@@ -121,11 +121,27 @@ export default {
       const inputs = args;
 
       if (!inputs.length) {
-        return message.reply("Provide at least one color.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ No colors provided")
+              .setDescription(
+                "Please provide at least one color to preview.\nExample: `;color #ff0000` or `;color red | blue`",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       if (inputs.length > 15) {
-        return message.reply("Number of colors can't be greater than 15.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ Too many colors provided")
+              .setDescription("The number of colors cannot exceed 15.")
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       const colors = inputs.map((c) => {
@@ -189,7 +205,16 @@ export default {
         files: [attachment],
       });
     } catch (err) {
-      return message.reply("Invalid color format.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Invalid color input")
+            .setDescription(
+              "Please provide valid colors in hex, rgb(), or hsl() format.\nExamples:\n`#ff0000`\n`rgb(255, 0, 0)`\n`hsl(0, 100%, 50%)`",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };
