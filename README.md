@@ -159,7 +159,7 @@ Instead of switching between tools and platforms, Quill brings everything into o
 
 ## 📄 License
 
-This project is licensed under **DSAL v1.0**.
+This project is licensed under **DSAL v1.1**.
 See the [LICENSE](./LICENSE) file for more details.
 
 ## 🪶 Closing Note
