@@ -8,6 +8,7 @@ export default {
   name: "math-breakdown",
   description:
     "Provides a step-by-step breakdown of a mathematical expression.",
+  usage: "%pmath-breakdown <expression>",
   aliases: ["math"],
   callback: async (client, message, args) => {
     const expression = args.join(" ");
@@ -36,7 +37,16 @@ export default {
     }
 
     if (!breakdown.trim()) {
-      return message.reply("⚠️ No breakdown available.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("⚠️ No breakdown generated")
+            .setDescription(
+              "The bot was unable to generate a breakdown for the provided expression.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
     const safeBreakdown = breakdown.slice(0, 1900);
 

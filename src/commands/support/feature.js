@@ -5,6 +5,7 @@ import getConfig from "../../utils/getConfig.js";
 export default {
   name: "feature",
   description: "Suggest a feature to be added",
+  usage: "%pfeature <description> [image attachment]",
   aliases: ["feat", "newfeature", "newfeat"],
   callback: async (client, message, args) => {
     try {
@@ -26,7 +27,16 @@ export default {
 
       if (!guild || !reportsChannel) {
         console.error("Feature request system not configured properly.");
-        return message.reply("Feature request system not configured yet.");
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ Feature request system unavailable")
+              .setDescription(
+                "The feature request system is not set up correctly. Please contact the bot developers.",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       const attachment = message.attachments.first();
@@ -86,7 +96,16 @@ export default {
       });
     } catch (err) {
       console.error(err);
-      return message.reply("Error submitting feature request.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Error submitting feature request")
+            .setDescription(
+              "An error occurred while submitting your feature request.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

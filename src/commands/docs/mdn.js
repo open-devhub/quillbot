@@ -1,3 +1,4 @@
+import { EmbedBuilder } from "discord.js";
 import fetch from "node-fetch";
 import TurndownService from "turndown";
 
@@ -7,6 +8,7 @@ export default {
   name: "mdn",
   description: "Search MDN Web Docs",
   aliases: ["mozilla", "mdnsearch"],
+  usage: "%pmdn <term>",
   react: "📚",
   callback: async (client, message, args) => {
     try {
@@ -36,7 +38,16 @@ export default {
       return message.reply(`${doc.title}: ${url}\n${markdownExcerpt}`);
     } catch (err) {
       console.error(err);
-      return message.reply("Error fetching MDN docs.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Failed to fetch MDN results")
+            .setDescription(
+              "An error occurred while fetching results from MDN Web Docs.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

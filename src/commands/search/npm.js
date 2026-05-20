@@ -9,6 +9,7 @@ import fetch from "node-fetch";
 export default {
   name: "npm",
   description: "Search npm packages",
+  usage: "%pnpm <package name>",
   aliases: ["npmpkg"],
   react: "📦",
   callback: async (client, message, args) => {
@@ -130,7 +131,16 @@ export default {
       });
     } catch (err) {
       console.error(err);
-      return message.reply("Error fetching npm packages.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Failed to fetch npm results")
+            .setDescription(
+              "An error occurred while fetching results from npm.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

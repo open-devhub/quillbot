@@ -8,6 +8,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 export default {
   name: "suggest",
   description: "Get concise suggestions to improve a code snippet using AI",
+  usage: "%psuggest\n<codeblock | message link>",
   aliases: ["suggestion", "improve", "codesuggestion"],
   premium: true,
   callback: async (client, message, args) => {
@@ -114,7 +115,16 @@ export default {
     if (!suggestion.trim()) {
       await message.reactions.removeAll();
       await message.react(warn);
-      return message.reply("⚠️ No suggestions available.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("⚠️ No suggestions available")
+            .setDescription(
+              "No suggestions could be generated for the provided code.",
+            )
+            .setColor(0xd21872),
+        ],
+      });
     }
 
     const safeSuggestion = suggestion.slice(0, 1900);

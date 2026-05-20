@@ -99,6 +99,7 @@ export default async (client, message) => {
 
     const serverName = client.guilds.cache.get(premiumServer)?.name || "";
 
+    if (commandObject.devOnly && !devs.includes(userId)) return;
     if (commandObject.premium) {
       const premiumGuild = client.guilds.cache.get(premiumServer);
 
@@ -128,23 +129,20 @@ export default async (client, message) => {
       }
     }
 
-    if (commandObject.devOnly) {
-      if (!devs.includes(userId)) {
-        const embed = new EmbedBuilder()
-          .setTitle("🔒 Developer Only Command")
-          .setDescription(
-            "This command is only available to the bot developers.",
-          )
-          .setColor(0xff0000);
-
-        return message.reply({ embeds: [embed] });
-      }
-    }
-
     if (commandObject.permissionsRequired?.length) {
       for (const permission of commandObject.permissionsRequired) {
         if (!message.member.permissions.has(permission)) {
-          return message.reply("Not enough permissions to run this command.");
+          return message.reply({
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("❌ Missing Permissions")
+                .setDescription(
+                  `You need the following permissions to use this command:\n${commandObject.permissionsRequired
+                    .map((p) => `- \`${p}\``)
+                    .join("\n")}`,
+                ),
+            ],
+          });
         }
       }
     }
@@ -188,7 +186,14 @@ export default async (client, message) => {
       console.error(
         `Invalid command configuration for command: ${commandObject.name}`,
       );
-      return message.reply("Invalid command configuration.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Invalid Command")
+            .setDescription("An error occurred while processing that command.")
+            .setColor(0xd21872),
+        ],
+      });
     }
 
     // Track command statistics

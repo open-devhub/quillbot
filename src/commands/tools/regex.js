@@ -3,12 +3,12 @@ import { EmbedBuilder } from "discord.js";
 export default {
   name: "regex",
   description: "Test and analyze regex patterns",
+  usage: "%pregex <pattern> | <text>",
   aliases: ["regexp"],
   callback: async (client, message, args) => {
     try {
-      const input = args.join(" ");
-      const pattern = args[0];
-      const text = args.slice(1).join(" ") || args[1] || "";
+      let pattern = args[0];
+      const text = args.slice(2).join(" ") || args[1] || "";
 
       if (!pattern || !text) {
         return message.reply({
@@ -21,6 +21,10 @@ export default {
               .setColor(0xd21872),
           ],
         });
+      }
+
+      if (pattern.startsWith("/") && pattern.endsWith("/")) {
+        pattern = pattern.slice(1, -1);
       }
 
       let regex;
@@ -70,7 +74,14 @@ export default {
       return message.reply({ embeds: [embed] });
     } catch (err) {
       console.error(err);
-      return message.reply("Regex processing error.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Regex error")
+            .setDescription("An error occurred while processing the regex.")
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };

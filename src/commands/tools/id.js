@@ -5,10 +5,27 @@ import { map } from "unique-custom-id/format";
 export default {
   name: "id",
   description: "Generate a unique ID",
+  usage: "%pid [format | list]",
   aliases: ["uuid", "uid"],
   callback: async (client, message, args) => {
     try {
       let format = args[0]?.toLowerCase();
+
+      if (["formats", "list"].includes(format)) {
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("Available ID Formats")
+              .setDescription(
+                Object.keys(map)
+                  .map((f) => `\`${f}\``)
+                  .join(", "),
+              )
+              .setColor(0x00ff00),
+          ],
+        });
+      }
+
       if (!Object.keys(map).includes(args[0]?.toLowerCase()) || !format) {
         format = "uuid";
       }
@@ -22,7 +39,14 @@ export default {
       return message.reply({ embeds: [embed] });
     } catch (err) {
       console.error(err);
-      return message.reply("Error generating unique ID.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Failed to generate ID")
+            .setDescription("An error occurred while generating the unique ID.")
+            .setColor(0xd21872),
+        ],
+      });
     }
   },
 };
