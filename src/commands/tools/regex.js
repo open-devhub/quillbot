@@ -7,9 +7,8 @@ export default {
   aliases: ["regexp"],
   callback: async (client, message, args) => {
     try {
-      const input = args.join(" ");
-      const pattern = args[0];
-      const text = args.slice(1).join(" ") || args[1] || "";
+      let pattern = args[0];
+      const text = args.slice(2).join(" ") || args[1] || "";
 
       if (!pattern || !text) {
         return message.reply({
@@ -22,6 +21,10 @@ export default {
               .setColor(0xd21872),
           ],
         });
+      }
+
+      if (pattern.startsWith("/") && pattern.endsWith("/")) {
+        pattern = pattern.slice(1, -1);
       }
 
       let regex;
