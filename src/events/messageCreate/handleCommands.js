@@ -99,6 +99,7 @@ export default async (client, message) => {
 
     const serverName = client.guilds.cache.get(premiumServer)?.name || "";
 
+    if (commandObject.devOnly && !devs.includes(userId)) return;
     if (commandObject.premium) {
       const premiumGuild = client.guilds.cache.get(premiumServer);
 
@@ -125,19 +126,6 @@ export default async (client, message) => {
         const row = new ActionRowBuilder().addComponents(button);
 
         return message.reply({ embeds: [embed], components: [row] });
-      }
-    }
-
-    if (commandObject.devOnly) {
-      if (!devs.includes(userId)) {
-        const embed = new EmbedBuilder()
-          .setTitle("🔒 Developer Only Command")
-          .setDescription(
-            "This command is only available to the bot developers.",
-          )
-          .setColor(0xff0000);
-
-        return message.reply({ embeds: [embed] });
       }
     }
 
