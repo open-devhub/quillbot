@@ -73,7 +73,7 @@ export default {
       return message.reply({
         embeds: [
           new EmbedBuilder()
-            .setTitle("Invalid usage")
+            .setTitle("❌ Invalid usage")
             .setDescription(
               "Usage: `;tree <github repo link> [depth]`\nExample: `;tree https://github.com/user/repo 2`",
             )
@@ -91,7 +91,7 @@ export default {
       return message.reply({
         embeds: [
           new EmbedBuilder()
-            .setTitle("Invalid usage")
+            .setTitle("❌ Invalid usage")
             .setDescription(
               "Usage: `;tree <github repo link> [depth]`\nExample: `;tree https://github.com/user/repo 2`",
             )
@@ -174,7 +174,7 @@ export default {
       return message.reply({
         embeds: [
           new EmbedBuilder()
-            .setTitle("Failed to fetch repository")
+            .setTitle("❌ Failed to fetch repository")
             .setDescription(err.message)
             .setColor(0xd21872),
         ],

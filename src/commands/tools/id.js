@@ -15,7 +15,7 @@ export default {
         return message.reply({
           embeds: [
             new EmbedBuilder()
-              .setTitle("Available ID Formats")
+              .setTitle("✅ Available ID Formats")
               .setDescription(
                 Object.keys(map)
                   .map((f) => `\`${f}\``)
@@ -32,7 +32,7 @@ export default {
 
       const id = ucid.format(format);
       const embed = new EmbedBuilder()
-        .setTitle("Generated Unique ID")
+        .setTitle("✅ Generated Unique ID")
         .setDescription(`\`\`\`\n${id}\n\`\`\``)
         .setColor(0x00ff00);
 

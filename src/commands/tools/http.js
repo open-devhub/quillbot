@@ -5,7 +5,7 @@ export default {
   name: "http",
   description: "Make HTTP requests and inspect responses",
   usage:
-    "%phttp <url> [method]\n```json\n<optional JSON body for POST/PUT/PATCH>\n```",
+    "%phttp <url> [method]\n<optional JSON body for POST/PUT/PATCH in code block>",
   aliases: ["postman", "fetch", "insomnia"],
 
   callback: async (client, message, args) => {
