@@ -9,6 +9,50 @@ export default {
   premium: true,
   async callback(client, message, args) {
     try {
+      if (args[0]) {
+        const serverStats = await getServerStats(args[0] || message.guildId);
+        if (!serverStats) {
+          return message.reply({
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("❌ No Server Stats")
+                .setDescription(
+                  "No statistics found for this server. Make sure the bot has been used here.",
+                )
+                .setColor(0xd21872),
+            ],
+          });
+        }
+
+        const serverEmbed = new EmbedBuilder()
+          .setTitle(
+            `📍 Server Statistics - ${serverStats.name || message.guild?.name}`,
+          )
+          .setColor(0xff9900)
+          .addFields(
+            {
+              name: "Total Commands Run",
+              value: `${serverStats.totalCommandsRan || 0}`,
+              inline: true,
+            },
+            {
+              name: "Daily",
+              value: `${serverStats.daily?.commandsRan || 0}`,
+              inline: true,
+            },
+            {
+              name: "Weekly",
+              value: `${serverStats.weekly?.commandsRan || 0}`,
+              inline: true,
+            },
+            {
+              name: "Monthly",
+              value: `${serverStats.monthly?.commandsRan || 0}`,
+              inline: true,
+            },
+          );
+        return message.reply({ embeds: [serverEmbed] });
+      }
       const stats = await getStats();
       const serverStats = await getServerStats(message.guildId);
 

@@ -138,6 +138,8 @@ Instead of switching between tools and platforms, Quill brings everything into o
 - `;run` – Execute code
 - `;suggest` – AI code suggestion
 - `;whatlang` – Detect programming language from codeblock
+- `;format` - Format code with prettier
+- `;complexity` - Estimate Big-O complexity of code
 - `;repo` – GitHub repository info
 - `;profile [username]` – Fetch GitHub user data
 - `;mdn [term]` – Search web docs
@@ -148,7 +150,6 @@ Instead of switching between tools and platforms, Quill brings everything into o
 - `;feature` - Request a feature to be added
 - `;report` - Report a bug
 - `;color` - Color (gradient) preview
-- `;format` - Format code with prettier
 - `;http` - Make HTTP requests and inspect responses (like postman)
 - `;id` - Generate unique IDs (60+ id formats)
 - `;regex` - Test regular expressions

@@ -2,12 +2,16 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  codeBlock,
   ComponentType,
   EmbedBuilder,
+  codeBlock,
 } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import {
+  parseCodeBlock,
+  parseCodeCommandInput,
+} from "../../utils/codeInput.js";
 import getConfig from "../../utils/getConfig.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -28,6 +32,8 @@ async function getLanguages() {
 //  Find best matching language ID
 
 function findLanguageId(languages, lang) {
+  if (typeof lang !== "string" || !lang.trim()) return null;
+
   lang = lang.toLowerCase();
 
   const aliases = {
@@ -112,20 +118,21 @@ export default {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;
 
-    const codeBlockMatch = message.content.match(
-      /```([\w#+.-]+)\n([\s\S]*?)```/,
-    );
-    const linkMatch = args[0]?.match(
-      /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
-    );
+    const {
+      codeBlock: parsedBlock,
+      link,
+      langFromArgs,
+    } = parseCodeCommandInput(message.content, args);
 
     let lang, code;
 
-    if (codeBlockMatch) {
-      lang = codeBlockMatch[1];
-      code = codeBlockMatch[2].trim();
-    } else if (linkMatch) {
-      const [_, guildId, channelId, messageId] = linkMatch;
+    if (parsedBlock) {
+      lang = parsedBlock.lang || langFromArgs;
+      code = parsedBlock.code;
+    } else if (link) {
+      const [_, guildId, channelId, messageId] = link.match(
+        /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
+      );
 
       try {
         const guild = client.guilds.cache.get(guildId);
@@ -136,9 +143,7 @@ export default {
 
         const fetchedMessage = await channel.messages.fetch(messageId);
 
-        const fetchedCodeBlock = fetchedMessage.content.match(
-          /```([\w#+.-]+)\n([\s\S]*?)```/,
-        );
+        const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
           return message.reply({
@@ -150,8 +155,8 @@ export default {
           });
         }
 
-        lang = fetchedCodeBlock[1];
-        code = fetchedCodeBlock[2].trim();
+        lang = fetchedCodeBlock.lang || langFromArgs;
+        code = fetchedCodeBlock.code;
       } catch (err) {
         return message.reply({
           embeds: [
@@ -169,6 +174,20 @@ export default {
           new EmbedBuilder()
             .setTitle("❌ Format error!")
             .setDescription("Use ;run with a code block or message link.")
+            .setColor(0xd21872),
+        ],
+      });
+    }
+
+    if (!lang) {
+      await message.react(x);
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("❌ Language required")
+            .setDescription(
+              "Specify the language with `;run <lang>` or use a code block with a language tag.",
+            )
             .setColor(0xd21872),
         ],
       });

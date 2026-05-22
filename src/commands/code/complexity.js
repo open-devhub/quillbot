@@ -1,4 +1,8 @@
 import { EmbedBuilder } from "discord.js";
+import {
+  parseCodeBlock,
+  parseCodeCommandInput,
+} from "../../utils/codeInput.js";
 
 export default {
   name: "complexity",
@@ -7,19 +11,19 @@ export default {
   aliases: ["bigo", "big-o", "algo"],
 
   callback: async (client, message, args) => {
+    const { codeBlock: parsedBlock, link } = parseCodeCommandInput(
+      message.content,
+      args,
+    );
+
     let code;
 
-    const codeBlockMatch = message.content.match(
-      /```([\w#+.-]+)\n([\s\S]*?)```/,
-    );
-    const linkMatch = args[0]?.match(
-      /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
-    );
-
-    if (codeBlockMatch) {
-      code = message.content.split("```").slice(1, -1).join("```");
-    } else if (linkMatch) {
-      const [_, guildId, channelId, messageId] = linkMatch;
+    if (parsedBlock) {
+      code = parsedBlock.code;
+    } else if (link) {
+      const [_, guildId, channelId, messageId] = link.match(
+        /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
+      );
 
       try {
         const guild = client.guilds.cache.get(guildId);
@@ -30,9 +34,7 @@ export default {
 
         const fetchedMessage = await channel.messages.fetch(messageId);
 
-        const fetchedCodeBlock = fetchedMessage.content.match(
-          /```([\w#+.-]+)\n([\s\S]*?)```/,
-        );
+        const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
           return message.reply({
