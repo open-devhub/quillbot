@@ -1,6 +1,10 @@
 import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import {
+  parseCodeBlock,
+  parseCodeCommandInput,
+} from "../../utils/codeInput.js";
 import getConfig from "../../utils/getConfig.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -16,18 +20,21 @@ export default {
     const { check, x, tick, warn } = emojis;
 
     await message.react(tick);
-    const codeBlockMatch = message.content.match(/```(\w+)\n([\s\S]*?)```/);
-    const linkMatch = args[0]?.match(
-      /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
-    );
+    const {
+      codeBlock: parsedBlock,
+      link,
+      langFromArgs,
+    } = parseCodeCommandInput(message.content, args);
 
     let lang, code;
 
-    if (codeBlockMatch) {
-      lang = codeBlockMatch[1];
-      code = codeBlockMatch[2].trim();
-    } else if (linkMatch) {
-      const [, guildId, channelId, messageId] = linkMatch;
+    if (parsedBlock) {
+      lang = parsedBlock.lang || langFromArgs;
+      code = parsedBlock.code;
+    } else if (link) {
+      const [, guildId, channelId, messageId] = link.match(
+        /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
+      );
       try {
         const guild = client.guilds.cache.get(guildId);
         if (!guild) throw new Error("Guild not found");
@@ -37,9 +44,7 @@ export default {
 
         const fetchedMessage = await channel.messages.fetch(messageId);
 
-        const fetchedCodeBlock = fetchedMessage.content.match(
-          /```([\w#+.-]+)\n([\s\S]*?)```/,
-        );
+        const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
           await message.reactions.removeAll();
@@ -53,8 +58,8 @@ export default {
           });
         }
 
-        lang = fetchedCodeBlock[1];
-        code = fetchedCodeBlock[2].trim();
+        lang = fetchedCodeBlock.lang || langFromArgs;
+        code = fetchedCodeBlock.code;
       } catch (err) {
         await message.reactions.removeAll();
         await message.react(x);

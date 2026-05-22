@@ -1,5 +1,9 @@
 import { EmbedBuilder, codeBlock } from "discord.js";
 import prettier from "prettier";
+import {
+  parseCodeBlock,
+  parseCodeCommandInput,
+} from "../../utils/codeInput.js";
 import getConfig from "../../utils/getConfig.js";
 
 const parserMap = {
@@ -36,17 +40,15 @@ export default {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;
 
-    const codeBlockMatch = message.content.match(
-      /```([\w#+.-]*)\n([\s\S]*?)```/,
-    );
-
-    const linkMatch = args[0]?.match(
-      /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
-    );
+    const {
+      codeBlock: parsedBlock,
+      link,
+      langFromArgs,
+    } = parseCodeCommandInput(message.content, args);
 
     const reaction = await message.react(tick).catch(() => {});
 
-    if (!codeBlockMatch && !linkMatch) {
+    if (!parsedBlock && !link) {
       await reaction.remove().catch(() => {});
       await message.react(x);
       return message.reply({
@@ -63,11 +65,13 @@ export default {
 
     let lang, code;
 
-    if (codeBlockMatch) {
-      lang = codeBlockMatch[1];
-      code = codeBlockMatch[2].trim();
-    } else if (linkMatch) {
-      const [_, guildId, channelId, messageId] = linkMatch;
+    if (parsedBlock) {
+      lang = parsedBlock.lang || langFromArgs;
+      code = parsedBlock.code;
+    } else if (link) {
+      const [_, guildId, channelId, messageId] = link.match(
+        /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
+      );
 
       try {
         const guild = client.guilds.cache.get(guildId);
@@ -78,9 +82,7 @@ export default {
 
         const fetchedMessage = await channel.messages.fetch(messageId);
 
-        const fetchedCodeBlock = fetchedMessage.content.match(
-          /```([\w#+.-]*)\n([\s\S]*?)```/,
-        );
+        const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
           await reaction.remove().catch(() => {});
@@ -94,8 +96,8 @@ export default {
           });
         }
 
-        lang = fetchedCodeBlock[1];
-        code = fetchedCodeBlock[2].trim();
+        lang = fetchedCodeBlock.lang || langFromArgs;
+        code = fetchedCodeBlock.code;
       } catch (err) {
         await reaction.remove().catch(() => {});
         await message.react(x);
