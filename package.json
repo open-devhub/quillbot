@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "Caleb Ephrem",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "@napi-rs/canvas": "^0.1.100",
     "discord.js": "^14.25.0",
