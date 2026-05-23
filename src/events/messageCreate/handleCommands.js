@@ -204,7 +204,14 @@ export default async (client, message) => {
       client,
     );
   } catch (err) {
-    console.error(`Error executing ${commandObject.name} command: ${err}`);
+    const cmdName =
+      typeof commandObject !== "undefined" && commandObject?.name
+        ? commandObject.name
+        : typeof commandName !== "undefined"
+          ? commandName
+          : "unknown";
+
+    console.error(`Error executing ${cmdName} command: ${err}`);
 
     try {
       const errorEmbed = new EmbedBuilder()
@@ -215,7 +222,7 @@ export default async (client, message) => {
       await message.reply({ embeds: [errorEmbed] });
     } catch (replyErr) {
       console.error(
-        `Failed to send error reply for ${commandObject.name} command: ${replyErr}`,
+        `Failed to send error reply for ${cmdName} command: ${replyErr}`,
       );
     }
   }
