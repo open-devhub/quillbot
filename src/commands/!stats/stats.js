@@ -6,7 +6,6 @@ export default {
   description: "See bot statistics",
   aliases: ["statistics"],
   devOnly: true,
-  premium: true,
   async callback(client, message, args) {
     try {
       if (args[0]) {

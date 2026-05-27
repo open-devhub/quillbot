@@ -5,7 +5,6 @@ export default {
   description: "List all servers the bot is in",
   aliases: ["guilds"],
   devOnly: true,
-  premium: true,
   callback(client, message, args) {
     try {
       const threshold = 50;
