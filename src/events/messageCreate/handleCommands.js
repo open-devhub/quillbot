@@ -8,6 +8,7 @@ import "dotenv/config";
 import NodeCache from "node-cache";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
+import { getCachedDB } from "../../utils/cacheDB.js";
 import getAllFiles from "../../utils/getAllFiles.js";
 import getConfig from "../../utils/getConfig.js";
 import { trackCommandStat } from "../../utils/stats.js";
@@ -106,8 +107,12 @@ export default async (client, message) => {
       const member = premiumGuild
         ? await premiumGuild.members.fetch(userId).catch(() => null)
         : null;
+      const isPremiumServer = await getCachedDB().then(
+        (db) => db?.premiumServers?.[message.guildId],
+      );
+      // console.log(isPremiumServer);
 
-      if (!member) {
+      if (!member && !isPremiumServer) {
         const embed = new EmbedBuilder()
           .setTitle("💎 Premium Command")
           .setDescription(

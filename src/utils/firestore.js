@@ -16,6 +16,15 @@ export async function getDocument(collection, documentId) {
   return docSnap.data();
 }
 
+export async function getAllDocuments(collection) {
+  const snapshot = await db.collection(collection).get();
+  const documents = {};
+  snapshot.forEach((doc) => {
+    documents[doc.id] = doc.data();
+  });
+  return documents;
+}
+
 export function updateDocument(collection, documentId, data) {
   return db.collection(collection).doc(documentId).update(data);
 }
