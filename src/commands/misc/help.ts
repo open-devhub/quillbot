@@ -2,7 +2,7 @@ import type { Client, Message } from "discord.js";
 import { EmbedBuilder } from "discord.js";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 
 type Command = {
   name: string;

@@ -11,10 +11,10 @@ import "dotenv/config";
 import NodeCache from "node-cache";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
-import { getCachedDB } from "../../utils/cacheDB.js";
-import getAllFiles from "../../utils/getAllFiles.js";
-import getConfig from "../../utils/getConfig.js";
-import { trackCommandStat } from "../../utils/stats.js";
+import { getCachedDB } from "../../utils/cacheDB.ts";
+import getAllFiles from "../../utils/getAllFiles.ts";
+import getConfig from "../../utils/getConfig.ts";
+import { trackCommandStat } from "../../utils/stats.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -238,7 +238,7 @@ export default async (client: Client, message: Message) => {
     // Track command statistics
     await trackCommandStat(
       commandObject.name,
-      message.guildId,
+      message.guildId ?? "",
       commandObject.devOnly || false,
       client,
     );

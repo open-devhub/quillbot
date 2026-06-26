@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.js";
 import "dotenv/config";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 
 const GSB_API_KEY = process.env.GSB_API_KEY;
 const URLSCAN_API_KEY = process.env.URLSCAN_API_KEY;

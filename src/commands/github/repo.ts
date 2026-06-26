@@ -4,7 +4,7 @@ import {
   ButtonStyle,
   EmbedBuilder,
 } from "discord.js";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 
 export default {
   name: "repo",

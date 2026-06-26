@@ -1,7 +1,7 @@
 import type { Client, ClientEvents } from "discord.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import getAllFiles from "../utils/getAllFiles.js";
+import getAllFiles from "../utils/getAllFiles.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

@@ -1,5 +1,5 @@
-import type { CommandCallbackOpts } from "../../types/command.js";
-import { cacheDB } from "../../utils/cacheDB.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
+import { cacheDB } from "../../utils/cacheDB.ts";
 
 export default {
   name: "refreshdb",

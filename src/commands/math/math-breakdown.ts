@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 

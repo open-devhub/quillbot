@@ -1,11 +1,11 @@
 import { EmbedBuilder, codeBlock } from "discord.js";
 import prettier from "prettier";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
-} from "../../utils/codeInput.js";
-import getConfig from "../../utils/getConfig.js";
+} from "../../utils/codeInput.ts";
+import getConfig from "../../utils/getConfig.ts";
 
 const parserMap: Record<string, string> = {
   js: "babel",

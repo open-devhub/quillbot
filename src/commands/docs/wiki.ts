@@ -5,7 +5,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import fetch from "node-fetch";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 
 export default {
   name: "wiki",
