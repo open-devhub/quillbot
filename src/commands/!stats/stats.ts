@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
-import type { CommandCallbackOpts } from "../../types/command.js";
-import { getServerStats, getStats } from "../../utils/stats.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
+import { getServerStats, getStats } from "../../utils/stats.ts";
 
 export default {
   name: "stats",
@@ -9,8 +9,10 @@ export default {
   devOnly: true,
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {
-      if (args[0]) {
-        const serverStats = await getServerStats(args[0] || message.guildId);
+      if (args[0] || message.guildId) {
+        const serverStats = await getServerStats(
+          (args[0] || message.guildId) ?? "",
+        );
         if (!serverStats) {
           return message.reply({
             embeds: [
@@ -54,7 +56,7 @@ export default {
         return message.reply({ embeds: [serverEmbed] });
       }
       const stats = await getStats();
-      const serverStats = await getServerStats(message.guildId);
+      const serverStats = await getServerStats(message.guildId ?? "");
 
       const globalData = stats.global || {};
       const commandsData = stats.commands || {};
@@ -87,7 +89,9 @@ export default {
         );
 
       // Most used commands embed
-      const sortedCommands = Object.entries(commandsData)
+      const sortedCommands = Object.entries(
+        commandsData as Record<string, number>,
+      )
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
 

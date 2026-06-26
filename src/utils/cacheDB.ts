@@ -1,6 +1,6 @@
 import path from "path";
-import { readFile, writeFile } from "./fileOps.js";
-import { getAllDocuments } from "./firestore.js";
+import { readFile, writeFile } from "./fileOps.ts";
+import { getAllDocuments } from "./firestore.ts";
 
 import type { DocumentData } from "firebase-admin/firestore";
 import fsp from "fs/promises";

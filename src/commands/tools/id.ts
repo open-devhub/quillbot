@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import ucid from "unique-custom-id";
 import { map } from "unique-custom-id/format";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 
 export default {
   name: "id",

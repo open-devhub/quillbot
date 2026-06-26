@@ -1,9 +1,9 @@
 import { EmbedBuilder } from "discord.js";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
-} from "../../utils/codeInput.js";
+} from "../../utils/codeInput.ts";
 
 export default {
   name: "complexity",

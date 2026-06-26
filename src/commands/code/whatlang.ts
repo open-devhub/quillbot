@@ -1,12 +1,12 @@
 import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
-} from "../../utils/codeInput.js";
-import getConfig from "../../utils/getConfig.js";
+} from "../../utils/codeInput.ts";
+import getConfig from "../../utils/getConfig.ts";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 

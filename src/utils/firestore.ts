@@ -1,5 +1,5 @@
 import { type DocumentData, WriteResult } from "firebase-admin/firestore";
-import { db } from "../config/firebase.js";
+import { db } from "../config/firebase.ts";
 
 export function createDocument(
   collection: string,

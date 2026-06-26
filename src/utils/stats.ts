@@ -1,29 +1,37 @@
-import { createDocument, getDocument, updateDocument } from "./firestore.js";
+import { createDocument, getDocument, updateDocument } from "./firestore.ts";
 
 const SAVE_THRESHOLD = 5;
 let globalCommandCount = 0;
-let commandBuffer = {};
-let serverBuffer = {};
+let commandBuffer: Record<string, number> = {};
+let serverBuffer: Record<string, { commandCount: number; guildName: string }> =
+  {};
 
 /**
  * Get the start date of the current period
  * @param {string} period - 'daily', 'weekly', or 'monthly'
  * @returns {string} ISO date string (YYYY-MM-DD)
  */
-function getPeriodStartDate(period) {
+/**
+ * Get the start date of the current period
+ * @param {string} period - 'daily', 'weekly', or 'monthly'
+ * @returns {string} ISO date string (YYYY-MM-DD)
+ */
+function getPeriodStartDate(period: string): string {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
   if (period === "daily") {
-    return now.toISOString().split("T")[0];
+    return now.toISOString().split("T")[0] || "";
   } else if (period === "weekly") {
     const start = new Date(now);
     start.setDate(start.getDate() - start.getDay());
-    return start.toISOString().split("T")[0];
+    return start.toISOString().split("T")[0] || "";
   } else if (period === "monthly") {
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    return start.toISOString().split("T")[0];
+    return start.toISOString().split("T")[0] || "";
   }
+
+  return now.toISOString().split("T")[0] || "";
 }
 
 /**
@@ -32,16 +40,19 @@ function getPeriodStartDate(period) {
  * @param {string} period - 'daily', 'weekly', or 'monthly'
  * @returns {boolean} Whether the period should be reset
  */
-function isPeriodExpired(storedPeriodStart, period) {
+function isPeriodExpired(storedPeriodStart: string, period: string): boolean {
   const currentStart = getPeriodStartDate(period);
   return storedPeriodStart !== currentStart;
 }
 
-function getBufferedCommandCount() {
-  return Object.values(commandBuffer).reduce((sum, count) => sum + count, 0);
+function getBufferedCommandCount(): number {
+  return (Object.values(commandBuffer) as number[]).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
 }
 
-async function flushStatsOnExit() {
+async function flushStatsOnExit(): Promise<void> {
   const bufferedCommandCount = getBufferedCommandCount();
   if (bufferedCommandCount === 0) return;
   await saveStats();
@@ -52,14 +63,14 @@ async function flushStatsOnExit() {
  * @param {string} commandName - The original command name (not alias)
  * @param {string} guildId - The guild/server ID
  * @param {boolean} isDevOnly - Whether this is a dev-only command
- * @param {Client} client - Discord client instance
+ * @param {any} client - Discord client instance
  */
 export async function trackCommandStat(
-  commandName,
-  guildId,
-  isDevOnly,
-  client,
-) {
+  commandName: string,
+  guildId: string,
+  isDevOnly: boolean,
+  client: any,
+): Promise<void> {
   if (isDevOnly) return;
 
   globalCommandCount++;
@@ -86,7 +97,7 @@ export async function trackCommandStat(
 /**
  * Save accumulated stats to Firestore
  */
-async function saveStats() {
+async function saveStats(): Promise<void> {
   try {
     const bufferedCommandCount = getBufferedCommandCount();
     if (bufferedCommandCount === 0) return;
@@ -105,9 +116,9 @@ async function saveStats() {
 /**
  * Update global command statistics
  */
-async function updateGlobalStats(commandCount) {
+async function updateGlobalStats(commandCount: number): Promise<void> {
   try {
-    const globalDoc = await getDocument("stats", "global");
+    const globalDoc = (await getDocument("stats", "global")) as any;
 
     const dailyStart = getPeriodStartDate("daily");
     const weeklyStart = getPeriodStartDate("weekly");
@@ -130,7 +141,7 @@ async function updateGlobalStats(commandCount) {
         },
       });
     } else {
-      const updates = {
+      const updates: Record<string, any> = {
         totalCommandsRan: (globalDoc.totalCommandsRan || 0) + commandCount,
       };
 
@@ -183,10 +194,10 @@ async function updateGlobalStats(commandCount) {
 /**
  * Update most used commands
  */
-async function updateMostUsedCommands() {
+async function updateMostUsedCommands(): Promise<void> {
   try {
-    const commandDoc = await getDocument("stats", "commands");
-    const updates = {};
+    const commandDoc = (await getDocument("stats", "commands")) as any;
+    const updates: Record<string, number> = {};
 
     for (const [commandName, count] of Object.entries(commandBuffer)) {
       const currentCount = commandDoc?.[commandName] || 0;
@@ -208,13 +219,13 @@ async function updateMostUsedCommands() {
 /**
  * Update server-specific statistics
  */
-async function updateServerStats() {
+async function updateServerStats(): Promise<void> {
   try {
     const dailyStart = getPeriodStartDate("daily");
     const weeklyStart = getPeriodStartDate("weekly");
 
     for (const [guildId, serverData] of Object.entries(serverBuffer)) {
-      const serverDoc = await getDocument("servers", guildId);
+      const serverDoc = (await getDocument("servers", guildId)) as any;
       const commandCount = serverData.commandCount;
       const guildName = serverData.guildName || "";
 
@@ -232,7 +243,7 @@ async function updateServerStats() {
           },
         });
       } else {
-        const updates = {
+        const updates: Record<string, any> = {
           totalCommandsRan: (serverDoc.totalCommandsRan || 0) + commandCount,
         };
 
@@ -278,7 +289,7 @@ async function updateServerStats() {
  * Get all statistics for display
  * @returns {Promise<Object>} Stats object with global, commands, and servers data
  */
-export async function getStats() {
+export async function getStats(): Promise<{ global: any; commands: any }> {
   try {
     const globalDoc = await getDocument("stats", "global");
     const commandsDoc = await getDocument("stats", "commands");
@@ -296,9 +307,9 @@ export async function getStats() {
 /**
  * Get specific server statistics
  * @param {string} guildId
- * @returns {Promise<Object>} Server stats
+ * @returns {Promise<any>} Server stats
  */
-export async function getServerStats(guildId) {
+export async function getServerStats(guildId: string): Promise<any> {
   try {
     return await getDocument("servers", guildId);
   } catch (error) {

@@ -1,6 +1,6 @@
 import { AttachmentBuilder, codeBlock, EmbedBuilder } from "discord.js";
-import type { CommandCallbackOpts } from "../../types/command.js";
-import getConfig from "../../utils/getConfig.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
+import getConfig from "../../utils/getConfig.ts";
 
 type RepoInfo = {
   owner: string;

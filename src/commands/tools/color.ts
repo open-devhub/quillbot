@@ -1,6 +1,6 @@
 import { createCanvas } from "@napi-rs/canvas";
 import { AttachmentBuilder, EmbedBuilder } from "discord.js";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 
 function hexToRgb(hex: string) {
   const clean = hex.replace("#", "");

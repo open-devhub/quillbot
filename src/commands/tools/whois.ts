@@ -1,5 +1,5 @@
 import { EmbedBuilder } from "discord.js";
-import type { CommandCallbackOpts } from "../../types/command.js";
+import type { CommandCallbackOpts } from "../../types/command.ts";
 
 type WhoisEvent = {
   eventAction?: string;
