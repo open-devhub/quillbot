@@ -3,6 +3,8 @@ import { EmbedBuilder } from "discord.js";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import getAllFiles from "../../utils/getAllFiles.ts";
+import getConfig from "../../utils/getConfig.ts";
 
 type Command = {
   name: string;
@@ -32,14 +34,6 @@ export default {
    */
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {
-      const getAllFiles = (await import("../../utils/getAllFiles.js"))
-        .default as (directory: string, foldersOnly?: boolean) => string[];
-      const getConfig = (await import("../../utils/getConfig.js"))
-        .default as () => Promise<{
-        prefixes: string[];
-        devs: string[];
-      }>;
-
       const prefixCommandsPath = join(__dirname, "..", "..", "commands");
       const config = await getConfig();
       if (!config) {
