@@ -1,12 +1,12 @@
 {
   "name": "quillbot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Quill is an advanced Discord developer assistant bot built to help programmers code faster, learn better, and debug smarter, directly inside Discord.",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node .",
-    "dev": "node --watch ."
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts"
   },
   "keywords": [],
   "author": "Caleb Ephrem",
@@ -22,5 +22,8 @@
     "prettier": "^3.8.3",
     "turndown": "^7.2.4",
     "unique-custom-id": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/turndown": "^5.0.6"
   }
 }
