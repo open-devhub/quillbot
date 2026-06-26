@@ -1,6 +1,7 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
@@ -15,7 +16,7 @@ export default {
   usage: "%psuggest\n<codeblock | message link>",
   aliases: ["suggestion", "improve", "codesuggestion"],
   premium: true,
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = await getConfig();
     const { check, x, tick, warn } = emojis;
 
@@ -32,10 +33,13 @@ export default {
       lang = parsedBlock.lang || langFromArgs;
       code = parsedBlock.code;
     } else if (link) {
-      const [, guildId, channelId, messageId] = link.match(
-        /https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
-      );
+      const [, guildId, channelId, messageId] =
+        link.match(/https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/) ??
+        [];
       try {
+        if (!guildId || !channelId || !messageId) {
+          throw new Error("Invalid Discord link provided.");
+        }
         const guild = client.guilds.cache.get(guildId);
         if (!guild) throw new Error("Guild not found");
 
@@ -100,8 +104,7 @@ export default {
         top_p: 1,
       });
 
-      suggestion =
-        chatCompletion.choices?.[0]?.message?.content || "";
+      suggestion = chatCompletion.choices?.[0]?.message?.content || "";
     } catch (err) {
       console.error("Suggest command error:", err);
       await message.reactions.removeAll();

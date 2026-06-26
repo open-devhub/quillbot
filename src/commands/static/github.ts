@@ -1,21 +1,22 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import fetch from "node-fetch";
+import type { SubcommandCallbackOpts } from "../../types/command.js";
 
 export default {
   name: "github",
   description: "Get the GitHub information for Quill bot.",
   usage: "%pgithub <repo | issues | prs | contributors | org>",
   callback: {
-    async callback(client: Client, message: Message, args: string[]) {
+    repo({ client, message, args }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub/quillbot");
     },
-    issues(client: Client, message: Message, args: string[]) {
+    issues({ client, message, args }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub/quillbot/issues");
     },
-    prs(client: Client, message: Message, args: string[]) {
+    prs({ client, message, args }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub/quillbot/pulls");
     },
-    async contributors(client: Client, message: Message, args: string[]) {
+    async contributors({ client, message, args }: SubcommandCallbackOpts) {
       // list contributors from GitHub API
       const contributors = await fetch(
         "https://api.github.com/repos/open-devhub/quillbot/contributors",
@@ -43,7 +44,7 @@ export default {
         ],
       });
     },
-    org(client: Client, message: Message, args: string[]) {
+    org({ client, message, args }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub");
     },
   },

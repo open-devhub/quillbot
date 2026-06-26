@@ -1,4 +1,4 @@
-import type { Client, Message } from "discord.js";
+import type { SubcommandCallbackOpts } from "../../types/command.js";
 import { cacheDB, getCachedDB } from "../../utils/cacheDB.js";
 import { createDocument, deleteDocument } from "../../utils/firestore.js";
 
@@ -8,7 +8,7 @@ export default {
   devOnly: true,
 
   callback: {
-    async add(client: Client, message: Message, args: string[]) {
+    async add({ client, message, args }: SubcommandCallbackOpts) {
       try {
         const guildId = args[0] || message.guild?.id;
         if (!guildId) return message.reply("Provide a guild ID.");
@@ -35,7 +35,7 @@ export default {
       }
     },
 
-    async remove(client: Client, message: Message, args: string[]) {
+    async remove({ client, message, args }: SubcommandCallbackOpts) {
       try {
         const guildId = args[0] || message.guild?.id;
         if (!guildId) return message.reply("Provide a guild ID.");

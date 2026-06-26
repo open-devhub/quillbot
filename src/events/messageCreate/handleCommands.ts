@@ -195,7 +195,7 @@ export default async (client: Client, message: Message) => {
     }
 
     if (typeof commandObject.callback === "function") {
-      await commandObject.callback(client, message, args);
+      await commandObject.callback({ client, message, args });
     } else if (
       typeof commandObject.callback === "object" &&
       commandObject.callback !== null
@@ -207,7 +207,7 @@ export default async (client: Client, message: Message) => {
         : undefined;
 
       if (subCommand && typeof subCommand === "function") {
-        await subCommand(client, message, args);
+        await subCommand({ client, message, args });
       } else {
         return message.reply({
           embeds: [

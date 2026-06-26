@@ -1,6 +1,7 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
@@ -14,7 +15,7 @@ export default {
   description: "Detect the programming language of a code snippet",
   usage: "%pwhatlang\n<codeblock | message link>",
   aliases: ["detectlang", "whichlang"],
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = await getConfig();
     const { check, x, loading, warn } = emojis;
 

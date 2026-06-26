@@ -1,5 +1,6 @@
-import { Client, EmbedBuilder, Message, codeBlock } from "discord.js";
+import { EmbedBuilder, codeBlock } from "discord.js";
 import prettier from "prettier";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
@@ -36,7 +37,7 @@ export default {
   description: "Format code using Prettier",
   usage: "%pformat\n<codeblock | message link>",
   aliases: ["prettier"],
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;
 
@@ -102,7 +103,6 @@ export default {
         }
 
         lang = fetchedCodeBlock.lang || langFromArgs || "javascript";
-
         code = fetchedCodeBlock.code ?? "";
       } catch (err) {
         await reaction?.remove().catch(() => {});

@@ -1,5 +1,6 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import fetch from "node-fetch";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 export default {
   name: "http",
@@ -8,7 +9,7 @@ export default {
     "%phttp <url> [method]\n<optional JSON body for POST/PUT/PATCH in code block>",
   aliases: ["postman", "fetch", "insomnia"],
 
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const url = args[0];
     const method = (args[1] || "GET").toUpperCase();
 
@@ -130,7 +131,10 @@ export default {
           },
           {
             name: "Headers",
-            value: "```json\n" + safe(JSON.stringify(filteredHeaders, null, 2), 500) + "\n```",
+            value:
+              "```json\n" +
+              safe(JSON.stringify(filteredHeaders, null, 2), 500) +
+              "\n```",
           },
           {
             name: "Response Body",

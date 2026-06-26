@@ -2,10 +2,9 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Client,
   EmbedBuilder,
-  Message,
 } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 export default {
   name: "profile",
@@ -13,7 +12,7 @@ export default {
   usage: "%pprofile <username | profile URL>",
   aliases: ["githubprofile", "user"],
   react: "💻",
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const username = args[0];
       if (!username) {

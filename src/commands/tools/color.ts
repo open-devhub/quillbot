@@ -1,5 +1,6 @@
 import { createCanvas } from "@napi-rs/canvas";
-import { AttachmentBuilder, Client, EmbedBuilder, Message } from "discord.js";
+import { AttachmentBuilder, EmbedBuilder } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 function hexToRgb(hex: string) {
   const clean = hex.replace("#", "");
@@ -118,7 +119,7 @@ export default {
   description: "Preview a color or gradient",
   usage: "%pcolor <color1> [color2] ... [color15]",
   aliases: ["gradient"],
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const inputs = args;
 

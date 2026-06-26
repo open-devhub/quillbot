@@ -2,14 +2,13 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Client,
   ComponentType,
   EmbedBuilder,
-  Message,
   codeBlock,
 } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
@@ -119,7 +118,7 @@ export default {
   description: "Run code snippets in various programming languages",
   aliases: ["compile", "execute", "exec"],
   usage: "%prun\n<codeblock | message link>",
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;
 
@@ -165,7 +164,6 @@ export default {
         }
 
         lang = fetchedCodeBlock.lang || langFromArgs || "javascript";
-
         code = fetchedCodeBlock.code ?? "";
       } catch (err) {
         return message.reply({

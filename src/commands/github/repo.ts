@@ -2,10 +2,9 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Client,
   EmbedBuilder,
-  Message,
 } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 export default {
   name: "repo",
@@ -13,7 +12,7 @@ export default {
   usage: "%prepo <repository URL>",
   aliases: ["githubrepo", "ghrepo"],
   react: "📦",
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const repoUrl = args[0];
       if (!repoUrl) {

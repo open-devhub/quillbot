@@ -1,4 +1,5 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
@@ -10,7 +11,7 @@ export default {
   usage: "%pcomplexity\n<codeblock | message link>",
   aliases: ["bigo", "big-o", "algo"],
 
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const { codeBlock: parsedBlock, link } = parseCodeCommandInput(
       message.content,
       args,

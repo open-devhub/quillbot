@@ -1,11 +1,12 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 export default {
   name: "servers",
   description: "List all servers the bot is in",
   aliases: ["guilds"],
   devOnly: true,
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const threshold = 50;
       const serverCount = client.guilds.cache.size;

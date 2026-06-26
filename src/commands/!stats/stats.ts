@@ -1,4 +1,5 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import { getServerStats, getStats } from "../../utils/stats.js";
 
 export default {
@@ -6,7 +7,7 @@ export default {
   description: "See bot statistics",
   aliases: ["statistics"],
   devOnly: true,
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       if (args[0]) {
         const serverStats = await getServerStats(args[0] || message.guildId);

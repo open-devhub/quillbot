@@ -1,4 +1,4 @@
-import type { Client, Message } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import { cacheDB } from "../../utils/cacheDB.js";
 
 export default {
@@ -7,7 +7,7 @@ export default {
   aliases: ["refreshcache"],
   devOnly: true,
 
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       await cacheDB();
       return message.reply("Database cache has been refreshed.");

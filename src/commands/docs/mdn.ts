@@ -1,6 +1,7 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import fetch from "node-fetch";
 import TurndownService from "turndown";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 const turndown = new TurndownService();
 
@@ -10,7 +11,7 @@ export default {
   aliases: ["mozilla", "mdnsearch"],
   usage: "%pmdn <term>",
   react: "📚",
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");
       if (!query) {

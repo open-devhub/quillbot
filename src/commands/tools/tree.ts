@@ -1,10 +1,5 @@
-import {
-  AttachmentBuilder,
-  Client,
-  codeBlock,
-  EmbedBuilder,
-  Message,
-} from "discord.js";
+import { AttachmentBuilder, codeBlock, EmbedBuilder } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import getConfig from "../../utils/getConfig.js";
 
 type RepoInfo = {
@@ -88,7 +83,7 @@ export default {
   description: "View GitHub repository structure",
   usage: "%ptree <github repo link> [depth]",
   premium: true,
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = await getConfig();
     const { check, x, tick } = emojis;
 

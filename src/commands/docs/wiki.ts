@@ -2,11 +2,10 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Client,
   EmbedBuilder,
-  Message,
 } from "discord.js";
 import fetch from "node-fetch";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 export default {
   name: "wiki",
@@ -14,7 +13,7 @@ export default {
   usage: "%pwiki <term>",
   aliases: ["wikipedia", "wikisearch"],
   react: "📚",
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");
       if (!query) {

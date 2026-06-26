@@ -2,6 +2,7 @@ import type { Client, Message } from "discord.js";
 import { EmbedBuilder } from "discord.js";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 type Command = {
   name: string;
@@ -29,7 +30,7 @@ export default {
    * @param {Client} client
    * @param {Message} message
    */
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const getAllFiles = (await import("../../utils/getAllFiles.js"))
         .default as (directory: string, foldersOnly?: boolean) => string[];

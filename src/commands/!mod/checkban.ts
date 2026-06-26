@@ -1,4 +1,5 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import { getDocument } from "../../utils/firestore.js";
 
 export default {
@@ -6,7 +7,7 @@ export default {
   description: "Check the ban status of a server",
   devOnly: true,
 
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const guildId = args[0] || message.guild?.id;
 

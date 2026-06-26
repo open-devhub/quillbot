@@ -2,11 +2,10 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Client,
   EmbedBuilder,
-  Message,
 } from "discord.js";
 import fetch from "node-fetch";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 export default {
   name: "npm",
@@ -14,7 +13,7 @@ export default {
   usage: "%pnpm <package name>",
   aliases: ["npmpkg"],
   react: "📦",
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");
       if (!query) {

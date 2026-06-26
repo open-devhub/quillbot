@@ -1,6 +1,7 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -10,7 +11,7 @@ export default {
     "Provides a step-by-step breakdown of a mathematical expression.",
   usage: "%pmath-breakdown <expression>",
   aliases: ["math"],
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const expression = args.join(" ");
 
     if (!args || !expression || !message) return;

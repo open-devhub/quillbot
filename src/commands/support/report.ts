@@ -1,5 +1,6 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import ucid from "unique-custom-id";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import getConfig from "../../utils/getConfig.js";
 
 export default {
@@ -7,7 +8,7 @@ export default {
   description: "Report a bug or issue with the bot",
   usage: "%preport <description> [image attachment]",
   aliases: ["bug", "issue"],
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const { emojis, support, premiumServer } = await getConfig();
       const { check, x } = emojis;

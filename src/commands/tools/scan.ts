@@ -1,11 +1,6 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  Client,
-  EmbedBuilder,
-  Message,
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.js";
 import "dotenv/config";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 const GSB_API_KEY = process.env.GSB_API_KEY;
 const URLSCAN_API_KEY = process.env.URLSCAN_API_KEY;
@@ -17,7 +12,7 @@ export default {
   usage: "%pscan <url | message link>",
   aliases: ["checkurl", "urlscan"],
   premium: true,
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     let url: string | undefined = args[0];
 
     if (!url) {

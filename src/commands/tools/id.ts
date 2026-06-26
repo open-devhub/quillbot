@@ -1,13 +1,14 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import ucid from "unique-custom-id";
 import { map } from "unique-custom-id/format";
+import type { CommandCallbackOpts } from "../../types/command.js";
 
 export default {
   name: "id",
   description: "Generate a unique ID",
   usage: "%pid [format | list]",
   aliases: ["uuid", "uid"],
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       let format = args[0]?.toLowerCase() || "ucid";
 

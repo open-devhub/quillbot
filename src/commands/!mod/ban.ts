@@ -1,4 +1,5 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import { createDocument } from "../../utils/firestore.js";
 import getConfig from "../../utils/getConfig.js";
 
@@ -7,7 +8,7 @@ export default {
   description: "Ban a server from using the bot",
   devOnly: true,
 
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const { premiumServer, logs } = await getConfig();
 

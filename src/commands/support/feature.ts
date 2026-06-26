@@ -1,5 +1,6 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import ucid from "unique-custom-id";
+import type { CommandCallbackOpts } from "../../types/command.js";
 import getConfig from "../../utils/getConfig.js";
 
 export default {
@@ -7,7 +8,7 @@ export default {
   description: "Suggest a feature to be added",
   usage: "%pfeature <description> [image attachment]",
   aliases: ["feat", "newfeature", "newfeat"],
-  async callback(client: Client, message: Message, args: string[]) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const { emojis, support, premiumServer } = await getConfig();
       const { check, x } = emojis;
