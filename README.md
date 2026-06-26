@@ -125,7 +125,8 @@ Instead of switching between tools and platforms, Quill brings everything into o
 
 ## ⚡ Tech Stack
 
-- Node.js
+- TypeScript
+- Bun
 - Discord.js
 - Judge0 API (code execution)
 - Groq API (code understanding & generation)
