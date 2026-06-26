@@ -9,17 +9,15 @@ export default {
   devOnly: true,
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {
-      if (args[0] || message.guildId) {
-        const serverStats = await getServerStats(
-          (args[0] || message.guildId) ?? "",
-        );
+      if (args[0]) {
+        const serverStats = await getServerStats(args[0]);
         if (!serverStats) {
           return message.reply({
             embeds: [
               new EmbedBuilder()
                 .setTitle("❌ No Server Stats")
                 .setDescription(
-                  "No statistics found for this server. Make sure the bot has been used here.",
+                  `No statistics found for the server ID: \`${args[0]}\`. Make sure the bot has been used there.`,
                 )
                 .setColor(0xd21872),
             ],
@@ -28,7 +26,7 @@ export default {
 
         const serverEmbed = new EmbedBuilder()
           .setTitle(
-            `📍 Server Statistics - ${serverStats.name || message.guild?.name}`,
+            `📍 Server Statistics - ${serverStats.name || "Unknown Server"}`,
           )
           .setColor(0xff9900)
           .addFields(
@@ -55,8 +53,11 @@ export default {
           );
         return message.reply({ embeds: [serverEmbed] });
       }
+
       const stats = await getStats();
-      const serverStats = await getServerStats(message.guildId ?? "");
+      const serverStats = message.guildId
+        ? await getServerStats(message.guildId)
+        : null;
 
       const globalData = stats.global || {};
       const commandsData = stats.commands || {};
@@ -109,7 +110,6 @@ export default {
         .setDescription(commandsText)
         .setColor(0x00ff99);
 
-      // Server stats embed
       let serverEmbed = null;
       if (serverStats) {
         serverEmbed = new EmbedBuilder()
