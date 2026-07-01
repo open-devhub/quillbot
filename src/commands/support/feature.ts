@@ -1,7 +1,11 @@
 import { EmbedBuilder } from "discord.js";
 import ucid from "unique-custom-id";
 import config from "../../../config.json" with { type: "json" };
+import { createEntry } from "../../firestore/support.ts";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import type { Log } from "../../types/log.ts";
+import type { SupportDoc } from "../../types/support.ts";
+import { log } from "../../utils/log.ts";
 
 export default {
   name: "feature",
@@ -18,9 +22,16 @@ export default {
 
       const content = args.join(" ");
       if (!content) {
-        return message.reply(
-          "Please describe the feature you want to be added.",
-        );
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("❌ No description provided")
+              .setDescription(
+                "Please provide a description of the feature you want to suggest.",
+              )
+              .setColor(0xd21872),
+          ],
+        });
       }
 
       const guild = await client.guilds.fetch(premiumServer);
@@ -43,10 +54,10 @@ export default {
       const attachment = message.attachments.first();
       const imageUrl = attachment?.url || null;
 
-      const reportEmbed = new EmbedBuilder()
-        .setTitle("💻 New Feature Request")
-        .setDescription(`**${content.slice(0, 2000)}**`)
-        .addFields(
+      log({
+        title: "💻 New Feature Request",
+        description: `\`\`\`${content.slice(0, 2000)}\`\`\``,
+        fields: [
           {
             name: "Request ID",
             value: `\`${reportId}\``,
@@ -59,24 +70,16 @@ export default {
             name: "Server",
             value: `${message.guild?.name} (${message.guild?.id})`,
           },
-        )
-        .setThumbnail(message.author.displayAvatarURL({ size: 1024 }))
-        .setColor(0xffcc00)
-        .setTimestamp();
-
-      if (imageUrl) {
-        reportEmbed.setImage(imageUrl);
-      }
-
-      if ("send" in reportsChannel) {
-        await reportsChannel.send({
-          embeds: [reportEmbed],
-        });
-      }
+        ],
+        thumbnail: message.author.displayAvatarURL({ size: 256 }),
+        color: 0xffcc00,
+        image: imageUrl || undefined,
+        timestamp: true,
+      } as Log);
 
       await message.react(check);
 
-      return message.reply({
+      await message.reply({
         embeds: [
           new EmbedBuilder()
             .setTitle("💻 Feature Request Sent")
@@ -97,6 +100,24 @@ export default {
             ),
         ],
       });
+
+      createEntry({
+        type: "feature",
+        id: String(reportId),
+        description: content,
+        user: {
+          id: message.author.id,
+          tag: message.author.tag,
+        },
+        server:
+          message.guild?.id && message.guild?.name
+            ? {
+                id: message.guild?.id,
+                name: message.guild?.name,
+              }
+            : undefined,
+        date: new Date().toISOString(),
+      } as SupportDoc);
     } catch (err) {
       console.error(err);
       return message.reply({

@@ -21,8 +21,9 @@ export function log(entry: Log) {
   entry.fields && embed.addFields(entry.fields);
   entry.timestamp && embed.setTimestamp();
   entry.footer && embed.setFooter(entry.footer);
-  entry.thumbnail && embed.setThumbnail(entry.thumbnail.url);
+  entry.thumbnail && embed.setThumbnail(entry.thumbnail);
   entry.author && embed.setAuthor(entry.author);
+  entry.image && embed.setImage(entry.image);
 
   logsChannel.send({ embeds: [embed] }).catch((err) => {
     console.error("Failed to send log message:", err);
