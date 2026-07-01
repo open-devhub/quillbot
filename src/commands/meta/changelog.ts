@@ -1,7 +1,10 @@
 import { EmbedBuilder } from "discord.js";
 import path from "path";
+import { fileURLToPath } from "url";
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import { readFile } from "../../utils/fileOps.ts";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default {
   name: "changelog",
