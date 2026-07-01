@@ -5,7 +5,7 @@ import type { WhoisData } from "../../types/whois.ts";
 export default {
   name: "whois",
   description: "Lookup domain WHOIS info",
-  usage: "%pwhois <domain>",
+  usage: "whois <domain>",
   async callback({ message, args }: CommandCallbackOpts) {
     const rawDomain = args[0];
     if (!rawDomain) {

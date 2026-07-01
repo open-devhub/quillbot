@@ -6,7 +6,7 @@ export default {
   name: "http",
   description: "Make HTTP requests and inspect responses",
   usage:
-    "%phttp <url> [method]\n<optional JSON body for POST/PUT/PATCH in code block>",
+    "http <url> [method]\n<optional JSON body for POST/PUT/PATCH in code block>",
   aliases: ["postman", "fetch", "insomnia"],
 
   async callback({ message, args }: CommandCallbackOpts) {

@@ -9,7 +9,7 @@ const IPQUALITYSCORE_API_KEY = process.env.IPQUALITYSCORE_API_KEY;
 export default {
   name: "scan",
   description: "Check if a URL is sus",
-  usage: "%pscan <url | message link>",
+  usage: "scan <url | message link>",
   aliases: ["checkurl", "urlscan"],
   premium: true,
   async callback({ client, message, args }: CommandCallbackOpts) {
@@ -21,7 +21,7 @@ export default {
           new EmbedBuilder()
             .setTitle("❌ No URL Provided")
             .setDescription(
-              "Please provide a URL to scan.\nUsage: `%pscan <url>`",
+              "Please provide a URL to scan.\nUsage: `;scan <url>`",
             )
             .setColor(0xd21872),
         ],

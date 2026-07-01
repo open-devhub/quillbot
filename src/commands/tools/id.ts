@@ -6,7 +6,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "id",
   description: "Generate a unique ID",
-  usage: "%pid [format | list]",
+  usage: "id [format | list]",
   aliases: ["uuid", "uid"],
   async callback({ message, args }: CommandCallbackOpts) {
     try {

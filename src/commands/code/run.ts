@@ -76,25 +76,26 @@ async function runCode(lang: string, code: string) {
     const language_id = findLanguageId(languages, lang);
 
     if (!language_id) {
-      return {
-        success: false,
-        stderr: `Unsupported language: ${lang}`,
-      };
+      return { success: false, stderr: `Unsupported language: ${lang}` };
     }
 
     const res = await fetch("https://ce.judge0.com/submissions?wait=true", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        language_id,
-        source_code: code,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language_id, source_code: code }),
     });
 
     if (!res.ok) {
-      return { success: false };
+      const bodyText = await res.text().catch(() => "");
+      console.error(`Judge0 HTTP ${res.status}: ${bodyText}`);
+
+      return {
+        success: false,
+        stderr:
+          res.status === 429
+            ? "Rate limited by Judge0's free API. Try again later."
+            : `Judge0 request failed (HTTP ${res.status}).`,
+      };
     }
 
     const data = await res.json();
@@ -110,11 +111,7 @@ async function runCode(lang: string, code: string) {
     };
   } catch (err) {
     console.error("Code execution error:", err);
-
-    return {
-      success: false,
-      stderr: "Failed to execute code",
-    };
+    return { success: false, stderr: "Failed to execute code" };
   }
 }
 
@@ -122,7 +119,7 @@ export default {
   name: "run",
   description: "Run code snippets in various programming languages",
   aliases: ["compile", "execute", "exec"],
-  usage: "%prun\n<codeblock | message link>",
+  usage: "run\n<codeblock | message link>",
   async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = config;
     const { check, x, tick } = emojis;
@@ -211,7 +208,7 @@ export default {
 
       const output = await runCode(lang, code);
 
-      await reaction.remove().catch(() => {});
+      await reaction.users.remove(client.user!.id).catch(() => {});
 
       const embed = new EmbedBuilder()
         .setFooter({ text: `${message.author.tag} | ${lang}` })

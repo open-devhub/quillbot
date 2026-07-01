@@ -4,7 +4,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "regex",
   description: "Test and analyze regex patterns",
-  usage: "%pregex <pattern> | <text>",
+  usage: "regex <pattern> | <text>",
   aliases: ["regexp"],
   async callback({ message, args }: CommandCallbackOpts) {
     try {

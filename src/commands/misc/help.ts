@@ -16,7 +16,7 @@ export default {
   name: "help",
   description:
     "Provides information about available commands and how to use them.",
-  usage: "%phelp [command]",
+  usage: "help [command]",
   aliases: ["welp", "h"],
   /**
    *
@@ -79,7 +79,7 @@ export default {
             {
               name: "Usage",
               value: command.usage
-                ? `\`${command.usage.replace("%p", prefix)}\``
+                ? `\`${prefix}${command.usage}\``
                 : `\`${prefix}${command.name}\``,
             },
             {

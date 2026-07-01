@@ -10,7 +10,7 @@ import { log } from "../../utils/log.ts";
 export default {
   name: "feature",
   description: "Suggest a feature to be added",
-  usage: "%pfeature <description> [image attachment]",
+  usage: "feature <description> [image attachment]",
   aliases: ["feat", "newfeature", "newfeat"],
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {

@@ -10,7 +10,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "pip",
   description: "Search PyPI packages",
-  usage: "%ppip <package name>",
+  usage: "pip <package name>",
   aliases: ["pypi", "pipkg"],
   react: "🐍",
   async callback({ message, args }: CommandCallbackOpts) {

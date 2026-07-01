@@ -10,7 +10,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "npm",
   description: "Search npm packages",
-  usage: "%pnpm <package name>",
+  usage: "npm <package name>",
   aliases: ["npmpkg"],
   react: "📦",
   async callback({ message, args }: CommandCallbackOpts) {

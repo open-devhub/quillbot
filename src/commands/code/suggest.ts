@@ -13,14 +13,14 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 export default {
   name: "suggest",
   description: "Get concise suggestions to improve a code snippet using AI",
-  usage: "%psuggest\n<codeblock | message link>",
+  usage: "suggest\n<codeblock | message link>",
   aliases: ["suggestion", "improve", "codesuggestion"],
   premium: true,
   async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = config;
     const { check, x, tick, warn } = emojis;
 
-    await message.react(tick);
+    const reaction = await message.react(tick);
     const {
       codeBlock: parsedBlock,
       link,
@@ -51,7 +51,7 @@ export default {
         const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
-          await message.reactions.removeAll();
+          await reaction.users.remove(client.user!.id).catch(() => {});
           await message.react(x);
           return message.reply({
             embeds: [
@@ -65,7 +65,7 @@ export default {
         lang = fetchedCodeBlock.lang || langFromArgs;
         code = fetchedCodeBlock.code;
       } catch (err) {
-        await message.reactions.removeAll();
+        await reaction.users.remove(client.user!.id).catch(() => {});
         await message.react(x);
         return message.reply({
           embeds: [
@@ -84,7 +84,7 @@ export default {
         )
         .setColor(0xd21872)
         .setTimestamp();
-      await message.reactions.removeAll();
+      await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
       return message.reply({ embeds: [embed] });
     }
@@ -107,7 +107,7 @@ export default {
       suggestion = chatCompletion.choices?.[0]?.message?.content || "";
     } catch (err) {
       console.error("Suggest command error:", err);
-      await message.reactions.removeAll();
+      await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(warn);
       return message.reply({
         embeds: [
@@ -119,7 +119,7 @@ export default {
     }
 
     if (!suggestion.trim()) {
-      await message.reactions.removeAll();
+      await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(warn);
       return message.reply({
         embeds: [
@@ -141,7 +141,7 @@ export default {
       .setColor(0x18d272)
       .setFooter({ text: `${message.author.tag} | ${lang}` })
       .setTimestamp();
-    await message.reactions.removeAll();
+    await reaction.users.remove(client.user!.id).catch(() => {});
     await message.react(check);
     return message.reply({ embeds: [embed] });
   },

@@ -10,7 +10,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "wiki",
   description: "Search Wikipedia articles",
-  usage: "%pwiki <term>",
+  usage: "wiki <term>",
   aliases: ["wikipedia", "wikisearch"],
   react: "📚",
   async callback({ message, args }: CommandCallbackOpts) {

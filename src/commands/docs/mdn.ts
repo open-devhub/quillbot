@@ -9,7 +9,7 @@ export default {
   name: "mdn",
   description: "Search MDN Web Docs",
   aliases: ["mozilla", "mdnsearch"],
-  usage: "%pmdn <term>",
+  usage: "mdn <term>",
   react: "📚",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
