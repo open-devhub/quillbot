@@ -7,12 +7,12 @@ import fsp from "fs/promises";
 import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const dataDir = path.join(__dirname, "..", "data");
+const dataDir = path.join(__dirname, "..", "..", "data");
 fsp.mkdir(dataDir, { recursive: true }).catch((err) => {
   console.error("Error creating data directory:", err);
 });
 
-const cacheFilePath = path.join(__dirname, "..", "data", "cache.json");
+const cacheFilePath = path.join(__dirname, "..", "..", "data", "cache.json");
 
 export async function cacheDB() {
   // Explicitly type the object so it expects a Record instead of an array
