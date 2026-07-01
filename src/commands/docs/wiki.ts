@@ -13,7 +13,7 @@ export default {
   usage: "%pwiki <term>",
   aliases: ["wikipedia", "wikisearch"],
   react: "📚",
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");
       if (!query) {

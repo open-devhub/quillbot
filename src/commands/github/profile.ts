@@ -12,7 +12,7 @@ export default {
   usage: "%pprofile <username | profile URL>",
   aliases: ["githubprofile", "user"],
   react: "💻",
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       const username = args[0];
       if (!username) {

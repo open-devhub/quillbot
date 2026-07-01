@@ -119,7 +119,7 @@ export default {
   description: "Preview a color or gradient",
   usage: "%pcolor <color1> [color2] ... [color15]",
   aliases: ["gradient"],
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       const inputs = args;
 

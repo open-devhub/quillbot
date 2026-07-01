@@ -7,7 +7,7 @@ export default {
     "Decodes a Discord Snowflake ID to extract its creation metadata.",
   usage: "%psnowflake <snowflake>",
   aliases: ["sf"],
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     const idStr = args[0];
 
     if (!idStr) {

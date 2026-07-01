@@ -11,7 +11,7 @@ export default {
   aliases: ["mozilla", "mdnsearch"],
   usage: "%pmdn <term>",
   react: "📚",
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");
       if (!query) {

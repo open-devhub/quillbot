@@ -12,7 +12,7 @@ export default {
   usage: "%prepo <repository URL>",
   aliases: ["githubrepo", "ghrepo"],
   react: "📦",
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       const repoUrl = args[0];
       if (!repoUrl) {

@@ -83,7 +83,7 @@ export default {
   description: "View GitHub repository structure",
   usage: "%ptree <github repo link> [depth]",
   premium: true,
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     const { emojis } = config;
     const { check, x, tick } = emojis;
 

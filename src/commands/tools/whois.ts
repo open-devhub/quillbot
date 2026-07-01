@@ -16,7 +16,7 @@ export default {
   name: "whois",
   description: "Lookup domain WHOIS info",
   usage: "%pwhois <domain>",
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     const rawDomain = args[0];
     if (!rawDomain) {
       return message.reply({

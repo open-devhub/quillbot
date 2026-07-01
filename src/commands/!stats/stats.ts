@@ -7,7 +7,7 @@ export default {
   description: "See bot statistics",
   aliases: ["statistics"],
   devOnly: true,
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       if (args[0]) {
         const serverStats = await getServerStats(args[0]);

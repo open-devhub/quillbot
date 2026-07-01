@@ -7,7 +7,7 @@ export default {
   aliases: ["refreshcache"],
   devOnly: true,
 
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message }: CommandCallbackOpts) {
     try {
       await cacheDB();
       return message.reply("Database cache has been refreshed.");

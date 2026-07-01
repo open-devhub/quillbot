@@ -11,7 +11,7 @@ export default {
     "Provides a step-by-step breakdown of a mathematical expression.",
   usage: "%pmath-breakdown <expression>",
   aliases: ["math"],
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     const expression = args.join(" ");
 
     if (!args || !expression || !message) return;

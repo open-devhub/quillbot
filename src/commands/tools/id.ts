@@ -8,7 +8,7 @@ export default {
   description: "Generate a unique ID",
   usage: "%pid [format | list]",
   aliases: ["uuid", "uid"],
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       let format = args[0]?.toLowerCase() || "ucid";
 

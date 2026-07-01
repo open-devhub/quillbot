@@ -32,7 +32,7 @@ export default {
    * @param {Client} client
    * @param {Message} message
    */
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       const prefixCommandsPath = join(__dirname, "..", "..", "commands");
       if (!config) {
