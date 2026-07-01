@@ -9,7 +9,7 @@ export default (client: Client) => {
   const eventFolders = getAllFiles(path.join(__dirname, "..", "events"), true);
 
   for (const eventFolder of eventFolders) {
-    let eventFiles = getAllFiles(eventFolder);
+    const eventFiles = getAllFiles(eventFolder);
     eventFiles.sort();
 
     const eventName = eventFolder.replace(/\\/g, "/").split("/").pop() || "";

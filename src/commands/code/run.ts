@@ -17,7 +17,12 @@ import {
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-let judge0Languages: any = null;
+interface Judge0Language {
+  id: number;
+  name: string;
+}
+
+let judge0Languages: Judge0Language[] | null = null;
 
 async function getLanguages() {
   // *fetch all Judge0 languages dynamically
@@ -128,14 +133,14 @@ export default {
       langFromArgs,
     } = parseCodeCommandInput(message.content, args);
 
-    let lang = "",
-      code = "";
+    let lang = "";
+    let code = "";
 
     if (parsedBlock) {
       lang = parsedBlock.lang || langFromArgs || "";
       code = parsedBlock.code ?? "";
     } else if (link) {
-      const [_, guildId, channelId, messageId] =
+      const [, guildId, channelId, messageId] =
         link.match(/https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/) ??
         [];
 

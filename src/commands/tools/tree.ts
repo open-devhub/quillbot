@@ -156,7 +156,7 @@ export default {
         .map((f) => f.path);
 
       const tree = buildTree(paths, depth);
-      let output = formatTree(tree);
+      const output = formatTree(tree);
 
       await reaction.remove().catch(() => {});
 

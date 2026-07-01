@@ -64,14 +64,14 @@ export default {
       });
     }
 
-    let lang = "",
-      code = "";
+    let lang = "";
+    let code = "";
 
     if (parsedBlock) {
       lang = parsedBlock.lang || langFromArgs || "";
       code = parsedBlock.code ?? "";
     } else if (link) {
-      const [_, guildId, channelId, messageId] =
+      const [, guildId, channelId, messageId] =
         link.match(/https:\/\/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/) ??
         [];
 
