@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import config from "../../../config.json" with { type: "json" };
+import { createDocument } from "../../firestore/firestore.ts";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import { createDocument } from "../../utils/firestore.ts";
 
 export default {
   name: "ban",

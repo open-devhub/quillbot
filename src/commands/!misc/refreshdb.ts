@@ -1,5 +1,5 @@
+import { cacheDB } from "../../firestore/cacheDB.ts";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import { cacheDB } from "../../utils/cacheDB.ts";
 
 export default {
   name: "refreshdb",

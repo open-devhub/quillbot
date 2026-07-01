@@ -12,7 +12,7 @@ import NodeCache from "node-cache";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
 import config from "../../../config.json" with { type: "json" };
-import { getCachedDB } from "../../utils/cacheDB.ts";
+import { getCachedDB } from "../../firestore/cacheDB.ts";
 import getAllFiles from "../../utils/getAllFiles.ts";
 import { trackCommandStat } from "../../utils/stats.ts";
 

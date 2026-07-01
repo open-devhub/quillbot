@@ -1,4 +1,4 @@
-import { cacheDB } from "../../utils/cacheDB.ts";
+import { cacheDB } from "../../firestore/cacheDB.ts";
 
 export default async () => {
   await cacheDB();

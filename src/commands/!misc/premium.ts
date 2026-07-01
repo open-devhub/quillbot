@@ -1,6 +1,6 @@
+import { cacheDB, getCachedDB } from "../../firestore/cacheDB.ts";
+import { createDocument, deleteDocument } from "../../firestore/firestore.ts";
 import type { SubcommandCallbackOpts } from "../../types/command.ts";
-import { cacheDB, getCachedDB } from "../../utils/cacheDB.ts";
-import { createDocument, deleteDocument } from "../../utils/firestore.ts";
 
 export default {
   name: "premium",

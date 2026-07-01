@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import config from "../../../config.json" with { type: "json" };
+import { deleteDocument } from "../../firestore/firestore.ts";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import { deleteDocument } from "../../utils/firestore.ts";
 
 export default {
   name: "unban",

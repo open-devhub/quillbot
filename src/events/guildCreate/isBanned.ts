@@ -1,5 +1,5 @@
 import type { Client, Guild } from "discord.js";
-import { getDocument } from "../../utils/firestore.ts";
+import { getDocument } from "../../firestore/firestore.ts";
 
 export default async (client: Client, guild: Guild) => {
   try {

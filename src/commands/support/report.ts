@@ -14,7 +14,7 @@ export default {
       const { check, x } = emojis;
       const { reports } = support;
 
-      const reportId = ucid.format("mini");
+      const reportId = ucid.format("short");
 
       const content = args.join(" ");
       if (!content) {
