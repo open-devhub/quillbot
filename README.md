@@ -78,13 +78,14 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 
 ### ⚙️ System & Support
 
-| Command    | Description                                                                      |
-| :--------- | :------------------------------------------------------------------------------- |
-| `;github`  | View the official open-source GitHub repository details for the Quill bot.       |
-| `;help`    | Display interactive menus outlining available commands and exact usage profiles. |
-| `;ping`    | Check API latency, processing metrics, and Discord Gateway websocket health.     |
-| `;feature` | Submit an authorized feature request directly to the development team.           |
-| `;report`  | File a bug report or performance issue directly from your server.                |
+| Command      | Description                                                                      |
+| :----------- | :------------------------------------------------------------------------------- |
+| `;changelog` | View the latest updates, bug fixes, and version history for Quill.               |
+| `;github`    | View the official open-source GitHub repository details for the Quill bot.       |
+| `;help`      | Display interactive menus outlining available commands and exact usage profiles. |
+| `;ping`      | Check API latency, processing metrics, and Discord Gateway websocket health.     |
+| `;feature`   | Submit an authorized feature request directly to the development team.           |
+| `;report`    | File a bug report or performance issue directly from your server.                |
 
 ## ⚡ Tech Stack
 
