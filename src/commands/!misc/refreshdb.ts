@@ -1,5 +1,5 @@
+import { cacheDB } from "../../firestore/cacheDB.ts";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import { cacheDB } from "../../utils/cacheDB.ts";
 
 export default {
   name: "refreshdb",
@@ -7,7 +7,7 @@ export default {
   aliases: ["refreshcache"],
   devOnly: true,
 
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message }: CommandCallbackOpts) {
     try {
       await cacheDB();
       return message.reply("Database cache has been refreshed.");

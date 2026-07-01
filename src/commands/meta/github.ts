@@ -7,16 +7,16 @@ export default {
   description: "Get the GitHub information for Quill bot.",
   usage: "%pgithub <repo | issues | prs | contributors | org>",
   callback: {
-    repo({ client, message, args }: SubcommandCallbackOpts) {
+    repo({ message }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub/quillbot");
     },
-    issues({ client, message, args }: SubcommandCallbackOpts) {
+    issues({ message }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub/quillbot/issues");
     },
-    prs({ client, message, args }: SubcommandCallbackOpts) {
+    prs({ message }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub/quillbot/pulls");
     },
-    async contributors({ client, message, args }: SubcommandCallbackOpts) {
+    async contributors({ message }: SubcommandCallbackOpts) {
       // list contributors from GitHub API
       const contributors = await fetch(
         "https://api.github.com/repos/open-devhub/quillbot/contributors",
@@ -44,7 +44,7 @@ export default {
         ],
       });
     },
-    org({ client, message, args }: SubcommandCallbackOpts) {
+    org({ message }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub");
     },
   },

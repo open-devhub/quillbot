@@ -1,20 +1,7 @@
 import { AttachmentBuilder, codeBlock, EmbedBuilder } from "discord.js";
 import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
-
-type RepoInfo = {
-  owner: string;
-  repo: string;
-};
-
-interface TreeNode {
-  [key: string]: TreeNode;
-}
-
-type GitHubTreeEntry = {
-  type?: string;
-  path?: string;
-};
+import type { GitHubTreeEntry, RepoInfo, TreeNode } from "../../types/tree.ts";
 
 function parseRepo(url: string): RepoInfo | null {
   // Remove protocol and www
@@ -83,7 +70,7 @@ export default {
   description: "View GitHub repository structure",
   usage: "%ptree <github repo link> [depth]",
   premium: true,
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     const { emojis } = config;
     const { check, x, tick } = emojis;
 
@@ -156,7 +143,7 @@ export default {
         .map((f) => f.path);
 
       const tree = buildTree(paths, depth);
-      let output = formatTree(tree);
+      const output = formatTree(tree);
 
       await reaction.remove().catch(() => {});
 

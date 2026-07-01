@@ -3,7 +3,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "ping",
   description: "Check the bot's latency and websocket ping",
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ client, message }: CommandCallbackOpts) {
     try {
       const ping = Date.now() - message.createdTimestamp;
       message.reply(`Pong! ${ping}ms | Websocket: ${client.ws.ping}ms`);

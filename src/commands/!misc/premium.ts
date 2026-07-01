@@ -1,6 +1,6 @@
+import { cacheDB, getCachedDB } from "../../firestore/cacheDB.ts";
+import { createDocument, deleteDocument } from "../../firestore/firestore.ts";
 import type { SubcommandCallbackOpts } from "../../types/command.ts";
-import { cacheDB, getCachedDB } from "../../utils/cacheDB.ts";
-import { createDocument, deleteDocument } from "../../utils/firestore.ts";
 
 export default {
   name: "premium",
@@ -8,7 +8,7 @@ export default {
   devOnly: true,
 
   callback: {
-    async add({ client, message, args }: SubcommandCallbackOpts) {
+    async add({ message, args }: SubcommandCallbackOpts) {
       try {
         const guildId = args[0] || message.guild?.id;
         if (!guildId) return message.reply("Provide a guild ID.");
@@ -35,7 +35,7 @@ export default {
       }
     },
 
-    async remove({ client, message, args }: SubcommandCallbackOpts) {
+    async remove({ message, args }: SubcommandCallbackOpts) {
       try {
         const guildId = args[0] || message.guild?.id;
         if (!guildId) return message.reply("Provide a guild ID.");

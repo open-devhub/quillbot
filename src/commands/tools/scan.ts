@@ -13,7 +13,7 @@ export default {
   aliases: ["checkurl", "urlscan"],
   premium: true,
   async callback({ client, message, args }: CommandCallbackOpts) {
-    let url: string | undefined = args[0];
+    const url: string | undefined = args[0];
 
     if (!url) {
       return message.reply({

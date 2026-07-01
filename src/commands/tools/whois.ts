@@ -1,22 +1,12 @@
 import { EmbedBuilder } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-
-type WhoisEvent = {
-  eventAction?: string;
-  eventDate?: string;
-};
-
-type WhoisData = {
-  events?: WhoisEvent[];
-  entities?: Array<{ vcardArray?: unknown[][] }>;
-  nameservers?: Array<{ ldhName?: string }>;
-};
+import type { WhoisData } from "../../types/whois.ts";
 
 export default {
   name: "whois",
   description: "Lookup domain WHOIS info",
   usage: "%pwhois <domain>",
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     const rawDomain = args[0];
     if (!rawDomain) {
       return message.reply({

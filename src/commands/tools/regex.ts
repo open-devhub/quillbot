@@ -6,7 +6,7 @@ export default {
   description: "Test and analyze regex patterns",
   usage: "%pregex <pattern> | <text>",
   aliases: ["regexp"],
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     try {
       let pattern = args[0];
       const text = args.slice(2).join(" ") || args[1] || "";

@@ -9,7 +9,7 @@ export default {
     "%phttp <url> [method]\n<optional JSON body for POST/PUT/PATCH in code block>",
   aliases: ["postman", "fetch", "insomnia"],
 
-  async callback({ client, message, args }: CommandCallbackOpts) {
+  async callback({ message, args }: CommandCallbackOpts) {
     const url = args[0];
     const method = (args[1] || "GET").toUpperCase();
 
