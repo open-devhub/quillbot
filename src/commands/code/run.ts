@@ -119,7 +119,7 @@ export default {
   name: "run",
   description: "Run code snippets in various programming languages",
   aliases: ["compile", "execute", "exec"],
-  usage: "%prun\n<codeblock | message link>",
+  usage: "run\n<codeblock | message link>",
   async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = config;
     const { check, x, tick } = emojis;

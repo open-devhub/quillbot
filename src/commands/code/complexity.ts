@@ -8,7 +8,7 @@ import {
 export default {
   name: "complexity",
   description: "Estimate Big-O complexity of code",
-  usage: "%pcomplexity\n<codeblock | message link>",
+  usage: "complexity\n<codeblock | message link>",
   aliases: ["bigo", "big-o", "algo"],
 
   async callback({ client, message, args }: CommandCallbackOpts) {

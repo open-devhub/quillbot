@@ -35,7 +35,7 @@ function detectParser(lang: string, code: string) {
 export default {
   name: "format",
   description: "Format code using Prettier",
-  usage: "%pformat\n<codeblock | message link>",
+  usage: "format\n<codeblock | message link>",
   aliases: ["prettier"],
   async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = config;

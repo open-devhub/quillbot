@@ -9,7 +9,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "profile",
   description: "Get information about a GitHub user/profile",
-  usage: "%pprofile <username | profile URL>",
+  usage: "profile <username | profile URL>",
   aliases: ["githubprofile", "user"],
   react: "💻",
   async callback({ message, args }: CommandCallbackOpts) {

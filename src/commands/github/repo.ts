@@ -9,7 +9,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "repo",
   description: "Get information about a GitHub repository",
-  usage: "%prepo <repository URL>",
+  usage: "repo <repository URL>",
   aliases: ["githubrepo", "ghrepo"],
   react: "📦",
   async callback({ message, args }: CommandCallbackOpts) {

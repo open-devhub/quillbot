@@ -5,7 +5,7 @@ import type { SubcommandCallbackOpts } from "../../types/command.ts";
 export default {
   name: "github",
   description: "Get the GitHub information for Quill bot.",
-  usage: "%pgithub <repo | issues | prs | contributors | org>",
+  usage: "github <repo | issues | prs | contributors | org>",
   callback: {
     repo({ message }: SubcommandCallbackOpts) {
       return message.reply("https://github.com/open-devhub/quillbot");

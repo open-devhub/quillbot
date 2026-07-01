@@ -10,7 +10,7 @@ import { log } from "../../utils/log.ts";
 export default {
   name: "report",
   description: "Report a bug or issue with the bot",
-  usage: "%preport <description> [image attachment]",
+  usage: "report <description> [image attachment]",
   aliases: ["bug", "issue"],
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {

@@ -13,7 +13,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 export default {
   name: "whatlang",
   description: "Detect the programming language of a code snippet",
-  usage: "%pwhatlang\n<codeblock | message link>",
+  usage: "whatlang\n<codeblock | message link>",
   aliases: ["detectlang", "whichlang"],
   async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = config;

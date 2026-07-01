@@ -6,7 +6,7 @@ import { readFile } from "../../utils/fileOps.ts";
 export default {
   name: "changelog",
   description: "See the latest changes made to the bot.",
-  usage: "%changelog",
+  usage: "changelog",
   aliases: ["changes", "updates"],
   async callback({ message }: CommandCallbackOpts) {
     const changelog = await readFile(
