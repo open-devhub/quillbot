@@ -47,10 +47,10 @@ export default {
       langFromArgs,
     } = parseCodeCommandInput(message.content, args);
 
-    const reaction = await message.react(tick).catch(() => {});
+    const reaction = await message.react(tick);
 
     if (!parsedBlock && !link) {
-      await reaction?.remove().catch(() => {});
+      await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
       return message.reply({
         embeds: [
@@ -91,7 +91,7 @@ export default {
         const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
-          await reaction?.remove().catch(() => {});
+          await reaction.users.remove(client.user!.id).catch(() => {});
           await message.react(x);
           return message.reply({
             embeds: [
@@ -105,7 +105,7 @@ export default {
         lang = fetchedCodeBlock.lang || langFromArgs || "javascript";
         code = fetchedCodeBlock.code ?? "";
       } catch (err) {
-        await reaction?.remove().catch(() => {});
+        await reaction.users.remove(client.user!.id).catch(() => {});
         await message.react(x);
         return message.reply({
           embeds: [
@@ -117,7 +117,7 @@ export default {
         });
       }
     } else {
-      await reaction?.remove().catch(() => {});
+      await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
       return message.reply({
         embeds: [
@@ -144,7 +144,7 @@ export default {
         formatted = await prettier.format(codeToFormat, { parser: "babel" });
       }
 
-      await reaction?.remove().catch(() => {});
+      await reaction.users.remove(client.user!.id).catch(() => {});
 
       const embed = new EmbedBuilder()
         .setTitle(`✅ Formatted Code`)
@@ -155,12 +155,12 @@ export default {
         })
         .setTimestamp();
 
-      await reaction?.remove().catch(() => {});
+      await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(check);
       return message.reply({ embeds: [embed] });
     } catch (err) {
       console.error(err);
-      await reaction?.remove().catch(() => {});
+      await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
 
       return message.reply({

@@ -70,7 +70,7 @@ export default {
   description: "View GitHub repository structure",
   usage: "%ptree <github repo link> [depth]",
   premium: true,
-  async callback({ message, args }: CommandCallbackOpts) {
+  async callback({ client, message, args }: CommandCallbackOpts) {
     const { emojis } = config;
     const { check, x, tick } = emojis;
 
@@ -145,7 +145,7 @@ export default {
       const tree = buildTree(paths, depth);
       const output = formatTree(tree);
 
-      await reaction.remove().catch(() => {});
+      await reaction.users.remove(client.user!.id).catch(() => {});
 
       if (output.length > 1800) {
         const buffer = Buffer.from(output, "utf-8");
