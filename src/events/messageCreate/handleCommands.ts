@@ -4,16 +4,16 @@ import {
   ButtonStyle,
   Client,
   EmbedBuilder,
-  Message, // Fixed: Import Message from discord.js instead of firebase-admin
+  Message,
   PermissionsBitField,
 } from "discord.js";
 import "dotenv/config";
 import NodeCache from "node-cache";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
+import config from "../../../config.json" with { type: "json" };
 import { getCachedDB } from "../../utils/cacheDB.ts";
 import getAllFiles from "../../utils/getAllFiles.ts";
-import getConfig from "../../utils/getConfig.ts";
 import { trackCommandStat } from "../../utils/stats.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,7 +25,7 @@ interface CooldownData {
   count: number;
 }
 
-// Define the shape of your command objects
+// Define the shape of the command objects
 interface CommandObject {
   name: string;
   description?: string;
@@ -46,7 +46,6 @@ const cooldownCache = new NodeCache({
 const prefixCommandsPath = join(__dirname, "..", "..", "commands");
 const prefixCommandsCategories = getAllFiles(prefixCommandsPath, true);
 
-// Fixed: Add explicit type to the cached commands array
 let cachedCommands: CommandObject[] = [];
 
 async function loadCommands() {
@@ -67,8 +66,7 @@ async function loadCommands() {
 await loadCommands();
 
 export default async (client: Client, message: Message) => {
-  const { premiumServer, premiumServerInvite, devs, prefixes } =
-    await getConfig();
+  const { premiumServer, premiumServerInvite, devs, prefixes } = config;
 
   if (
     process.env.NODE_ENV?.toLowerCase() === "dev" &&
@@ -76,7 +74,6 @@ export default async (client: Client, message: Message) => {
   )
     return;
 
-  // Fixed: Added message.guild baseline check before accessing guildId or member properties safely
   if (!message || !message.guild || message.author?.bot) return;
 
   const userId = message.author.id;
@@ -89,7 +86,7 @@ export default async (client: Client, message: Message) => {
     const prefix = prefixes.find((p: string) => message.content.startsWith(p));
     if (!prefix) return;
 
-    // Fixed: Explicit type casting for Cache retrieval
+    // Explicit type casting for Cache retrieval
     let userData = cooldownCache.get<CooldownData>(userId);
 
     if (!userData) {
@@ -167,7 +164,6 @@ export default async (client: Client, message: Message) => {
     }
 
     if (commandObject.permissionsRequired?.length) {
-      // Fixed: Typings ensured message.member exists and permissions are valid
       if (!message.member) return;
 
       for (const permission of commandObject.permissionsRequired) {
@@ -201,7 +197,6 @@ export default async (client: Client, message: Message) => {
       commandObject.callback !== null
     ) {
       const subCommandName = args.shift()?.toLowerCase();
-      // Fixed: Safe property accessing mapping over string keys
       const subCommand = subCommandName
         ? (commandObject.callback as Record<string, Function>)[subCommandName]
         : undefined;

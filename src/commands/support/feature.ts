@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import ucid from "unique-custom-id";
+import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import getConfig from "../../utils/getConfig.ts";
 
 export default {
   name: "feature",
@@ -10,7 +10,7 @@ export default {
   aliases: ["feat", "newfeature", "newfeat"],
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {
-      const { emojis, support, premiumServer } = await getConfig();
+      const { emojis, support, premiumServer } = config;
       const { check, x } = emojis;
       const { reports } = support;
 
