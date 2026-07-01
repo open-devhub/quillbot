@@ -8,12 +8,12 @@ import {
 } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
 } from "../../utils/codeInput.ts";
-import getConfig from "../../utils/getConfig.ts";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -119,7 +119,7 @@ export default {
   aliases: ["compile", "execute", "exec"],
   usage: "%prun\n<codeblock | message link>",
   async callback({ client, message, args }: CommandCallbackOpts) {
-    const { emojis } = await getConfig();
+    const { emojis } = config;
     const { check, x, tick } = emojis;
 
     const {

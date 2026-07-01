@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
+import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import { deleteDocument } from "../../utils/firestore.ts";
-import getConfig from "../../utils/getConfig.ts";
 
 export default {
   name: "unban",
@@ -10,7 +10,7 @@ export default {
 
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {
-      const { premiumServer, logs } = await getConfig();
+      const { premiumServer, logs } = config;
 
       const pguild = await client.guilds.fetch(premiumServer).catch(() => null);
 

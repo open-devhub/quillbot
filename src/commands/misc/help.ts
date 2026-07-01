@@ -2,9 +2,9 @@ import type { Client, Message } from "discord.js";
 import { EmbedBuilder } from "discord.js";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
+import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import getAllFiles from "../../utils/getAllFiles.ts";
-import getConfig from "../../utils/getConfig.ts";
 
 type Command = {
   name: string;
@@ -35,7 +35,6 @@ export default {
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const prefixCommandsPath = join(__dirname, "..", "..", "commands");
-      const config = await getConfig();
       if (!config) {
         throw new Error("Unable to load configuration");
       }

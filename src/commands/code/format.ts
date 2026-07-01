@@ -1,11 +1,11 @@
 import { EmbedBuilder, codeBlock } from "discord.js";
 import prettier from "prettier";
+import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
 } from "../../utils/codeInput.ts";
-import getConfig from "../../utils/getConfig.ts";
 
 const parserMap: Record<string, string> = {
   js: "babel",
@@ -38,7 +38,7 @@ export default {
   usage: "%pformat\n<codeblock | message link>",
   aliases: ["prettier"],
   async callback({ client, message, args }: CommandCallbackOpts) {
-    const { emojis } = await getConfig();
+    const { emojis } = config;
     const { check, x, tick } = emojis;
 
     const {

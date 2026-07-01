@@ -1,6 +1,6 @@
 import { AttachmentBuilder, codeBlock, EmbedBuilder } from "discord.js";
+import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import getConfig from "../../utils/getConfig.ts";
 
 type RepoInfo = {
   owner: string;
@@ -84,7 +84,7 @@ export default {
   usage: "%ptree <github repo link> [depth]",
   premium: true,
   async callback({ client, message, args }: CommandCallbackOpts) {
-    const { emojis } = await getConfig();
+    const { emojis } = config;
     const { check, x, tick } = emojis;
 
     if (!args[0]) {

@@ -1,12 +1,12 @@
 import { EmbedBuilder } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
+import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
 } from "../../utils/codeInput.ts";
-import getConfig from "../../utils/getConfig.ts";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -16,10 +16,10 @@ export default {
   usage: "%pwhatlang\n<codeblock | message link>",
   aliases: ["detectlang", "whichlang"],
   async callback({ client, message, args }: CommandCallbackOpts) {
-    const { emojis } = await getConfig();
-    const { check, x, loading, warn } = emojis;
+    const { emojis } = config;
+    const { check, x, tick, warn } = emojis;
 
-    await message.react(loading);
+    await message.react(tick);
     const { codeBlock: parsedBlock, link } = parseCodeCommandInput(
       message.content,
       args,
