@@ -10,164 +10,92 @@
 ![Firebase](https://img.shields.io/badge/backend-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white)
 ![PRs Welcome](https://img.shields.io/badge/prs-welcome-brightgreen?style=for-the-badge&logo=github&logoColor=white)
 
-Quill is an advanced Discord developer assistant bot built to help programmers code faster, learn better, and debug smarter, directly inside Discord.
+Quill is an advanced Discord developer assistant bot built to help programmers code faster, learn better, and debug smarter, directly inside Discord. It combines secure sandboxed code execution, AI insights, instant documentation lookup, and robust developer tooling into one streamlined workflow.
 
-It combines **code execution, AI assistance, documentation lookup, and developer tooling** into one unified workflow.
+## 🚀 Key Features
 
-## 🚀 Features
+- **Sandbox Code Execution:** Compile and run snippets across 60+ languages with live output/error reporting via Judge0.
+- **Groq-Powered AI Assistant:** Estimate complexity, patch syntax errors, and receive production-grade code suggestions on demand.
+- **Instant Documentation & Package Search:** Query MDN Web Docs, Wikipedia, npm, and PyPI directly within your chat channels.
+- **Advanced Dev Utilities:** Format code with Prettier, audit URLs for safety, inspect API responses, and run WHOIS or Snowflake lookups natively.
 
-### ⚙️ Code Execution Engine
+## 📌 Commands Guide
 
-Quill can compile and run code in multiple programming languages using a secure sandbox execution system.
+All commands use the `;` prefix (e.g., `;run`). Premium features are marked with a `★`.
 
-- Run code instantly inside Discord
-- Supports 60+ languages (JS, Python, C++, Java, etc.)
-- Displays clean output and error logs
-- Helps debug runtime and compilation issues
+> [!NOTE]
+> Premium features are completely free to use! To unlock them anywhere, simply be a member of the official **DevHub** Discord server to support the bot's development.
 
-### 🤖 AI Code Assistant
+### 💻 Code Sandbox
 
-Powered by AI, Quill helps you write and improve code.
+| Command       | Description                                                             |
+| :------------ | :---------------------------------------------------------------------- |
+| `;complexity` | Estimate the Big-O time and space complexity of a code snippet.         |
+| `;format`     | Pretty-print and format unorganized code blocks using Prettier.         |
+| `;run`        | Execute code snippets instantly in a secure sandbox environment.        |
+| `;suggest` ★  | Get concise, AI-driven suggestions and improvements for a code snippet. |
+| `;whatlang`   | Automatically detect the programming language of a raw code snippet.    |
 
-- Code suggestions and improvements
-- Bug detection and fixes
-- Code explanation in simple terms
-- Optimization recommendations
+### 📚 Documentation & Reference
 
-### 🧠 Language Detection
-
-Automatically detects programming languages from code snippets.
-
-- No need to specify language manually
-- Works with multi-language snippets
-
-### 🔍 Documentation & Knowledge Search
-
-Access reliable information without leaving Discord.
-
-- **MDN Web Docs Search**
-  - JavaScript reference lookup
-  - HTML/CSS documentation access
-  - Fast, relevant results
-
-- **Wikipedia Search**
-  - Quick summaries for any topic
-  - Clean and readable explanations
-  - Great for fast learning and context
+| Command | Description                                                       |
+| :------ | :---------------------------------------------------------------- |
+| `;mdn`  | Search the MDN Web Docs for JavaScript, HTML, and CSS references. |
+| `;wiki` | Search and retrieve concise abstracts from Wikipedia articles.    |
 
 ### 🐙 GitHub Integration
 
-Work with GitHub data directly inside Discord.
+| Command    | Description                                                                  |
+| :--------- | :--------------------------------------------------------------------------- |
+| `;profile` | Fetch detailed statistics, repository counts, and bios for a GitHub user.    |
+| `;repo`    | Get overview metrics (stars, forks, open issues) for a specified repository. |
+| `;tree` ★  | Generate a structured visual directory tree for a GitHub repository.         |
 
-- **Repository Info**
-  - Stars, forks, watchers
-  - Primary language
-  - Open issues
-  - License details
+### 🔢 Mathematics
 
-- **User Profiles**
-  - Followers / following
-  - Public repositories
-  - Profile bio and avatar
+| Command           | Description                                                                    |
+| :---------------- | :----------------------------------------------------------------------------- |
+| `;math-breakdown` | Provides a clear, step-by-step logical breakdown of a mathematical expression. |
 
-- **Repository Tools**
-  - View repository structure (`;tree`)
+### 🔍 Package Search
 
-### 🧰 Developer Tools
+| Command | Description                                                              |
+| :------ | :----------------------------------------------------------------------- |
+| `;npm`  | Query the npm registry for package metadata, dependencies, and versions. |
+| `;pip`  | Search the PyPI registry for Python package information.                 |
 
-A collection of utilities to streamline development workflows.
+### 🛠️ Developer Tools
 
-- `;http` - Make HTTP requests and inspect responses (Postman-style)
-- `;regex` - Test and debug regular expressions
-- `;format` - Format code using Prettier
-- `;color` - Preview colors and gradients
-- `;id` - Generate unique IDs (60+ formats)
-- `;whois` - Perform WHOIS domain lookups
-- `;npm` - Fetch npm package details
+| Command      | Description                                                                           |
+| :----------- | :------------------------------------------------------------------------------------ |
+| `;color`     | Preview exact hexadecimal/RGB colors and custom CSS gradients.                        |
+| `;http`      | Perform lightweight HTTP requests and inspect responses (headers, payload).           |
+| `;id`        | Generate cryptographic or specific system unique IDs across 60+ formats.              |
+| `;regex`     | Test, debug, and break down regular expression match patterns.                        |
+| `;scan` ★    | Scan and audit a URL to evaluate if it is suspicious or unsafe.                       |
+| `;snowflake` | Decode a Discord Snowflake ID to extract its precise creation timestamp and metadata. |
+| `;whois`     | Perform a standard WHOIS lookup on domains to review registrar and ownership info.    |
 
-### 🧮 Smart Math Solver
+### ⚙️ System & Support
 
-Understand math problems step by step.
-
-- Full breakdown of solution
-- Beginner-friendly explanations
-- Focus on learning, not just answers
-
-### ⚡ Productivity & Utility Commands
-
-Helpful commands for everyday usage and interaction.
-
-- `;run` - Execute code instantly
-- `;suggest` - Improve or generate code
-- `;whatlang` - Detect language from code
-- `;ping` - Check bot latency
-- `;help` - Display command list and usage
-
-### 💡 Feedback & Interaction
-
-Built to evolve with its users.
-
-- `;feature` – Request new features
-- `;report` – Report bugs or issues
-- `;github` – View bot’s GitHub repository
-
-## 🧠 Why Quill?
-
-Quill is designed for:
-
-- Developers
-- Students learning to code
-- Debugging workflows
-- Quick knowledge lookup
-- AI-assisted programming inside Discord
-
-Instead of switching between tools and platforms, Quill brings everything into one place.
+| Command    | Description                                                                      |
+| :--------- | :------------------------------------------------------------------------------- |
+| `;github`  | View the official open-source GitHub repository details for the Quill bot.       |
+| `;help`    | Display interactive menus outlining available commands and exact usage profiles. |
+| `;ping`    | Check API latency, processing metrics, and Discord Gateway websocket health.     |
+| `;feature` | Submit an authorized feature request directly to the development team.           |
+| `;report`  | File a bug report or performance issue directly from your server.                |
 
 ## ⚡ Tech Stack
 
-- TypeScript
-- Bun
-- Discord.js
-- Judge0 API (code execution)
-- Groq API (code understanding & generation)
-- GitHub REST API
-- MDN + Wikipedia APIs
-- RDAP api
-
-## 📌 Commands Overview
-
-- `;run` – Execute code
-- `;suggest` – AI code suggestion
-- `;whatlang` – Detect programming language from codeblock
-- `;format` - Format code with prettier
-- `;complexity` - Estimate Big-O complexity of code
-- `;repo` – GitHub repository info
-- `;profile [username]` – Fetch GitHub user data
-- `;mdn [term]` – Search web docs
-- `;wiki [term]` – Wikipedia search
-- `;math [expression]` – Step-by-step solving
-- `;npm` - Fetch and display information about a npm package
-- `;github` - Bot's github information
-- `;feature` - Request a feature to be added
-- `;report` - Report a bug
-- `;color` - Color (gradient) preview
-- `;http` - Make HTTP requests and inspect responses (like postman)
-- `;id` - Generate unique IDs (60+ id formats)
-- `;regex` - Test regular expressions
-- `;tree` - View GitHub repository structure
-- `;whois` - WHOIS domain lookup
-- `;ping` - Bot response time
-- `;help` - Display help text
+- **Runtime:** Bun / Node.js (v20+)
+- **Framework:** Discord.js (v14)
+- **Code Intelligence:** Groq SDK (Llama-3.3-70b-versatile)
+- **Execution System:** Judge0 API
+- **Data Sources:** MDN REST, Wikipedia API, GitHub REST API, RDAP Network Protocol
 
 ## 📄 License
 
-This project is licensed under **GPL-3.0**.
-See the [LICENSE](./LICENSE) file for more details.
-
-## 🪶 Closing Note
-
-Quill is actively evolving into a full developer intelligence assistant for Discord, focused on making coding faster, clearer, and more accessible.
-
-Built with care for developers who want to stay in flow.
+This project is open-source and licensed under the **GPL-3.0 License**. For more terms and conditions, check out the accompanying [LICENSE](./LICENSE) file.
 
 © 2026 DevHub. All rights reserved.
