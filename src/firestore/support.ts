@@ -2,10 +2,7 @@ import type { SupportDoc } from "../types/support.ts";
 import { createDocument, deleteDocument, getDocument } from "./firestore.ts";
 
 export function getEntry(id: string) {
-  const supportDoc = getDocument("support", id);
-  const reportDoc = getDocument("reports", id);
-
-  return supportDoc || reportDoc;
+  return getDocument("support", id);
 }
 
 export function createEntry(entry: SupportDoc) {
