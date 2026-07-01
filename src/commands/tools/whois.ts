@@ -1,16 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-
-type WhoisEvent = {
-  eventAction?: string;
-  eventDate?: string;
-};
-
-type WhoisData = {
-  events?: WhoisEvent[];
-  entities?: Array<{ vcardArray?: unknown[][] }>;
-  nameservers?: Array<{ ldhName?: string }>;
-};
+import type { WhoisData } from "../../types/whois.ts";
 
 export default {
   name: "whois",

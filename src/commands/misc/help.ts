@@ -3,21 +3,12 @@ import { EmbedBuilder } from "discord.js";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
 import config from "../../../config.json" with { type: "json" };
-import type { CommandCallbackOpts } from "../../types/command.ts";
+import type {
+  Command,
+  CommandCallbackOpts,
+  CommandModule,
+} from "../../types/command.ts";
 import getAllFiles from "../../utils/getAllFiles.ts";
-
-type Command = {
-  name: string;
-  description: string;
-  usage?: string;
-  aliases?: string[];
-  premium?: boolean;
-  devOnly?: boolean;
-};
-
-type CommandModule = {
-  default: Command;
-};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
