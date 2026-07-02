@@ -22,15 +22,27 @@ export default {
       //   raw,
       //   sections,
       // };
-      const page = await man(args.join(" "));
+      const term = args.join(" ");
+      if (!term) {
+        return message.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("Missing Term")
+              .setDescription(
+                "Please provide a term to search for in the man pages.",
+              )
+              .setColor(0xff0000),
+          ],
+        });
+      }
+
+      const page = await man(term);
       if (!page) {
         return message.reply({
           embeds: [
             new EmbedBuilder()
               .setTitle("Man Page Not Found")
-              .setDescription(
-                `No man page found for the term "${args.join(" ")}".`,
-              )
+              .setDescription(`No man page found for the term "${term}".`)
               .setColor(0xff0000),
           ],
         });

@@ -40,6 +40,7 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 
 | Command | Description                                                       |
 | :------ | :---------------------------------------------------------------- |
+| `;man`  | View Unix/Linux manual pages for command documentation.           |
 | `;mdn`  | Search the MDN Web Docs for JavaScript, HTML, and CSS references. |
 | `;wiki` | Search and retrieve concise abstracts from Wikipedia articles.    |
 
@@ -59,10 +60,12 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 
 ### 🔍 Package Search
 
-| Command | Description                                                              |
-| :------ | :----------------------------------------------------------------------- |
-| `;npm`  | Query the npm registry for package metadata, dependencies, and versions. |
-| `;pip`  | Search the PyPI registry for Python package information.                 |
+| Command  | Description                                                                                |
+| :------- | :----------------------------------------------------------------------------------------- |
+| `;crate` | Search the crates.io registry for Rust package details, download stats, and documentation. |
+| `;gem`   | Search the Ruby gems for Ruby package details, total downloads, and documentation page     |
+| `;npm`   | Query the npm registry for package metadata, dependencies, and versions.                   |
+| `;pip`   | Search the PyPI registry for Python package information.                                   |
 
 ### 🛠️ Developer Tools
 
@@ -86,14 +89,6 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 | `;ping`      | Check API latency, processing metrics, and Discord Gateway websocket health.     |
 | `;feature`   | Submit an authorized feature request directly to the development team.           |
 | `;report`    | File a bug report or performance issue directly from your server.                |
-
-### 🤖 Automatic Features
-
-Quill has a few smart automatic behaviors that activate based on permissions:
-
-| Feature                    | Description                                                                                                                         | Control                                                                                                                        |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Auto Code Reformatting** | Detects unwrapped code in messages, deletes the original, and reposts it in a clean embed with proper language syntax highlighting. | Enabled automatically when the bot has the **Manage Messages** permission in the channel. Remove the permission to disable it. |
 
 ## ⚡ Tech Stack
 

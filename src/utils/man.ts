@@ -80,7 +80,6 @@ export async function man(term: string): Promise<ManPage | null> {
   }
 
   const title = match?.[1]?.trim()?.toLowerCase() ?? term;
-  const section = match?.[2] ?? "?";
   const description =
     sections["DESCRIPTION"]?.split("\n\n")[0]?.replace(/\s+/g, " ").trim() ||
     "";

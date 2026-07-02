@@ -30,10 +30,6 @@ export default {
       if (pkgRes.ok) {
         pkgData = await pkgRes.json();
       } else {
-        const searchRes = await fetch(
-          `https://pypi.org/search/?q=${encodeURIComponent(query)}&o=-zscore&c=&format=json`,
-        );
-
         return message.reply(
           `¯\\_(ツ)_/¯ No PyPI packages found for **${query}**`,
         );
@@ -41,8 +37,6 @@ export default {
 
       const info = pkgData.info;
       const latestVersion = info.version;
-      const releases = pkgData.releases?.[latestVersion] || [];
-      const latestRelease = releases[releases.length - 1];
 
       const dlRes = await fetch(
         `https://pypistats.org/api/packages/${encodeURIComponent(info.name.toLowerCase())}/recent`,
@@ -59,7 +53,6 @@ export default {
         info.project_urls?.Source ||
         info.project_urls?.GitHub ||
         info.project_urls?.Repository ||
-        info.project_urls?.Homepage ||
         null;
 
       const repoDisplay = repoUrl
@@ -82,9 +75,8 @@ export default {
             inline: true,
           },
           {
-            name: "License",
-            value:
-              (info.license || "Other").split("\n")[0].slice(0, 100) || "Other",
+            name: "Publisher",
+            value: info.maintainer || info.author || "Unknown",
             inline: true,
           },
           {
@@ -98,8 +90,9 @@ export default {
             inline: true,
           },
           {
-            name: "Python Requires",
-            value: info.requires_python || "Not specified",
+            name: "License",
+            value:
+              (info.license || "Other").split("\n")[0].slice(0, 100) || "Other",
             inline: true,
           },
         )
@@ -121,15 +114,6 @@ export default {
             .setLabel("Visit Homepage")
             .setStyle(ButtonStyle.Link)
             .setURL(info.project_urls.Homepage),
-        );
-      }
-
-      if (info.project_urls?.Documentation || info.docs_url) {
-        buttons.push(
-          new ButtonBuilder()
-            .setLabel("Docs")
-            .setStyle(ButtonStyle.Link)
-            .setURL(info.project_urls?.Documentation || info.docs_url),
         );
       }
 

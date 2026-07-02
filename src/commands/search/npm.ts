@@ -104,7 +104,6 @@ export default {
           },
         )
         .setThumbnail(
-          // npm logo red big
           "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Npm-logo.svg/1200px-Npm-logo.svg.png",
         )
         .setFooter({ text: "Source: npmjs.com" });
