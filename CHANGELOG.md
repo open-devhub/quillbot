@@ -1,5 +1,11 @@
 # Change Log
 
+## `v1.1.0` - 02/07/2026
+
+### Added
+
+- Automatic code block detection and reformatting feature
+
 ## `v1.0.0` - 01/07/2026
 
 ### Added
