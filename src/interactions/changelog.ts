@@ -7,43 +7,9 @@ import {
 import path from "path";
 import { fileURLToPath } from "url";
 import { readFile } from "../utils/fileOps.ts";
+import { parseChangelog } from "../utils/parseChangelog.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-interface VersionSection {
-  title: string;
-  content: string;
-}
-
-function parseChangelog(content: string): VersionSection[] {
-  if (!content?.trim()) return [];
-
-  // Split on "## " headings (standard Keep a Changelog / conventional format)
-  const parts = content.split(/^## /m);
-  const versions: VersionSection[] = [];
-
-  for (let i = 1; i < parts.length; i++) {
-    const section = parts[i]?.trim();
-    if (!section) continue;
-
-    const firstNewline = section.indexOf("\n");
-    const title = (
-      firstNewline === -1 ? section : section.slice(0, firstNewline)
-    ).trim();
-    const body = (
-      firstNewline === -1 ? "" : section.slice(firstNewline)
-    ).trim();
-
-    if (title) {
-      versions.push({
-        title,
-        content: `## ${title}\n\n${body}`,
-      });
-    }
-  }
-
-  return versions;
-}
 
 export default {
   id: "changelog_select",
