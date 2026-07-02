@@ -63,6 +63,7 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 | Command  | Description                                                                                |
 | :------- | :----------------------------------------------------------------------------------------- |
 | `;crate` | Search the crates.io registry for Rust package details, download stats, and documentation. |
+| `;gem`   | Search the Ruby gems for Ruby package details, total downloads, and documentation page     |
 | `;npm`   | Query the npm registry for package metadata, dependencies, and versions.                   |
 | `;pip`   | Search the PyPI registry for Python package information.                                   |
 
