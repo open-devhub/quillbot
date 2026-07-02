@@ -6,6 +6,7 @@
 
 - Automatic code block detection and reformatting feature
 - Full interaction handler system with file-based routing
+- New `man` command for viewing Unix/Linux manual pages directly from Discord
 
 ### Changed
 
