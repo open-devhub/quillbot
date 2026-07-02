@@ -1,6 +1,6 @@
 {
   "name": "quillbot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Quill is an advanced Discord developer assistant bot built to help programmers code faster, learn better, and debug smarter, directly inside Discord.",
   "main": "src/index.ts",
   "type": "module",
