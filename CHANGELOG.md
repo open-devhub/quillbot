@@ -5,7 +5,8 @@
 ### Added
 
 - Full interaction handler system with file-based routing
-- New `man` command for viewing Unix/Linux manual pages directly from Discord
+- New `man` command for viewing Unix/Linux manual pages for command documentation
+- New `crate` command to search Rust crates
 
 ### Changed
 

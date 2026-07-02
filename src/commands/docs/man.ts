@@ -22,7 +22,7 @@ export default {
       //   raw,
       //   sections,
       // };
-      const term = args[0];
+      const term = args.join(" ");
       if (!term) {
         return message.reply({
           embeds: [

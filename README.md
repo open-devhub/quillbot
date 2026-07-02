@@ -40,6 +40,7 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 
 | Command | Description                                                       |
 | :------ | :---------------------------------------------------------------- |
+| `;man`  | View Unix/Linux manual pages for command documentation.           |
 | `;mdn`  | Search the MDN Web Docs for JavaScript, HTML, and CSS references. |
 | `;wiki` | Search and retrieve concise abstracts from Wikipedia articles.    |
 
@@ -59,10 +60,11 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 
 ### 🔍 Package Search
 
-| Command | Description                                                              |
-| :------ | :----------------------------------------------------------------------- |
-| `;npm`  | Query the npm registry for package metadata, dependencies, and versions. |
-| `;pip`  | Search the PyPI registry for Python package information.                 |
+| Command  | Description                                                                                |
+| :------- | :----------------------------------------------------------------------------------------- |
+| `;crate` | Search the crates.io registry for Rust package details, download stats, and documentation. |
+| `;npm`   | Query the npm registry for package metadata, dependencies, and versions.                   |
+| `;pip`   | Search the PyPI registry for Python package information.                                   |
 
 ### 🛠️ Developer Tools
 
