@@ -5,6 +5,12 @@
 ### Added
 
 - Automatic code block detection and reformatting feature
+- Full interaction handler system with file-based routing
+
+### Changed
+
+- Updated the `changelog` command to use a `StringSelectMenuBuilder` instead of just showing the latest version
+- Both the command and interaction handler now parse `CHANGELOG.md` dynamically
 
 ## `v1.0.0` - 01/07/2026
 
