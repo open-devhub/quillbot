@@ -87,14 +87,6 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 | `;feature`   | Submit an authorized feature request directly to the development team.           |
 | `;report`    | File a bug report or performance issue directly from your server.                |
 
-### 🤖 Automatic Features
-
-Quill has a few smart automatic behaviors that activate based on permissions:
-
-| Feature                    | Description                                                                                                                         | Control                                                                                                                        |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Auto Code Reformatting** | Detects unwrapped code in messages, deletes the original, and reposts it in a clean embed with proper language syntax highlighting. | Enabled automatically when the bot has the **Manage Messages** permission in the channel. Remove the permission to disable it. |
-
 ## ⚡ Tech Stack
 
 - **Runtime:** Bun / Node.js (v20+)
