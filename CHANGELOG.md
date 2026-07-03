@@ -8,11 +8,13 @@
 - New `man` command for viewing Unix/Linux manual pages for command documentation
 - New `crate` command to search Rust crates
 - New `gem` command to search Ruby gems
+- New `base64` command encode or decode Base64 strings
 
 ### Changed
 
 - Updated the `changelog` command to use a `StringSelectMenuBuilder` instead of just showing the latest version
 - Both the command and interaction handler now parse `CHANGELOG.md` dynamically
+- Updated `profile` command to include a visual GitHub contribution activity graph in the embed response
 
 ## `v1.0.0` - 01/07/2026
 
