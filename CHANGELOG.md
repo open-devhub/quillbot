@@ -8,6 +8,7 @@
 - New `man` command for viewing Unix/Linux manual pages for command documentation
 - New `crate` command to search Rust crates
 - New `gem` command to search Ruby gems
+- New `base64` command encode or decode Base64 strings
 
 ### Changed
 

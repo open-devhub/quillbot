@@ -71,6 +71,7 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 
 | Command      | Description                                                                           |
 | :----------- | :------------------------------------------------------------------------------------ |
+| `;base64`    | Encode or decode Base64 strings                                                       |
 | `;color`     | Preview exact hexadecimal/RGB colors and custom CSS gradients.                        |
 | `;http`      | Perform lightweight HTTP requests and inspect responses (headers, payload).           |
 | `;id`        | Generate cryptographic or specific system unique IDs across 60+ formats.              |
