@@ -46,11 +46,11 @@ All commands use the `;` prefix (e.g., `;run`). Premium features are marked with
 
 ### 🐙 GitHub Integration
 
-| Command    | Description                                                                  |
-| :--------- | :--------------------------------------------------------------------------- |
-| `;profile` | Fetch detailed statistics, repository counts, and bios for a GitHub user.    |
-| `;repo`    | Get overview metrics (stars, forks, open issues) for a specified repository. |
-| `;tree` ★  | Generate a structured visual directory tree for a GitHub repository.         |
+| Command    | Description                                                                              |
+| :--------- | :--------------------------------------------------------------------------------------- |
+| `;profile` | Fetch detailed statistics, repository counts, and bio, activity graph for a GitHub user. |
+| `;repo`    | Get overview metrics (stars, forks, open issues) for a specified repository.             |
+| `;tree` ★  | Generate a structured visual directory tree for a GitHub repository.                     |
 
 ### 🔢 Mathematics
 

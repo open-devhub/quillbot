@@ -14,6 +14,7 @@
 
 - Updated the `changelog` command to use a `StringSelectMenuBuilder` instead of just showing the latest version
 - Both the command and interaction handler now parse `CHANGELOG.md` dynamically
+- Updated `profile` command to include a visual GitHub contribution activity graph in the embed response
 
 ## `v1.0.0` - 01/07/2026
 
