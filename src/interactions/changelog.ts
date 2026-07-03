@@ -48,13 +48,12 @@ export default {
       .setPlaceholder("Select a version to view its changes")
       .addOptions(
         versions.map((v, i) => ({
-          label: v.title.length > 100 ? v.title.slice(0, 97) + "..." : v.title,
+          label: (v.title.length > 100
+            ? v.title.slice(0, 97) + "..."
+            : v.title
+          ).replace(/`/g, ""),
           value: i.toString(),
-          ...(i === selectedIndex
-            ? { description: "Currently viewing" }
-            : i === 0
-              ? { description: "Latest version" }
-              : {}),
+          ...(i === 0 ? { description: "Latest version" } : {}),
         })),
       );
 
