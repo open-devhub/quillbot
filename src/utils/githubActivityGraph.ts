@@ -30,7 +30,7 @@ function roundRectPath(
 function cellColor(level: number): string {
   if (!level || level <= 0) return COLORS.cellEmpty;
   const index = Math.min(COLORS.ramp.length - 1, level - 1);
-  return COLORS.ramp[index] ?? COLORS.cellEmpty;
+  return COLORS.ramp[index]!;
 }
 
 interface Heatmap {
@@ -61,14 +61,29 @@ interface JogruberResponse {
  * characteristics. Worth keeping the caching layer in front of it regardless.
  */
 async function fetchContributionData(username: string): Promise<Heatmap> {
-  const res = await fetch(
-    `https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(username)}?y=last`,
-    { headers: { "User-Agent": "github-heatmap-generator" } },
-  );
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10_000);
 
-  if (res.status === 404) {
-    throw new Error(`GitHub user "${username}" not found`);
+  let res: Response;
+  try {
+    res = await fetch(
+      `https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(username)}?y=last`,
+      {
+        headers: { "User-Agent": "github-heatmap-generator" },
+        signal: controller.signal,
+      },
+    );
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(
+        "github-contributions-api timed out after 10s — the service may be down or slow",
+      );
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
+
   if (!res.ok) {
     throw new Error(`github-contributions-api request failed: ${res.status}`);
   }
@@ -108,7 +123,6 @@ async function fetchContributionData(username: string): Promise<Heatmap> {
  * Flow: fetch the user's contribution graph -> render it.
  * Data source: github-contributions-api.jogruber.de (no token required).
  *
- * @param username GitHub login to render
  * @returns PNG image buffer
  */
 export async function generateGitHubHeatMap(username: string): Promise<Buffer> {
