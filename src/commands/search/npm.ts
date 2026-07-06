@@ -7,6 +7,9 @@ import {
 import fetch from "node-fetch";
 import type { CommandCallbackOpts } from "../../types/command.ts";
 
+const normalizeRepositoryUrl = (url: string): string =>
+  url.replace(/^git\+/, "").replace(/^git:\/\//, "https://");
+
 export default {
   name: "npm",
   description: "Search npm packages",
@@ -87,12 +90,13 @@ export default {
           {
             name: "Repository",
             value: latest.repository?.url
-              ? `[${latest.repository.url
-                  .replace("git+", "")
-                  .replace(".git", "")
-                  .split("/")
-                  .slice(-2)
-                  .join("/")}](${latest.repository.url.replace("git+", "")})`
+              ? (() => {
+                  const repoUrl = normalizeRepositoryUrl(
+                    latest.repository.url,
+                  ).replace(/\.git$/, "");
+                  const label = repoUrl.split("/").slice(-2).join("/");
+                  return `[${label}](${repoUrl})`;
+                })()
               : "Unknown",
 
             inline: true,
