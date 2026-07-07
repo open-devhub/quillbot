@@ -25,7 +25,6 @@ interface Judge0Language {
 let judge0Languages: Judge0Language[] | null = null;
 
 async function getLanguages() {
-  // *fetch all Judge0 languages dynamically
   if (judge0Languages) return judge0Languages;
 
   const res = await fetch("https://ce.judge0.com/languages/");
@@ -35,38 +34,93 @@ async function getLanguages() {
   return data;
 }
 
-//  Find best matching language ID
+const CANONICAL_GROUPS: Record<string, string[]> = {
+  assembly: ["asm", "nasm", "assembly"],
+  bash: ["bash", "sh", "shell"],
+  basic: ["basic", "fbc"],
+  bosque: ["bosque"],
+  c: ["c", "clang", "gcc"],
+  "c#": ["c#", "csharp", "cs", "mono", "dotnet", "csharptest"],
+  "c++": ["c++", "cpp", "cplusplus", "gpp", "cpptest"],
+  c3: ["c3"],
+  clojure: ["clojure", "clj"],
+  cobol: ["cobol", "cob"],
+  "common lisp": ["commonlisp", "lisp", "clisp", "sbcl"],
+  d: ["d", "dmd"],
+  elixir: ["elixir", "ex", "exs"],
+  erlang: ["erlang", "erl"],
+  executable: ["executable", "exe"],
+  "f#": ["f#", "fsharp", "fs"],
+  fortran: ["fortran", "f90", "f95"],
+  go: ["go", "golang"],
+  groovy: ["groovy", "gvy"],
+  haskell: ["haskell", "hs"],
+  java: ["java", "openjdk", "javatest", "junit"],
+  javascript: ["javascript", "js", "node", "nodejs"],
+  kotlin: ["kotlin", "kt"],
+  lua: ["lua"],
+  "mpi c": ["mpic"],
+  "mpi c++": ["mpicpp", "mpic++"],
+  "mpi python": ["mpipy", "mpipython"],
+  nim: ["nim"],
+  "objective-c": ["objective-c", "objc", "m"],
+  ocaml: ["ocaml", "ml"],
+  octave: ["octave", "matlab"],
+  pascal: ["pascal", "pas", "fpc"],
+  perl: ["perl", "pl"],
+  php: ["php"],
+  "plain text": ["plaintext", "text", "txt"],
+  prolog: ["prolog", "plg"],
+  python: [
+    "python",
+    "py",
+    "python2",
+    "python3",
+    "py2",
+    "py3",
+    "pythonml",
+    "pyml",
+    "mlpy",
+  ],
+  r: ["r"],
+  ruby: ["ruby", "rb"],
+  rust: ["rust", "rs"],
+  scala: ["scala", "sc"],
+  sql: ["sql", "sqlite", "sqlite3"],
+  swift: ["swift"],
+  typescript: ["typescript", "ts"],
+  "vb.net": ["vb.net", "vbnet", "vb", "visualbasic", "vbnc"],
+};
+
+const ALIAS_MAP: Record<string, string> = {};
+for (const [canonicalName, aliases] of Object.entries(CANONICAL_GROUPS)) {
+  ALIAS_MAP[canonicalName] = canonicalName;
+  for (const alias of aliases) {
+    ALIAS_MAP[alias] = canonicalName;
+  }
+}
 
 function findLanguageId(
   languages: Array<{ name: string; id: number }>,
   lang: string,
-) {
-  // if (typeof lang !== "string" || !lang.trim()) return null;
+): number | null {
+  if (typeof lang !== "string" || !lang.trim()) return null;
 
-  lang = lang.toLowerCase();
+  const cleanInput = lang.toLowerCase().replace(/[`\s\-_]/g, "");
 
-  const aliases: Record<string, string> = {
-    py: "python",
-    js: "javascript",
-    ts: "typescript",
-    csharp: "c#",
-    cpp: "c++",
-    cs: "c#",
-    go: "go",
-    rb: "ruby",
-    rs: "rust",
-    kt: "kotlin",
-    clj: "clojure",
-    hs: "haskell",
-    vbnet: "vb.net",
-    vb: "vb.net",
-  };
+  const targetToken = ALIAS_MAP[cleanInput] || cleanInput;
 
-  lang = aliases[lang] || lang;
+  const exactMatch = languages.find(
+    (l) => l.name.toLowerCase() === targetToken,
+  );
+  if (exactMatch) return exactMatch.id;
 
-  const found = languages.find((l) => l.name.toLowerCase().includes(lang));
+  const fuzzyMatch = languages.find((l) => {
+    const apiName = l.name.toLowerCase();
+    return apiName.includes(targetToken) || targetToken.includes(apiName);
+  });
 
-  return found?.id;
+  return fuzzyMatch ? fuzzyMatch.id : null;
 }
 
 // run code with judge0 api
@@ -152,7 +206,6 @@ export default {
         if (!channel?.isTextBased()) throw new Error("Channel not found");
 
         const fetchedMessage = await channel.messages.fetch(messageId);
-
         const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
@@ -205,7 +258,6 @@ export default {
 
     try {
       const reaction = await message.react(tick);
-
       const output = await runCode(lang, code);
 
       await reaction.users.remove(client.user!.id).catch(() => {});
@@ -226,18 +278,10 @@ export default {
       }
 
       if (output.stdout) {
-        // embed.addFields({
-        //   name: "Stdout:",
-        //   value: codeBlock(output.stdout.slice(0, 1000)),
-        // });
         embed.setDescription(codeBlock(output.stdout.slice(0, 1000)));
       }
 
       if (output.stderr) {
-        // embed.addFields({
-        //   name: "Stderr:",
-        //   value: codeBlock(output.stderr.slice(0, 1000)),
-        // });
         embed.setDescription(codeBlock(output.stderr.slice(0, 1000)));
       }
 
@@ -248,11 +292,10 @@ export default {
       }
 
       embed.setTitle("❌ Compilation error!").setColor(0xd21872);
-
       await message.react(x);
 
       if (output.stderr) {
-        const row = new ActionRowBuilder().addComponents(
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId("explain_fix")
             .setLabel("Explain and Fix")
@@ -261,7 +304,7 @@ export default {
 
         const sent = await message.reply({
           embeds: [embed],
-          components: [row.toJSON()],
+          components: [row],
         });
 
         const collector = sent.createMessageComponentCollector({
