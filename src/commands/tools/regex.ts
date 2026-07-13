@@ -76,12 +76,15 @@ function matchWithTimeout(
       finish(() => reject(new Error("timeout")));
     }, timeoutMs);
 
-    worker.on("message", (msg: { ok: boolean; results?: MatchResult[]; error?: string }) => {
-      finish(() => {
-        if (msg.ok) resolve(msg.results ?? []);
-        else reject(new Error(msg.error || "regex error"));
-      });
-    });
+    worker.on(
+      "message",
+      (msg: { ok: boolean; results?: MatchResult[]; error?: string }) => {
+        finish(() => {
+          if (msg.ok) resolve(msg.results ?? []);
+          else reject(new Error(msg.error || "regex error"));
+        });
+      },
+    );
 
     worker.on("error", (err) => {
       finish(() => reject(err));

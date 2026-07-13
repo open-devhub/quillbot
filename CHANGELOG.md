@@ -7,6 +7,7 @@
 - Normalize `git://` repository URLs for Discord links in `npm` command
 - Optimize `run` command and expand its judge0 language alias map
 - Harden `http` command against SSRF and DoS
+- Fix reDoS risk from unrestricted user-controlled RegExp
 
 ### Contributors
 
@@ -42,7 +43,7 @@
 - **Security Auditing**: Embedded a URL inspection utility to evaluate links for potential safety risks.
 - **Community-Tier Access**: Implemented a server-membership verification system to seamlessly unlock premium commands for community supporters.
 
-### contributors
+### Contributors
 
 - [@calebephrem](https://github.com/calebephrem)
 - [@joshdegr8](https://github.com/joshdegr8)
