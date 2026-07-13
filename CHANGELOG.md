@@ -1,6 +1,19 @@
 # Change Log
 
-## `v1.1.0` - 02/07/2026
+## `v1.1.1` - 2026-07-13
+
+### Fixed
+
+- Normalize `git://` repository URLs for Discord links in `npm` command
+- Optimize `run` command and expand its judge0 language alias map
+- Harden `http` command against SSRF and DoS
+
+### Contributors
+
+- [@calebephrem](https://github.com/calebephrem)
+- [@gitcommit90](https://github.com/gitcommit90)
+
+## `v1.1.0` - 2026-07-02
 
 ### Added
 
@@ -16,7 +29,7 @@
 - Both the command and interaction handler now parse `CHANGELOG.md` dynamically
 - Updated `profile` command to include a visual GitHub contribution activity graph in the embed response
 
-## `v1.0.0` - 01/07/2026
+## `v1.0.0` - 2026-07-01
 
 ### Added
 
@@ -28,3 +41,10 @@
 - **Developer Utility Suite**: Introduced a robust collection of tools for code formatting, HTTP response parsing, regex testing, cryptographic ID generation, color validation, and metadata decoding.
 - **Security Auditing**: Embedded a URL inspection utility to evaluate links for potential safety risks.
 - **Community-Tier Access**: Implemented a server-membership verification system to seamlessly unlock premium commands for community supporters.
+
+### contributors
+
+- [@calebephrem](https://github.com/calebephrem)
+- [@joshdegr8](https://github.com/joshdegr8)
+- [@louiszn](https://github.com/louiszn)
+- [@skullvension](https://github.com/skullvension)
