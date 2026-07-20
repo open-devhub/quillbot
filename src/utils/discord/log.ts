@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
-import config from "../../config.json" with { type: "json" };
-import { client } from "../index.ts";
-import type { Log } from "../types/log.ts";
+import config from "../../../config.json" with { type: "json" };
+import { client } from "../../index.ts";
+import type { Log } from "../../types/log.ts";
 
 export function log(entry: Log) {
   const { logs } = config;

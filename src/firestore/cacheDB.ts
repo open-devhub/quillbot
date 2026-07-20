@@ -1,5 +1,5 @@
 import path from "path";
-import { readFile, writeFile } from "../utils/fileOps.ts";
+import { readFile, writeFile } from "../utils/fs/fileOps.ts";
 import { getAllDocuments } from "./firestore.ts";
 
 import type { DocumentData } from "firebase-admin/firestore";

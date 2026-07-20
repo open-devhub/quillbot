@@ -5,7 +5,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import { man } from "../../utils/man.ts";
+import { man } from "../../utils/misc/man.ts";
 
 export default {
   name: "man",

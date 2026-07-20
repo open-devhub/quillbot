@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import { getServerStats, getStats } from "../../utils/stats.ts";
+import { getServerStats, getStats } from "../../utils/misc/stats.ts";
 
 export default {
   name: "stats",

@@ -3,7 +3,7 @@ import "dotenv/config";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
 import config from "../../../config.json" with { type: "json" };
-import getAllFiles from "../../utils/getAllFiles.ts";
+import getAllFiles from "../../utils/fs/getAllFiles.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

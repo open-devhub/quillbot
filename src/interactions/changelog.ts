@@ -6,8 +6,8 @@ import {
 } from "discord.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import { readFile } from "../utils/fileOps.ts";
-import { parseChangelog } from "../utils/parseChangelog.ts";
+import { readFile } from "../utils/fs/fileOps.ts";
+import { parseChangelog } from "../utils/parse/parseChangelog.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

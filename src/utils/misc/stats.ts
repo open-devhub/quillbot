@@ -2,7 +2,7 @@ import {
   createDocument,
   getDocument,
   updateDocument,
-} from "../firestore/firestore.ts";
+} from "../../firestore/firestore.ts";
 
 const SAVE_THRESHOLD = 5;
 let globalCommandCount = 0;

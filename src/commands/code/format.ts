@@ -5,7 +5,7 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
-} from "../../utils/codeInput.ts";
+} from "../../utils/code/codeInput.ts";
 
 const parserMap: Record<string, string> = {
   js: "babel",
