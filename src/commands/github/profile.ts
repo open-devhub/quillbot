@@ -6,7 +6,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
-import { generateGitHubHeatMap } from "../../utils/githubActivityGraph.ts";
+import { generateGitHubHeatMap } from "../../utils/misc/githubActivityGraph.ts";
 
 export default {
   name: "profile",

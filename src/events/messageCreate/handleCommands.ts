@@ -13,8 +13,8 @@ import path, { join } from "path";
 import { fileURLToPath } from "url";
 import config from "../../../config.json" with { type: "json" };
 import { getCachedDB } from "../../firestore/cacheDB.ts";
-import getAllFiles from "../../utils/getAllFiles.ts";
-import { trackCommandStat } from "../../utils/stats.ts";
+import getAllFiles from "../../utils/fs/getAllFiles.ts";
+import { trackCommandStat } from "../../utils/misc/stats.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

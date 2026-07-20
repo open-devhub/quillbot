@@ -5,7 +5,7 @@ import { createEntry } from "../../firestore/support.ts";
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import type { Log } from "../../types/log.ts";
 import type { SupportDoc } from "../../types/support.ts";
-import { log } from "../../utils/log.ts";
+import { log } from "../../utils/discord/log.ts";
 
 export default {
   name: "report",
