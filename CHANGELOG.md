@@ -1,5 +1,11 @@
 # Change Log
 
+## `v1.2.0` - 2026-07-20
+
+### Changed
+
+- Replaced the previous score/regex-based estimator with a dedicated `analyzeComplexity` utility that properly tracks loop nesting depth, classifies recursion (linear / logarithmic / exponential / factorial / memoized), and produces structured indicators + reasoning.
+
 ## `v1.1.1` - 2026-07-13
 
 ### Fixed
