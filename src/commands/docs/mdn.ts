@@ -10,7 +10,6 @@ export default {
   description: "Search MDN Web Docs",
   aliases: ["mozilla", "mdnsearch"],
   usage: "mdn <term>",
-  react: "📚",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");

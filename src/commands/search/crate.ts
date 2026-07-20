@@ -12,7 +12,6 @@ export default {
   description: "Search Rust crates",
   usage: "crate <crate name>",
   aliases: ["crates", "cargo"],
-  react: "🦀",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");

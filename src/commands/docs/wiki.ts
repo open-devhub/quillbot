@@ -12,7 +12,6 @@ export default {
   description: "Search Wikipedia articles",
   usage: "wiki <term>",
   aliases: ["wikipedia", "wikisearch"],
-  react: "📚",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");

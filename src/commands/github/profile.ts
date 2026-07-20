@@ -13,7 +13,6 @@ export default {
   description: "Get information about a GitHub user/profile",
   usage: "profile <username | profile URL>",
   aliases: ["githubprofile", "user"],
-  react: "💻",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const username = args[0];

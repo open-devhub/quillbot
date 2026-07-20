@@ -11,7 +11,6 @@ export default {
   description: "Get information about a GitHub repository",
   usage: "repo <repository URL>",
   aliases: ["githubrepo", "ghrepo"],
-  react: "📦",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const repoUrl = args[0];

@@ -12,7 +12,6 @@ export default {
   description: "Search man pages",
   aliases: ["manual"],
   usage: "man <term>",
-  react: "📖",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       // returns  return {

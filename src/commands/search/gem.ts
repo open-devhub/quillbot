@@ -12,7 +12,6 @@ export default {
   description: "Search Ruby gems",
   usage: "gem <gem name>",
   aliases: ["gems", "gempkg"],
-  react: "💎",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");
