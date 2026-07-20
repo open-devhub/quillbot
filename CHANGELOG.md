@@ -4,13 +4,13 @@
 
 ### Changed
 
-- Replaced the previous score/regex-based estimator with a dedicated `analyzeComplexity` utility that properly tracks loop nesting depth, classifies recursion (linear / logarithmic / exponential / factorial / memoized), and produces structured indicators + reasoning.
+- Replaced the previous score/regex-based estimator with a dedicated `analyzeComplexity` utility that properly tracks loop nesting depth, classifies recursion (linear / logarithmic / exponential / factorial / memoized), and produces structured indicators + reasoning. ([#41](https://github.com/open-devhub/quillbot/issues/41))
 
 ## `v1.1.1` - 2026-07-13
 
 ### Fixed
 
-- Normalize `git://` repository URLs for Discord links in `npm` command
+- Normalize `git://` repository URLs for Discord links in `npm` command ([#32](https://github.com/open-devhub/quillbot/issues/32))
 - Optimize `run` command and expand its judge0 language alias map
 - Harden `http` command against SSRF and DoS
 - Fix reDoS risk from unrestricted user-controlled RegExp
