@@ -2,6 +2,10 @@
 
 ## `v1.2.0` - 2026-07-20
 
+### Added
+
+- Added bot info and statistics display when the bot is mentioned ([#46](https://github.com/open-devhub/quillbot/issues/46))
+
 ### Changed
 
 - Replaced the previous score/regex-based estimator with a dedicated `analyzeComplexity` utility that properly tracks loop nesting depth, classifies recursion (linear / logarithmic / exponential / factorial / memoized), and produces structured indicators + reasoning. ([#41](https://github.com/open-devhub/quillbot/issues/41))
