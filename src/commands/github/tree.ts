@@ -1,7 +1,11 @@
-import { AttachmentBuilder, codeBlock, EmbedBuilder } from "discord.js";
+import { AttachmentBuilder, MessageFlags } from "discord.js";
+
 import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import type { GitHubTreeEntry, RepoInfo, TreeNode } from "../../types/tree.ts";
+
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 function parseRepo(url: string): RepoInfo | null {
   // Remove protocol and www
@@ -76,14 +80,12 @@ export default {
 
     if (!args[0]) {
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Invalid usage")
-            .setDescription(
-              "Usage: `;tree <github repo link> [depth]`\nExample: `;tree https://github.com/user/repo 2`",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Invalid Usage",
+          description:
+            "Usage: `;tree <github repo link> [depth]`\nExample: `;tree https://github.com/user/repo 2`",
+        }),
       });
     }
 
@@ -94,14 +96,12 @@ export default {
     );
     if (!match) {
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Invalid usage")
-            .setDescription(
-              "Usage: `;tree <github repo link> [depth]`\nExample: `;tree https://github.com/user/repo 2`",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Invalid Usage",
+          description:
+            "Usage: `;tree <github repo link> [depth]`\nExample: `;tree https://github.com/user/repo 2`",
+        }),
       });
     }
 
@@ -154,30 +154,74 @@ export default {
           name: `${repo}-tree.txt`,
         });
 
-        const embed = new EmbedBuilder()
-          .setTitle(`✅ Repository Tree`)
-          .setDescription(
-            `Structure is too large to display.\nSent as file instead.`,
-          )
-          .setColor(0x22c55e)
-          .setFooter({
-            text: `${owner}/${repo} | depth: ${depth}`,
-          });
-
-        await message.react(check);
-        return message.reply({ embeds: [embed], files: [file] });
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          files: [file],
+          components: buildComponents([
+            {
+              type: "container",
+              accentColor: 0x22c55e,
+              components: [
+                {
+                  type: "text",
+                  content: "### ✅ Repository Tree",
+                },
+                {
+                  type: "text",
+                  content:
+                    "The repository structure is too large to display inline.\nIt has been attached as a file below.",
+                },
+                {
+                  type: "separator",
+                  spacing: "small",
+                },
+                {
+                  type: "file",
+                  url: `attachment://${repo}-tree.txt`,
+                },
+                {
+                  type: "separator",
+                  spacing: "small",
+                },
+                {
+                  type: "text",
+                  content: `-# Repository: \`${owner}/${repo}\`\n-# Depth: \`${depth}\``,
+                },
+              ],
+            },
+          ]),
+        });
       }
 
-      const embed = new EmbedBuilder()
-        .setTitle(`✅ Repository Tree`)
-        .setDescription(codeBlock(output))
-        .setColor(0x22c55e)
-        .setFooter({
-          text: `${owner}/${repo} | depth: ${depth}`,
-        });
-
       await message.react(check);
-      return message.reply({ embeds: [embed] });
+
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: 0x22c55e,
+            components: [
+              {
+                type: "text",
+                content: "### ✅ Repository Tree",
+              },
+              {
+                type: "text",
+                content: `Repository: \`${owner}/${repo}\`\nDepth: \`${depth}\``,
+              },
+              {
+                type: "separator",
+                spacing: "small",
+              },
+              {
+                type: "text",
+                content: `\`\`\`text\n${output}\n\`\`\``,
+              },
+            ],
+          },
+        ]),
+      });
     } catch (err: unknown) {
       console.error(err);
 
@@ -187,12 +231,11 @@ export default {
         err instanceof Error ? err.message : "An unknown error occurred.";
 
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Failed to fetch repository")
-            .setDescription(errorMessage)
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Failed to Fetch Repository",
+          description: errorMessage,
+        }),
       });
     }
   },

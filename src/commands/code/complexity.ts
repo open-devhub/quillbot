@@ -1,10 +1,12 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import { analyzeComplexity } from "../../utils/code/analyzeComplexity.ts";
 import {
   parseCodeBlock,
   parseCodeCommandInput,
 } from "../../utils/code/codeInput.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 export default {
   name: "complexity",
@@ -45,107 +47,104 @@ export default {
 
         if (!fetchedCodeBlock) {
           return message.reply({
-            embeds: [
-              new EmbedBuilder()
-                .setTitle("❌ No code found to analyze!")
-                .setColor(0xd21872),
-            ],
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: "❌ No Code Found to Analyze!",
+            }),
           });
         }
 
         code = fetchedCodeBlock.code?.trim() ?? "";
       } catch (err) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Failed to fetch message")
-              .setDescription(String(err))
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Failed to Fetch Message!",
+            description: String(err),
+          }),
         });
       }
     }
 
     if (!code) {
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ No code found to analyze!")
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ No Code Found to Analyze!",
+        }),
       });
     }
 
-    const safe = (input: string, limit = 1000) => {
-      return input.length > limit
-        ? input.slice(0, limit) + "\n... (truncated)"
-        : input;
-    };
-
-    const codePreview = (input: string, limit = 180) => {
-      const trimmed = input.trim();
-      const lines = trimmed.split(/\r?\n/).slice(0, 3);
-      const preview = lines.join(" ").replace(/\s+/g, " ").trim();
-      return preview.length > limit ? preview.slice(0, limit) + "..." : preview;
-    };
-
     try {
       if (!code.trim()) {
-        return message.reply(
-          "Provide code in a codeblock.\nExample:\n```js\nfor(let i=0;i<n;i++){}\n```",
-        );
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Provide Code in a Code Block.",
+            description: "Example:\n```js\nfor(let i=0;i<n;i++){}\n```",
+          }),
+        });
       }
 
       const result = analyzeComplexity(code);
 
-      const embed = new EmbedBuilder()
-        .setTitle("Big-O Complexity Estimation")
-        .setColor(0x5865f2)
-        .addFields(
-          {
-            name: "Estimated Complexity",
-            value: `\`${result.complexity}\``,
-            inline: true,
-          },
-          {
-            name: "Confidence",
-            value: result.confidence,
-            inline: true,
-          },
-          {
-            name: "Key Indicators",
-            value:
-              result.indicators
-                .slice(0, 5)
-                .map((x) => `• ${x}`)
-                .join("\n") || "• None",
-          },
-          {
-            name: "Reasoning",
-            value: result.reasoning.join(" ") || "No additional reasoning.",
-          },
-          {
-            name: "Code Preview",
-            value: `\`\`\`js\n${safe(codePreview(code), 200)}\n\`\`\``,
-          },
-        )
-        .setFooter({
-          text: "Quill Big-O Analyzer • heuristic estimation",
-        });
+      const indicators =
+        result.indicators
+          .slice(0, 5)
+          .map((x) => `• ${x}`)
+          .join("\n") || "• None";
+
+      const reasoning =
+        result.reasoning.join(" ") || "No additional reasoning.";
+
+      const components = buildComponents([
+        {
+          type: "container",
+          accentColor: 0x5865f2,
+          components: [
+            {
+              type: "text",
+              content: "### Big-O Complexity Estimation",
+            },
+            { type: "separator" },
+            {
+              type: "text",
+              content: [
+                `**Estimated Complexity**: \`${result.complexity}\``,
+                `**Confidence**: ${result.confidence}`,
+              ].join("\n"),
+            },
+            { type: "separator", spacing: "small", divider: false },
+            {
+              type: "text",
+              content: `**Key Indicators**\n${indicators}`,
+            },
+            {
+              type: "text",
+              content: `**Reasoning**\n${reasoning}`,
+            },
+            { type: "separator" },
+            {
+              type: "text",
+              content: "-# Quill Big-O Analyzer • heuristic estimation",
+            },
+          ],
+        },
+      ]);
 
       return message.reply({
-        embeds: [embed],
+        flags: MessageFlags.IsComponentsV2,
+        components,
       });
     } catch (err) {
       console.error(err);
 
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Analysis failed")
-            .setDescription(String(err))
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Analysis Failed",
+          description: String(err),
+        }),
       });
     }
   },

@@ -15,7 +15,6 @@ export default {
   description: "Search npm packages",
   usage: "npm <package name>",
   aliases: ["npmpkg"],
-  react: "📦",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");

@@ -1,6 +1,8 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import { Worker } from "node:worker_threads";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 const MAX_PATTERN = 200;
 const MAX_TEXT = 2000;
@@ -9,19 +11,14 @@ const MATCH_TIMEOUT_MS = 100;
 
 type MatchResult = { match: string; index: number };
 
-/** Reject patterns that commonly enable catastrophic backtracking. */
 function isDangerousPattern(pattern: string): boolean {
-  // Nested quantifiers on groups/classes: (a+)+, (a*)*, [a]+{2,}, etc.
   if (/\((?:[^()\\]|\\.)*[+*](?:[^()\\]|\\.)*\)(?:[+*?]|\{\d)/.test(pattern)) {
     return true;
   }
-  // Quantified alternation groups: (a|a)+ / (a|ab)*
   if (/\((?:[^()\\]|\\.)*\|(?:[^()\\]|\\.)*\)(?:[+*?]|\{\d)/.test(pattern)) {
     return true;
   }
-  // Very large explicit repetition bounds
   if (/\{\d{3,}/.test(pattern)) return true;
-  // Too many quantifiers overall
   const quantifiers = pattern.match(/[*+?]|\{\d+,?\d*\}/g);
   if (quantifiers && quantifiers.length > 15) return true;
   return false;
@@ -34,7 +31,6 @@ function matchWithTimeout(
   timeoutMs: number,
 ): Promise<MatchResult[]> {
   return new Promise((resolve, reject) => {
-    // CommonJS eval worker so matching never blocks the bot event loop.
     const workerSource = `
       const { parentPort, workerData } = require("node:worker_threads");
       try {
@@ -110,14 +106,12 @@ export default {
 
       if (!pattern || !text) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle(`❌ Regex error`)
-              .setDescription(
-                "Usage: `;regex <pattern> | <text>`\nExample: `;regex \\d+ | hello123 world456`",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Regex Error",
+            description:
+              "Usage: `;regex <pattern> | <text>`\nExample: `;regex \\d+ | hello123 world456`",
+          }),
         });
       }
 
@@ -127,38 +121,33 @@ export default {
 
       if (pattern.length > MAX_PATTERN || text.length > MAX_TEXT) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle(`❌ Input too long`)
-              .setDescription(
-                `Pattern max ${MAX_PATTERN} chars, text max ${MAX_TEXT} chars.`,
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Input Too Long",
+            description: `Pattern max ${MAX_PATTERN} chars, text max ${MAX_TEXT} chars.`,
+          }),
         });
       }
 
       if (isDangerousPattern(pattern)) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle(`❌ Pattern not allowed`)
-              .setDescription(
-                "This pattern looks too complex or prone to catastrophic backtracking.",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Pattern Not Allowed",
+            description:
+              "This pattern looks too complex or prone to catastrophic backtracking.",
+          }),
         });
       }
 
-      // Validate syntax on the main thread (cheap) before spawning a worker.
       try {
         new RegExp(pattern, "g");
       } catch {
         return message.reply({
-          embeds: [
-            new EmbedBuilder().setTitle(`❌ Invalid regex`).setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Invalid Regex",
+          }),
         });
       }
 
@@ -173,31 +162,38 @@ export default {
       } catch (err) {
         if (err instanceof Error && err.message === "timeout") {
           return message.reply({
-            embeds: [
-              new EmbedBuilder()
-                .setTitle(`❌ Regex timed out`)
-                .setDescription(
-                  "Matching took too long and was aborted. Try a simpler pattern or shorter text.",
-                )
-                .setColor(0xd21872),
-            ],
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: "❌ Regex Timed Out",
+              description:
+                "Matching took too long and was aborted. Try a simpler pattern or shorter text.",
+            }),
           });
         }
         return message.reply({
-          embeds: [
-            new EmbedBuilder().setTitle(`❌ Invalid regex`).setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Invalid Regex",
+          }),
         });
       }
 
       if (matches.length === 0) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle(`❌ No matches`)
-              .setDescription(`Pattern: \`${pattern}\`\nText: \`${text}\``)
-              .setColor(0xf59e0b),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildComponents([
+            {
+              type: "container",
+              accentColor: 0xf59e0b,
+              components: [
+                { type: "text", content: "### ❌ No Matches" },
+                {
+                  type: "text",
+                  content: `**Pattern**: \`${pattern}\`\n**Text**: \`${text}\``,
+                },
+              ],
+            },
+          ]),
         });
       }
 
@@ -216,26 +212,42 @@ export default {
           ? `${matches.length}+ (capped at ${MAX_MATCHES})`
           : `${matches.length}`;
 
-      const embed = new EmbedBuilder()
-        .setTitle(`✅ Regex Matches`)
-        .setFields(
-          { name: "Pattern", value: `\`${pattern}\`` },
-          { name: "Matches Found", value: matchCountLabel },
-          { name: "Highlighted Text", value: highlighted.slice(0, 1024) },
-          { name: "Match Details", value: matchDetails || "N/A" },
-        )
-        .setColor(0x22c55e);
-
-      return message.reply({ embeds: [embed] });
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: 0x22c55e,
+            components: [
+              { type: "text", content: "### ✅ Regex Matches" },
+              {
+                type: "text",
+                content: [
+                  `**Pattern**: \`${pattern}\``,
+                  `**Matches Found**: \`${matchCountLabel}\``,
+                ].join("\n"),
+              },
+              { type: "separator", spacing: "small", divider: false },
+              {
+                type: "text",
+                content: `**Highlighted Text**\n${highlighted.slice(0, 1024)}`,
+              },
+              {
+                type: "text",
+                content: `**Match Details**\n${matchDetails || "N/A"}`,
+              },
+            ],
+          },
+        ]),
+      });
     } catch (err) {
       console.error(err);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Regex error")
-            .setDescription("An error occurred while processing the regex.")
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Regex Error",
+          description: "An error occurred while processing the regex.",
+        }),
       });
     }
   },

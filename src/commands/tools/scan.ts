@@ -1,6 +1,8 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import "dotenv/config";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 const GSB_API_KEY = process.env.GSB_API_KEY;
 const URLSCAN_API_KEY = process.env.URLSCAN_API_KEY;
@@ -17,14 +19,11 @@ export default {
 
     if (!url) {
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ No URL Provided")
-            .setDescription(
-              "Please provide a URL to scan.\nUsage: `;scan <url>`",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ No URL Provided",
+          description: "Please provide a URL to scan.\nUsage: `;scan <url>`",
+        }),
       });
     }
 
@@ -41,14 +40,12 @@ export default {
       );
       if (!match || !match[1] || !match[2] || !match[3]) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Invalid Message Link")
-              .setDescription(
-                "Please provide a valid Discord message link containing a URL (and make sure the bot has access to that message).",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Invalid Message Link",
+            description:
+              "Please provide a valid Discord message link containing a URL (and make sure the bot has access to that message).",
+          }),
         });
       }
       const [, guildId, channelId, messageId] = match;
@@ -71,14 +68,12 @@ export default {
 
         if (urls.length === 0) {
           return message.reply({
-            embeds: [
-              new EmbedBuilder()
-                .setTitle("❌ No URLs Found")
-                .setDescription(
-                  "The linked message does not contain any URLs to scan.",
-                )
-                .setColor(0xd21872),
-            ],
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: "❌ No URLs Found",
+              description:
+                "The linked message does not contain any URLs to scan.",
+            }),
           });
         }
 
@@ -86,14 +81,12 @@ export default {
       } catch (err) {
         console.error("Failed to fetch linked message:", err);
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Invalid Message Link")
-              .setDescription(
-                "Please provide a valid Discord message link containing a URL (and make sure the bot has access to that message).",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Invalid Message Link",
+            description:
+              "Please provide a valid Discord message link containing a URL (and make sure the bot has access to that message).",
+          }),
         });
       }
     }
@@ -102,26 +95,30 @@ export default {
       new URL(scanUrl);
     } catch {
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Invalid URL")
-            .setDescription(
-              "Please provide a valid URL including `http://` or `https://`",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Invalid URL",
+          description:
+            "Please provide a valid URL including `http://` or `https://`",
+        }),
       });
     }
 
     const loading = await message.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("🔍 Scanning URL...")
-          .setDescription(
-            "Running deep analysis, this may take a few seconds...",
-          )
-          .setColor(0x5865f2),
-      ],
+      flags: MessageFlags.IsComponentsV2,
+      components: buildComponents([
+        {
+          type: "container",
+          accentColor: 0x5865f2,
+          components: [
+            { type: "text", content: "### 🔍 Scanning URL..." },
+            {
+              type: "text",
+              content: "Running deep analysis, this may take a few seconds...",
+            },
+          ],
+        },
+      ]),
     });
 
     try {
@@ -143,9 +140,11 @@ export default {
       const isMalicious = gsb?.malicious || isIPQSMalicious;
       const isSuspicious =
         !isMalicious && ((urlscan?.score ?? 0) >= 70 || isIPQSSuspicious);
-      const isClean = !isMalicious && !isSuspicious;
 
-      let color, badge, verdictLine;
+      let color: number;
+      let badge: string;
+      let verdictLine: string;
+
       if (isMalicious) {
         color = 0xff3333;
         badge = "🚨 DANGEROUS";
@@ -164,28 +163,25 @@ export default {
         verdictLine = "No threats detected. This URL appears to be safe.";
       }
 
-      // parse domain
       const domain = new URL(scanUrl).hostname;
 
-      const embed = new EmbedBuilder()
-        .setColor(color)
-        .setTitle(`${badge}`)
-        .setDescription(`> ${verdictLine}`)
-        .addFields({
-          name: "URL",
-          value: `\`\`\`${scanUrl}\`\`\``,
-          inline: false,
-        });
+      const parts: any[] = [
+        { type: "text", content: `### ${badge}` },
+        { type: "text", content: `> ${verdictLine}` },
+        {
+          type: "text",
+          content: `**URL**\n\`\`\`\n${scanUrl}\n\`\`\``,
+        },
+      ];
 
       if (gsb?.malicious && gsb.threats.length > 0) {
-        embed.addFields({
-          name: "Threats Detected",
-          value: gsb.threats.map((t) => `• ${t}`).join("\n"),
-          inline: false,
+        parts.push({
+          type: "text",
+          content: `**Threats Detected**\n${gsb.threats.map((t) => `• ${t}`).join("\n")}`,
         });
       }
 
-      const infoLines = [];
+      const infoLines: string[] = [];
       if (domain) infoLines.push(`**Domain:** \`${domain}\``);
       if (urlscan?.ip) infoLines.push(`**IP Address:** \`${urlscan.ip}\``);
       if (urlscan?.country)
@@ -194,89 +190,75 @@ export default {
       if (urlscan?.server) infoLines.push(`**Server:** \`${urlscan.server}\``);
 
       if (infoLines.length > 0) {
-        embed.addFields({
-          name: "Site Information",
-          value: infoLines.join("\n"),
-          inline: false,
+        parts.push({
+          type: "text",
+          content: `**Site Information**\n${infoLines.join("\n")}`,
         });
       }
 
-      // if (ipqs) {
-      //   const ipqsLines = [
-      //     `**Malicious:** ${ipqs.malicious ? "Yes" : "No"}`,
-      //     `**Suspicious:** ${ipqs.suspicious ? "Yes" : "No"}`,
-      //     `**Risk Score:** ${ipqs.risk_score ?? "N/A"}`,
-      //   ];
-
-      //   if (typeof ipqs.unsafe === "boolean") {
-      //     ipqsLines.push(`**Unsafe:** ${ipqs.unsafe ? "Yes" : "No"}`);
-      //   }
-      //   if (ipqs.host) {
-      //     ipqsLines.push(`**Host:** ${ipqs.host}`);
-      //   }
-      //   if (ipqs.country_code) {
-      //     ipqsLines.push(`**Country:** ${ipqs.country_code}`);
-      //   }
-
-      //   embed.addFields({
-      //     name: "IPQualityScore",
-      //     value: ipqsLines.join("\n"),
-      //     inline: false,
-      //   });
-      // }
-
-      if (urlscan?.score) {
+      if (urlscan?.score != null) {
         const score = urlscan.score;
         const filled = Math.round(score / 10);
         const empty = 10 - filled;
         const bar = "█".repeat(filled) + "░".repeat(empty);
         const scoreColor = score >= 70 ? "🔴" : score >= 40 ? "🟡" : "🟢";
-        embed.addFields({
-          name: "Risk Score",
-          value: `${scoreColor} \`${bar}\` **${score}/100**`,
-          inline: false,
+        parts.push({
+          type: "text",
+          content: `**Risk Score**\n${scoreColor} \`${bar}\` **${score}/100**`,
         });
       }
 
-      // scan coverage
       const sources: string[] = [];
       if (gsb) sources.push("Google Safe Browsing");
       if (urlscan) sources.push("URLScan.io");
       if (ipqs) sources.push("IPQualityScore");
-      embed.addFields({
-        name: "Scanned Against",
-        value: sources.map((s) => `• ${s}`).join("\n"),
-        inline: true,
+
+      parts.push({
+        type: "text",
+        content: `**Scanned Against**\n${sources.map((s) => `• ${s}`).join("\n")}`,
       });
 
-      embed.setTimestamp().setFooter({
-        text: `Requested by ${message.author.tag}`,
-        iconURL: message.author.displayAvatarURL(),
-      });
+      parts.push({ type: "separator", spacing: "small" });
 
-      const components: any[] = [];
       if (urlscan?.resultUrl) {
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setLabel("Full Report")
-            .setStyle(5)
-            .setURL(urlscan.resultUrl),
-        );
-        components.push(row.toJSON());
+        parts.push({
+          type: "section",
+          components: [
+            {
+              type: "text",
+              content: `-# Requested by ${message.author.tag}`,
+            },
+          ],
+          accessory: {
+            type: "button",
+            style: "link",
+            label: "Full Report",
+            url: urlscan.resultUrl,
+          },
+        });
+      } else {
+        parts.push({
+          type: "text",
+          content: `-# Requested by ${message.author.tag}`,
+        });
       }
 
-      return loading.edit({ embeds: [embed], components });
+      return loading.edit({
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: color,
+            components: parts,
+          },
+        ]),
+      });
     } catch (err) {
       console.error(err);
       return loading.edit({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Scan Failed")
-            .setDescription(
-              "Something went wrong while scanning. Try again later.",
-            )
-            .setColor(0xd21872),
-        ],
+        components: buildErrorComponent({
+          title: "❌ Scan Failed",
+          description: "Something went wrong while scanning. Try again later.",
+        }),
       });
     }
   },
@@ -352,7 +334,6 @@ async function runURLScan(url: string) {
     if (!result.ok) continue;
 
     const data = await result.json();
-
     const verdict = data.verdicts?.overall;
 
     return {

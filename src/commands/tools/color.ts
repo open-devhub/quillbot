@@ -1,6 +1,8 @@
 import { createCanvas } from "@napi-rs/canvas";
-import { AttachmentBuilder, EmbedBuilder } from "discord.js";
+import { AttachmentBuilder, MessageFlags } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 function hexToRgb(hex: string) {
   const clean = hex.replace("#", "");
@@ -125,25 +127,22 @@ export default {
 
       if (!inputs.length) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ No colors provided")
-              .setDescription(
-                "Please provide at least one color to preview.\nExample: `;color #ff0000` or `;color red | blue`",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ No Colors Provided",
+            description:
+              "Please provide at least one color to preview.\nExample: `;color #ff0000` or `;color red blue`",
+          }),
         });
       }
 
       if (inputs.length > 15) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Too many colors provided")
-              .setDescription("The number of colors cannot exceed 15.")
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Too Many Colors Provided",
+            description: "The number of colors cannot exceed 15.",
+          }),
         });
       }
 
@@ -167,7 +166,6 @@ export default {
 
       if (colors.length === 1) {
         const c = colors[0];
-
         if (!c) return;
 
         ctx.fillStyle = c.hex;
@@ -175,10 +173,8 @@ export default {
 
         const brightness = (c.r * 299 + c.g * 587 + c.b * 114) / 1000;
         ctx.fillStyle = brightness > 128 ? "#000" : "#fff";
-
         ctx.font = "bold 18px Sans";
         ctx.textAlign = "center";
-
         ctx.fillText(c.hex.toUpperCase(), 150, 75);
       } else {
         const gradient = ctx.createLinearGradient(
@@ -187,42 +183,60 @@ export default {
           canvas.width,
           canvas.height,
         );
-
         const step = 1 / (colors.length - 1);
-
         colors.forEach((c, i) => {
           gradient.addColorStop(i * step, c.hex);
         });
-
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
       const buffer = canvas.toBuffer("image/png");
-
       const attachment = new AttachmentBuilder(buffer, {
         name: "color.png",
       });
 
-      const embed = new EmbedBuilder()
-        .setTitle(`🎨 ${colors.length === 1 ? "Color" : "Gradient"} Preview`)
-        .setImage("attachment://color.png")
-        .setColor(parseInt((colors[0]?.hex ?? "#000000").replace("#", ""), 16));
+      const accent = parseInt(
+        (colors[0]?.hex ?? "#000000").replace("#", ""),
+        16,
+      );
+
+      const colorList = colors
+        .map((c) => `\`${c.hex.toUpperCase()}\``)
+        .join(" · ");
 
       return message.reply({
-        embeds: [embed],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: accent,
+            components: [
+              {
+                type: "text",
+                content: `### 🎨 ${colors.length === 1 ? "Color" : "Gradient"} Preview`,
+              },
+              {
+                type: "text",
+                content: colorList,
+              },
+              {
+                type: "mediaGallery",
+                items: [{ url: "attachment://color.png" }],
+              },
+            ],
+          },
+        ]),
         files: [attachment],
       });
-    } catch (err) {
+    } catch {
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Invalid color input")
-            .setDescription(
-              "Please provide valid colors in hex, rgb(), or hsl() format.\nExamples:\n`#ff0000`\n`rgb(255, 0, 0)`\n`hsl(0, 100%, 50%)`",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Invalid Color Input",
+          description:
+            "Please provide valid colors in hex, rgb(), or hsl() format.\nExamples:\n`#ff0000`\n`rgb(255, 0, 0)`\n`hsl(0, 100%, 50%)`",
+        }),
       });
     }
   },

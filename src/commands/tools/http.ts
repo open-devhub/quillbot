@@ -1,11 +1,12 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import fetch from "node-fetch";
 import dns from "node:dns/promises";
 import net from "node:net";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 const MAX_REDIRECTS = 5;
-// 2MB cap on response body
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -46,23 +47,14 @@ function isBlockedIp(ip: string): boolean {
       const a = parts[0];
       const b = parts[1];
       if (a === undefined || b === undefined) return true;
-      // 0.0.0.0/8
       if (a === 0) return true;
-      // 10.0.0.0/8
       if (a === 10) return true;
-      // 127.0.0.0/8
       if (a === 127) return true;
-      // 169.254.0.0/16 link-local / metadata
       if (a === 169 && b === 254) return true;
-      // 172.16.0.0/12
       if (a === 172 && b >= 16 && b <= 31) return true;
-      // 192.168.0.0/16
       if (a === 192 && b === 168) return true;
-      // 100.64.0.0/10 CGNAT
       if (a === 100 && b >= 64 && b <= 127) return true;
-      // 198.18.0.0/15 benchmark
       if (a === 198 && (b === 18 || b === 19)) return true;
-      // multicast + reserved
       if (a >= 224) return true;
       return false;
     }
@@ -73,7 +65,6 @@ function isBlockedIp(ip: string): boolean {
       if (n === 0n || n === 1n) return true;
 
       if (n >> 32n === 0xffffn) {
-        // IPv4-mapped ::ffff:0:0/96
         const v4 = Number(n & 0xffffffffn);
         const a = (v4 >>> 24) & 0xff;
         const b = (v4 >>> 16) & 0xff;
@@ -82,13 +73,9 @@ function isBlockedIp(ip: string): boolean {
         return isBlockedIp(`${a}.${b}.${c}.${d}`);
       }
 
-      // fe80::/10 link-local
       if (n >> 118n === 0x3fan) return true;
-      // fc00::/7 unique local
       if (n >> 121n === 0x7en) return true;
-      // ff00::/8 multicast
       if (n >> 120n === 0xffn) return true;
-      // 2001:db8::/32 documentation
       if (n >> 96n === 0x20010db8n) return true;
 
       return false;
@@ -100,9 +87,6 @@ function isBlockedIp(ip: string): boolean {
   }
 }
 
-// Rejects IP literals written in decimal/octal/hex form (e.g. http://2130706433/,
-// http://0x7f000001/, http://0177.0.0.1/) which some resolvers/libc will happily
-// resolve to a normal dotted-quad, bypassing naive hostname checks.
 function isSuspiciousNumericHost(host: string): boolean {
   if (net.isIP(host)) return false;
   if (/^0x[0-9a-f]+$/i.test(host)) return true;
@@ -262,25 +246,24 @@ export default {
         : str;
     };
 
-    const errorEmbed = (title: string, description: string) =>
+    const errorReply = (title: string, description: string) =>
       message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle(title)
-            .setDescription(description)
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({ title, description }),
       });
 
     try {
       if (!url) {
-        return errorEmbed(
+        return errorReply(
           "❌ Invalid URL",
           "Please provide a valid URL starting with http:// or https://",
         );
       }
       if (!validMethods.includes(method)) {
-        return message.reply(`Invalid method: ${validMethods.join(", ")}`);
+        return errorReply(
+          "❌ Invalid Method",
+          `Allowed methods: ${validMethods.join(", ")}`,
+        );
       }
 
       let body: string | undefined;
@@ -288,8 +271,8 @@ export default {
         try {
           body = JSON.stringify(JSON.parse(rawBody));
         } catch {
-          return errorEmbed(
-            "❌ Invalid JSON body",
+          return errorReply(
+            "❌ Invalid JSON Body",
             "Please provide valid JSON for the request body.",
           );
         }
@@ -304,8 +287,8 @@ export default {
         try {
           safeUrl = await assertSafeUrl(currentUrl);
         } catch (e) {
-          return errorEmbed(
-            "❌ URL not allowed",
+          return errorReply(
+            "❌ URL Not Allowed",
             e instanceof Error ? e.message : "The provided URL is not allowed.",
           );
         }
@@ -318,8 +301,6 @@ export default {
           signal: AbortSignal.timeout(
             REQUEST_TIMEOUT_MS,
           ) as unknown as import("node-fetch").RequestInit["signal"],
-          // node-fetch forwards unknown options straight through to http(s).request,
-          // which supports a custom `lookup`. This pins the connection to the exact IP we just validated, closing the DNS-rebinding TOCTOU window.
           lookup: pinnedLookup(safeUrl.pinnedIp, safeUrl.family),
         } as import("node-fetch").RequestInit);
 
@@ -335,8 +316,8 @@ export default {
       }
 
       if (!res || !finalUrl) {
-        return errorEmbed(
-          "❌ Request failed",
+        return errorReply(
+          "❌ Request Failed",
           "The request failed unexpectedly.",
         );
       }
@@ -364,59 +345,68 @@ export default {
         (truncated ? "\n... (response body truncated, exceeded 2MB)" : "") +
         "\n```";
 
-      const embed = new EmbedBuilder()
-        .setTitle(`${res.status} ${res.statusText || "Status"}`)
-        .addFields(
-          {
-            name: "Request",
-            value: `${method} ${finalUrl.href}`.slice(0, 1024),
-          },
-          {
-            name: "Latency",
-            value: `${duration}ms`,
-            inline: true,
-          },
-          {
-            name: "Content-Type",
-            value: (res.headers.get("content-type") || "unknown").slice(
-              0,
-              1024,
-            ),
-            inline: true,
-          },
-          {
-            name: "Status Type",
-            value: res.statusText || "Unknown",
-            inline: true,
-          },
-          {
-            name: "Headers",
-            value:
-              "```json\n" +
-              safe(JSON.stringify(filteredHeaders, null, 2), 500) +
-              "\n```",
-          },
-          {
-            name: "Response Body",
-            value: bodyValue,
-          },
-        )
-        .setColor(
-          res.status >= 200 && res.status < 300
-            ? 0x2ecc71
-            : res.status >= 300 && res.status < 400
-              ? 0x3498db
-              : res.status >= 400 && res.status < 500
-                ? 0xf1c40f
-                : 0xe74c3c,
-        )
-        .setFooter({ text: "Quill HTTP Inspector" });
+      const headersValue =
+        "```json\n" +
+        safe(JSON.stringify(filteredHeaders, null, 2), 500) +
+        "\n```";
 
-      return message.reply({ embeds: [embed] });
+      const accentColor =
+        res.status >= 200 && res.status < 300
+          ? 0x2ecc71
+          : res.status >= 300 && res.status < 400
+            ? 0x3498db
+            : res.status >= 400 && res.status < 500
+              ? 0xf1c40f
+              : 0xe74c3c;
+
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor,
+            components: [
+              {
+                type: "text",
+                content: `### ${res.status} ${res.statusText || "Status"}`,
+              },
+              {
+                type: "text",
+                content: `**Request**\n\`${method} ${finalUrl.href}\``.slice(
+                  0,
+                  1024,
+                ),
+              },
+              {
+                type: "text",
+                content: [
+                  `**Latency**: \`${duration}ms\``,
+                  `**Content-Type**: \`${(res.headers.get("content-type") || "unknown").slice(0, 200)}\``,
+                  `**Status Type**: \`${res.statusText || "Unknown"}\``,
+                ].join("\n"),
+              },
+              { type: "separator", spacing: "small", divider: false },
+              {
+                type: "text",
+                content: `**Headers**\n${headersValue}`,
+              },
+              {
+                type: "text",
+                content: `**Response Body**\n${bodyValue}`,
+              },
+              { type: "separator", spacing: "small" },
+              {
+                type: "text",
+                content: "-# Quill HTTP Inspector",
+              },
+            ],
+          },
+        ]),
+      });
     } catch (err) {
       console.error(err);
-      return errorEmbed(
-        "❌ Request failed",
+      return errorReply(
+        "❌ Request Failed",
         "The request failed (network or timeout error).",
       );
     }

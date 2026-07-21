@@ -1,5 +1,7 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 export default {
   name: "base64",
@@ -11,44 +13,56 @@ export default {
       const text = args.join(" ");
 
       if (!text) {
-        const embed = new EmbedBuilder()
-          .setTitle("❌ Missing Input")
-          .setDescription("Please provide some text to encode.")
-          .setColor(0xe74c3c);
-        return message.reply({ embeds: [embed] });
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Missing Input",
+            description: "Please provide some text to encode.",
+          }),
+        });
       }
 
       const encoded = Buffer.from(text, "utf8").toString("base64");
 
-      const embed = new EmbedBuilder()
-        .setTitle("🔐 Base64 Encode")
-        .addFields(
-          {
-            name: "Original Text",
-            value: text.length > 1024 ? text.slice(0, 1021) + "..." : text,
-          },
-          {
-            name: "Encoded (Base64)",
-            value:
-              encoded.length > 1024
-                ? "```" + encoded.slice(0, 1021) + "...```"
-                : "```" + encoded + "```",
-          },
-        )
-        .setColor(0x2ecc71);
+      const original = text.length > 1024 ? text.slice(0, 1021) + "..." : text;
+      const encodedDisplay =
+        encoded.length > 1024
+          ? "```" + encoded.slice(0, 1021) + "...```"
+          : "```" + encoded + "```";
 
-      await message.reply({ embeds: [embed] });
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: 0x2ecc71,
+            components: [
+              { type: "text", content: "### 🔐 Base64 Encode" },
+              {
+                type: "text",
+                content: `**Original Text**\n${original}`,
+              },
+              {
+                type: "text",
+                content: `**Encoded (Base64)**\n${encodedDisplay}`,
+              },
+            ],
+          },
+        ]),
+      });
     },
 
     decode: async ({ message, args }: CommandCallbackOpts) => {
       const input = args.join(" ");
 
       if (!input) {
-        const embed = new EmbedBuilder()
-          .setTitle("❌ Missing Input")
-          .setDescription("Please provide a Base64 string to decode.")
-          .setColor(0xe74c3c);
-        return message.reply({ embeds: [embed] });
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Missing Input",
+            description: "Please provide a Base64 string to decode.",
+          }),
+        });
       }
 
       try {
@@ -58,33 +72,41 @@ export default {
           throw new Error("Invalid Base64");
         }
 
-        const embed = new EmbedBuilder()
-          .setTitle("🔓 Base64 Decode")
-          .addFields(
-            {
-              name: "Base64 Input",
-              value:
-                input.length > 1024
-                  ? "```" + input.slice(0, 1021) + "...```"
-                  : "```" + input + "```",
-            },
-            {
-              name: "Decoded Text",
-              value:
-                decoded.length > 1024
-                  ? decoded.slice(0, 1021) + "..."
-                  : decoded,
-            },
-          )
-          .setColor(0x3498db);
+        const inputDisplay =
+          input.length > 1024
+            ? "```" + input.slice(0, 1021) + "...```"
+            : "```" + input + "```";
+        const decodedDisplay =
+          decoded.length > 1024 ? decoded.slice(0, 1021) + "..." : decoded;
 
-        await message.reply({ embeds: [embed] });
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildComponents([
+            {
+              type: "container",
+              accentColor: 0x3498db,
+              components: [
+                { type: "text", content: "### 🔓 Base64 Decode" },
+                {
+                  type: "text",
+                  content: `**Base64 Input**\n${inputDisplay}`,
+                },
+                {
+                  type: "text",
+                  content: `**Decoded Text**\n${decodedDisplay}`,
+                },
+              ],
+            },
+          ]),
+        });
       } catch {
-        const embed = new EmbedBuilder()
-          .setTitle("❌ Invalid Base64")
-          .setDescription("That doesn't look like valid Base64.")
-          .setColor(0xe74c3c);
-        await message.reply({ embeds: [embed] });
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Invalid Base64",
+            description: "That doesn't look like valid Base64.",
+          }),
+        });
       }
     },
   },

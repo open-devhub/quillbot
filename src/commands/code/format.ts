@@ -1,4 +1,4 @@
-import { EmbedBuilder, codeBlock } from "discord.js";
+import { MessageFlags, codeBlock } from "discord.js";
 import prettier from "prettier";
 import config from "../../../config.json" with { type: "json" };
 import type { CommandCallbackOpts } from "../../types/command.ts";
@@ -6,6 +6,8 @@ import {
   parseCodeBlock,
   parseCodeCommandInput,
 } from "../../utils/code/codeInput.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 const parserMap: Record<string, string> = {
   js: "babel",
@@ -53,14 +55,12 @@ export default {
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle(`❌ Format error!`)
-            .setDescription(
-              "Provide a code block or a message link containing code.",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: `❌ Format Error!`,
+          description:
+            "Provide a code block or a message link containing code.",
+        }),
       });
     }
 
@@ -94,11 +94,12 @@ export default {
           await reaction.users.remove(client.user!.id).catch(() => {});
           await message.react(x);
           return message.reply({
-            embeds: [
-              new EmbedBuilder()
-                .setTitle(`❌ No code found!`)
-                .setColor(0xd21872),
-            ],
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: `❌ No Code Found!`,
+              description:
+                "Provide a code block or a message link containing code.",
+            }),
           });
         }
 
@@ -108,26 +109,23 @@ export default {
         await reaction.users.remove(client.user!.id).catch(() => {});
         await message.react(x);
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle(`❌ Failed to fetch message`)
-              .setDescription(String(err))
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: `❌ Failed to Fetch Message!`,
+            description: String(err),
+          }),
         });
       }
     } else {
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle(`❌ Format error!`)
-            .setDescription(
-              "Provide a code block or a message link containing code.",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: `❌ Format Error!`,
+          description:
+            "Provide a code block or a message link containing code.",
+        }),
       });
     }
 
@@ -146,32 +144,47 @@ export default {
 
       await reaction.users.remove(client.user!.id).catch(() => {});
 
-      const embed = new EmbedBuilder()
-        .setTitle(`✅ Formatted Code`)
-        .setDescription(codeBlock(lang || "js", formatted.slice(0, 4000)))
-        .setColor(0x22c55e)
-        .setFooter({
-          text: `${message.author.tag} | Prettier | Parser: ${parser}`,
-        })
-        .setTimestamp();
+      const components = buildComponents([
+        {
+          type: "container",
+          accentColor: 0x22c55e,
+          components: [
+            {
+              type: "text",
+              content: "### ✅ Formatted Code",
+            },
+            {
+              type: "text",
+              content: codeBlock(lang || "js", formatted.slice(0, 4000)),
+            },
+            { type: "separator", spacing: "small" },
+            {
+              type: "text",
+              content: `-# ${message.author.tag} • Prettier • Parser: ${parser}`,
+            },
+          ],
+        },
+      ]);
 
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(check);
-      return message.reply({ embeds: [embed] });
+
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components,
+      });
     } catch (err) {
       console.error(err);
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
 
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle(`❌ Formatting error`)
-            .setDescription(
-              "Unsupported language or invalid syntax. Use ;format with a code in a code block or message link, which is supported by Prettier.",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Formatting Error!",
+          description:
+            "Unsupported language or invalid syntax. Use ;format with a code in a code block or message link, which is supported by Prettier.",
+        }),
       });
     }
   },

@@ -1,5 +1,4 @@
-import type { Client, Message } from "discord.js";
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import path, { join } from "path";
 import { fileURLToPath } from "url";
 import config from "../../../config.json" with { type: "json" };
@@ -8,6 +7,8 @@ import type {
   CommandCallbackOpts,
   CommandModule,
 } from "../../types/command.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 import getAllFiles from "../../utils/fs/getAllFiles.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -18,11 +19,6 @@ export default {
     "Provides information about available commands and how to use them.",
   usage: "help [command]",
   aliases: ["welp", "h"],
-  /**
-   *
-   * @param {Client} client
-   * @param {Message} message
-   */
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const prefixCommandsPath = join(__dirname, "..", "..", "commands");
@@ -61,38 +57,47 @@ export default {
 
         if (!command) {
           return message.reply({
-            embeds: [
-              new EmbedBuilder()
-                .setTitle("❌ Command not found!")
-                .setDescription(
-                  `No command named \`${args[0]}\` found. Use \`${prefix}help\` to see all commands.`,
-                )
-                .setColor(0xd21872),
-            ],
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: "❌ Command Not Found",
+              description: `No command named \`${args[0]}\` found. Use \`${prefix}help\` to see all commands.`,
+            }),
           });
         }
 
-        const embed = new EmbedBuilder()
-          .setTitle(`${command.premium ? "★" : "⌬"} ${command.name}`)
-          .setDescription(command.description)
-          .addFields(
-            {
-              name: "Usage",
-              value: command.usage
-                ? `\`${prefix}${command.usage}\``
-                : `\`${prefix}${command.name}\``,
-            },
-            {
-              name: "Aliases",
-              value:
-                Array.isArray(command.aliases) && command.aliases.length
-                  ? command.aliases.map((a: string) => `\`${a}\``).join(", ")
-                  : "None",
-            },
-          )
-          .setColor(0x5865f2);
+        const aliases =
+          Array.isArray(command.aliases) && command.aliases.length
+            ? command.aliases.map((a: string) => `\`${a}\``).join(", ")
+            : "None";
 
-        return message.reply({ embeds: [embed] });
+        const usage = command.usage
+          ? `\`\`\`\n${prefix}${command.usage}\n\`\`\``
+          : `\`${prefix}${command.name}\``;
+
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildComponents([
+            {
+              type: "container",
+              accentColor: 0x5865f2,
+              components: [
+                {
+                  type: "text",
+                  content: `### ${command.premium ? "★" : "⌬"} ${command.name}`,
+                },
+                { type: "text", content: command.description },
+                { type: "separator", spacing: "small", divider: false },
+                {
+                  type: "text",
+                  content: [
+                    `**Usage**\n${usage}`,
+                    `**Aliases**\n${aliases}`,
+                  ].join("\n"),
+                },
+              ],
+            },
+          ]),
+        });
       }
 
       const categoriesData = await Promise.all<string>(
@@ -121,44 +126,55 @@ export default {
                 (cmd: CommandModule) =>
                   `${cmd.default.premium ? "★" : "⌬"} \`${cmd.default.name}\` • ${cmd.default.description}`,
               );
+
           return `**${categoryName
             .split(" ")
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(" ")}**\n${commandsInCategory.join("\n")}`;
         }),
       );
+
       categoriesData.push(
         ...categoriesData.splice(
           categoriesData.findIndex((c) => c.toLowerCase().includes("support")),
           1,
         ),
       );
-      const helpText = `
-    Usage: \`${prefixes[0]}command\`
-    \n${categoriesData.join("\n\n")}
-    `;
 
-      const embed = new EmbedBuilder()
-        .setTitle("📘 Commands Guide")
-        .setDescription(helpText.trim() || "No commands available.")
-        .setColor(0x5865f2)
-        .setFooter({
-          text: `Requested by ${message.author.tag}`,
-          iconURL: message.author.displayAvatarURL(),
-        });
-      return message.reply({ embeds: [embed] });
+      const helpText = `Usage: \`${prefixes[0]}command\`\n\n${categoriesData.join("\n\n")}`;
+
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: 0x5865f2,
+            components: [
+              { type: "text", content: "### 📘 Commands Guide" },
+              {
+                type: "text",
+                content: helpText.trim() || "No commands available.",
+              },
+              { type: "separator", spacing: "small" },
+              {
+                type: "text",
+                content: `-# Requested by ${message.author.tag}`,
+              },
+            ],
+          },
+        ]),
+      });
     } catch (err: unknown) {
       console.error(err);
       const errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred.";
 
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Failed to load help")
-            .setDescription(errorMessage)
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Failed to Load Help",
+          description: errorMessage,
+        }),
       });
     }
   },

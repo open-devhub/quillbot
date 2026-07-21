@@ -1,23 +1,26 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import type { WhoisData } from "../../types/whois.ts";
+
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 export default {
   name: "whois",
   description: "Lookup domain WHOIS info",
   usage: "whois <domain>",
+
   async callback({ message, args }: CommandCallbackOpts) {
     const rawDomain = args[0];
+
     if (!rawDomain) {
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ No domain provided")
-            .setDescription(
-              "Please provide a domain to lookup.\nExample: `;whois example.com`",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ No Domain Provided",
+          description:
+            "Please provide a domain to lookup.\nExample: `;whois example.com`",
+        }),
       });
     }
 
@@ -25,14 +28,14 @@ export default {
 
     try {
       const res = await fetch(`https://rdap.org/domain/${domain}`);
+
       if (!res.ok) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Invalid Domain")
-              .setDescription("Please provide a valid domain to lookup.")
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Invalid Domain",
+            description: "Please provide a valid domain to lookup.",
+          }),
         });
       }
 
@@ -51,52 +54,62 @@ export default {
           ? (data.entities![0].vcardArray[1][1][3] as string | undefined)
           : undefined;
 
-      const embed = new EmbedBuilder()
-        .setTitle(`✅ WHOIS Lookup`)
-        .setDescription(`Domain: \`${domain}\``)
-        .addFields(
-          {
-            name: "Registrar",
-            value: registrar || "N/A",
-            inline: true,
-          },
-          {
-            name: "Creation Date",
-            value: creationDate
-              ? `<t:${Math.floor(new Date(creationDate).getTime() / 1000)}:D>`
-              : "N/A",
-            inline: true,
-          },
-          {
-            name: "Expiration Date",
-            value: expirationDate
-              ? `<t:${Math.floor(new Date(expirationDate).getTime() / 1000)}:D>`
-              : "N/A",
-            inline: true,
-          },
-          {
-            name: "Name Servers",
-            value:
-              data.nameservers
-                ?.map((ns) => ns.ldhName ?? "")
-                .filter((ns): ns is string => ns.length > 0)
-                .join("\n") || "N/A",
-          },
-        )
-        .setColor(0x22c55e);
+      const nameServers =
+        data.nameservers
+          ?.map((ns) => ns.ldhName ?? "")
+          .filter((ns): ns is string => ns.length > 0)
+          .join("\n") || "N/A";
 
-      return message.reply({ embeds: [embed] });
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: 0x22c55e,
+            components: [
+              {
+                type: "text",
+                content: "### 🌐 WHOIS Lookup",
+              },
+              {
+                type: "text",
+                content: `Domain: \`${domain}\``,
+              },
+              {
+                type: "separator",
+                spacing: "small",
+              },
+              {
+                type: "text",
+                content: [
+                  `**Registrar**: ${registrar || "N/A"}`,
+                  `**Creation Date**: ${
+                    creationDate
+                      ? `<t:${Math.floor(new Date(creationDate).getTime() / 1000)}:D>`
+                      : "N/A"
+                  }`,
+                  `**Expiration Date**: ${
+                    expirationDate
+                      ? `<t:${Math.floor(new Date(expirationDate).getTime() / 1000)}:D>`
+                      : "N/A"
+                  }`,
+                  `**Name Servers**:\n${nameServers}`,
+                ].join("\n"),
+              },
+            ],
+          },
+        ]),
+      });
     } catch (err) {
       console.error(err);
+
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Failed to fetch WHOIS info")
-            .setDescription(
-              "An error occurred while fetching the WHOIS information.",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Failed to Fetch WHOIS Info",
+          description:
+            "An error occurred while fetching the WHOIS information.",
+        }),
       });
     }
   },

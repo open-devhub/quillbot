@@ -12,7 +12,6 @@ export default {
   description: "Search PyPI packages",
   usage: "pip <package name>",
   aliases: ["pypi", "pipkg"],
-  react: "🐍",
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");

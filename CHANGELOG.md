@@ -5,6 +5,7 @@
 ### Changed
 
 - Replaced the previous score/regex-based estimator with a dedicated `analyzeComplexity` utility that properly tracks loop nesting depth, classifies recursion (linear / logarithmic / exponential / factorial / memoized), and produces structured indicators + reasoning. ([#41](https://github.com/open-devhub/quillbot/issues/41))
+- Migrated all bot responses from embeds to Discord Components V2 containers ([#45](https://github.com/open-devhub/quillbot/issues/45))
 
 ## `v1.1.1` - 2026-07-13
 
