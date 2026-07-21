@@ -5,11 +5,16 @@
 ### Added
 
 - Added bot info and statistics display when the bot is mentioned ([#46](https://github.com/open-devhub/quillbot/issues/46))
+- `scan` command now resolves a URL's full redirect chain and checks each hop against a local blocklist of known IP logger/grabber domains before running external scans ([#44](https://github.com/open-devhub/quillbot/issues/44))
 
 ### Changed
 
-- Replaced the previous score/regex-based estimator with a dedicated `analyzeComplexity` utility that properly tracks loop nesting depth, classifies recursion (linear / logarithmic / exponential / factorial / memoized), and produces structured indicators + reasoning. ([#41](https://github.com/open-devhub/quillbot/issues/41))
+- Replaced the previous complexity estimator with a more accurate `analyzeComplexity` utility ([#41](https://github.com/open-devhub/quillbot/issues/41))
 - Migrated all bot responses from embeds to Discord Components V2 containers ([#45](https://github.com/open-devhub/quillbot/issues/45))
+
+### Fixed
+
+- `scan` command's urlscan.io polling now runs 5 attempts at 3s intervals instead of a 10s wait plus 8x5s polls ([#44](https://github.com/open-devhub/quillbot/issues/44))
 
 ## `v1.1.1` - 2026-07-13
 

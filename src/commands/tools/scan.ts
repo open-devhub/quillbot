@@ -8,6 +8,64 @@ const GSB_API_KEY = process.env.GSB_API_KEY;
 const URLSCAN_API_KEY = process.env.URLSCAN_API_KEY;
 const IPQUALITYSCORE_API_KEY = process.env.IPQUALITYSCORE_API_KEY;
 
+// known ip loggers
+const KNOWN_MALICIOUS_DOMAINS = new Set([
+  "grabify.link",
+  "iplogger.org",
+  "iplogger.com",
+  "iplogger.ru",
+  "iplogger.info",
+  "2no.co",
+  "blasze.com",
+  "blasze.tk",
+  "yip.su",
+  "ps3cfw.com",
+  "stopmodreposts.tk",
+  "leancoding.co",
+  "spottyfly.com",
+  "curiousfox.com",
+  "webresolver.nl",
+
+  // test
+  // "google.com",
+]);
+
+const MAX_REDIRECTS = 10;
+const REDIRECT_TIMEOUT_MS = 6000;
+const URLSCAN_POLL_ATTEMPTS = 5;
+const URLSCAN_POLL_DELAY_MS = 3000;
+
+interface RedirectChainResult {
+  chain: string[];
+  blocked: { domain: string; url: string } | null;
+}
+
+interface GSBResult {
+  malicious: boolean;
+  threats: string[];
+}
+
+interface URLScanResult {
+  malicious: boolean;
+  suspicious: boolean;
+  score: number | null;
+  ip: string | null;
+  country: string | null;
+  asn: string | null;
+  server: string | null;
+  resultUrl: string;
+}
+
+interface IPQSResult {
+  malicious: boolean;
+  suspicious: boolean;
+  unsafe: boolean;
+  risk_score: number | null;
+  fraud_score: number | null;
+  host: string | null;
+  country_code: string | null;
+}
+
 export default {
   name: "scan",
   description: "Check if a URL is sus",
@@ -114,7 +172,8 @@ export default {
             { type: "text", content: "### 🔍 Scanning URL..." },
             {
               type: "text",
-              content: "Running deep analysis, this may take a few seconds...",
+              content:
+                "Resolving redirects and running deep analysis, this may take a few seconds...",
             },
           ],
         },
@@ -122,6 +181,55 @@ export default {
     });
 
     try {
+      // check redirects
+      const { chain, blocked } = await resolveRedirectChain(scanUrl);
+
+      if (blocked) {
+        const blockedParts: any[] = [
+          { type: "text", content: "### 🚨 DANGEROUS" },
+          {
+            type: "text",
+            content: `> This URL redirects to **${blocked.domain}**, a known IP logger/grabber service. Do **NOT** visit it.`,
+          },
+          {
+            type: "text",
+            content: `**URL**\n\`\`\`\n${scanUrl}\n\`\`\``,
+          },
+          {
+            type: "text",
+            content: `**Flagged Redirect**\n\`${blocked.url}\``,
+          },
+        ];
+
+        if (chain.length > 1) {
+          blockedParts.push({
+            type: "text",
+            content: `**Redirect Chain**\n${chain
+              .map((c, i) => `${i + 1}. \`${c}\``)
+              .join("\n")}`,
+          });
+        }
+
+        blockedParts.push(
+          { type: "separator", spacing: "small" },
+          {
+            type: "text",
+            content: `-# Requested by ${message.author.tag} • Blocked by internal list, no external scans were run`,
+          },
+        );
+
+        return loading.edit({
+          components: buildComponents([
+            {
+              type: "container",
+              accentColor: 0xff3333,
+              components: blockedParts,
+            },
+          ]),
+        });
+      }
+
+      // if it's not in the url blacklist, check against gsb, urlscan.io and ipqs
       const [gsbResult, urlscanResult, ipqsResult] = await Promise.allSettled([
         runGSB(scanUrl),
         runURLScan(scanUrl),
@@ -134,10 +242,13 @@ export default {
       const ipqs = ipqsResult.status === "fulfilled" ? ipqsResult.value : null;
 
       const isIPQSMalicious =
-        ipqs?.malicious || ipqs?.unsafe || ipqs?.fraud_score >= 85;
+        !!ipqs &&
+        (ipqs.malicious || ipqs.unsafe || (ipqs.fraud_score ?? 0) >= 85);
       const isIPQSSuspicious =
-        !isIPQSMalicious && (ipqs?.suspicious || (ipqs?.risk_score ?? 0) >= 70);
-      const isMalicious = gsb?.malicious || isIPQSMalicious;
+        !isIPQSMalicious &&
+        !!ipqs &&
+        (ipqs.suspicious || (ipqs.risk_score ?? 0) >= 70);
+      const isMalicious = !!gsb?.malicious || isIPQSMalicious;
       const isSuspicious =
         !isMalicious && ((urlscan?.score ?? 0) >= 70 || isIPQSSuspicious);
 
@@ -174,6 +285,15 @@ export default {
         },
       ];
 
+      if (chain.length > 1) {
+        parts.push({
+          type: "text",
+          content: `**Redirect Chain**\n${chain
+            .map((c, i) => `${i + 1}. \`${c}\``)
+            .join("\n")}`,
+        });
+      }
+
       if (gsb?.malicious && gsb.threats.length > 0) {
         parts.push({
           type: "text",
@@ -208,7 +328,7 @@ export default {
         });
       }
 
-      const sources: string[] = [];
+      const sources: string[] = ["Internal Blocklist"];
       if (gsb) sources.push("Google Safe Browsing");
       if (urlscan) sources.push("URLScan.io");
       if (ipqs) sources.push("IPQualityScore");
@@ -264,7 +384,79 @@ export default {
   },
 };
 
-async function runGSB(url: string) {
+async function resolveRedirectChain(
+  startUrl: string,
+): Promise<RedirectChainResult> {
+  const chain: string[] = [startUrl];
+  let current = startUrl;
+
+  const initialBlock = checkDomain(startUrl);
+  if (initialBlock) return { chain, blocked: initialBlock };
+
+  for (let i = 0; i < MAX_REDIRECTS; i++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REDIRECT_TIMEOUT_MS);
+
+    let res: Response;
+    try {
+      res = await fetch(current, {
+        method: "GET",
+        redirect: "manual",
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; DevHubScanner/1.0)",
+        },
+      });
+    } catch {
+      clearTimeout(timeout);
+      break;
+    }
+    clearTimeout(timeout);
+
+    //  final destination
+    if (res.status < 300 || res.status >= 400) break;
+
+    const location = res.headers.get("location");
+    if (!location) break;
+
+    let nextUrl: string;
+    try {
+      nextUrl = new URL(location, current).toString();
+    } catch {
+      break;
+    }
+
+    if (chain.includes(nextUrl)) break;
+
+    chain.push(nextUrl);
+
+    const blocked = checkDomain(nextUrl);
+    if (blocked) return { chain, blocked };
+
+    current = nextUrl;
+  }
+
+  return { chain, blocked: null };
+}
+
+function checkDomain(urlStr: string): { domain: string; url: string } | null {
+  let hostname: string;
+  try {
+    hostname = new URL(urlStr).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+
+  for (const blocked of KNOWN_MALICIOUS_DOMAINS) {
+    if (hostname === blocked || hostname.endsWith(`.${blocked}`)) {
+      return { domain: blocked, url: urlStr };
+    }
+  }
+
+  return null;
+}
+
+async function runGSB(url: string): Promise<GSBResult> {
   const res = await fetch(
     `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${GSB_API_KEY}`,
     {
@@ -296,32 +488,27 @@ async function runGSB(url: string) {
   };
 }
 
-async function runURLScan(url: string) {
-  const submitHeaders: Record<string, string> = {
+async function runURLScan(url: string): Promise<URLScanResult | null> {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
-  if (URLSCAN_API_KEY) submitHeaders["API-Key"] = URLSCAN_API_KEY;
+  if (URLSCAN_API_KEY) headers["API-Key"] = URLSCAN_API_KEY;
 
   const submit = await fetch("https://urlscan.io/api/v1/scan/", {
     method: "POST",
-    headers: submitHeaders,
+    headers,
     body: JSON.stringify({ url, visibility: "public" }),
   });
 
   const submitData = await submit.json();
-
   if (!submitData.uuid) return null;
 
-  await new Promise((res) => setTimeout(res, 10000));
-
-  const pollHeaders = { ...submitHeaders };
-
-  for (let i = 0; i < 8; i++) {
-    await new Promise((res) => setTimeout(res, 5000));
+  for (let i = 0; i < URLSCAN_POLL_ATTEMPTS; i++) {
+    await sleep(URLSCAN_POLL_DELAY_MS);
 
     const result = await fetch(
       `https://urlscan.io/api/v1/result/${submitData.uuid}/`,
-      { headers: pollHeaders },
+      { headers },
     );
 
     if (result.status === 403) {
@@ -351,7 +538,7 @@ async function runURLScan(url: string) {
   return null;
 }
 
-async function runIPQualityScore(url: string) {
+async function runIPQualityScore(url: string): Promise<IPQSResult | null> {
   if (!IPQUALITYSCORE_API_KEY) return null;
 
   const endpoint = `https://ipqualityscore.com/api/json/url/${IPQUALITYSCORE_API_KEY}/${encodeURIComponent(
@@ -383,4 +570,8 @@ async function runIPQualityScore(url: string) {
     host: data.host ?? null,
     country_code: data.country_code ?? null,
   };
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
