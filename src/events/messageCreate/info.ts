@@ -44,7 +44,7 @@ export default async (client: Client, message: Message) => {
               {
                 type: "text",
                 content: [
-                  `## 🪶 ${client.user!.displayName}`,
+                  `## ${client.user!.displayName}`,
                   "",
                   pkg.description,
                   "",
@@ -69,7 +69,7 @@ export default async (client: Client, message: Message) => {
           {
             type: "text",
             content: [
-              "### ✨ Features",
+              "### Features",
               "",
               "⌬ AI-powered code assistance",
               "⌬ Sandboxed code execution (60+ languages)",

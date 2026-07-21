@@ -47,15 +47,17 @@ export default {
                 content: page.description || "No description available.",
               },
               { type: "separator", spacing: "small" },
+
               {
-                type: "section",
-                components: [{ type: "text", content: "\u200b" }],
-                accessory: {
-                  type: "button",
-                  style: "link",
-                  label: "Open Man Page",
-                  url: page.url,
-                },
+                type: "actionRow",
+                components: [
+                  {
+                    type: "button",
+                    style: "link",
+                    label: "Open Man Page",
+                    url: page.url,
+                  },
+                ],
               },
             ],
           },

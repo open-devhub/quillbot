@@ -59,16 +59,15 @@ export default {
               },
               { type: "separator" },
               {
-                type: "section",
+                type: "actionRow",
                 components: [
-                  { type: "text", content: "Read the full documentation:" },
+                  {
+                    type: "button",
+                    style: "link",
+                    label: "Open on MDN",
+                    url,
+                  },
                 ],
-                accessory: {
-                  type: "button",
-                  style: "link",
-                  label: "Open on MDN",
-                  url,
-                },
               },
             ],
           },
