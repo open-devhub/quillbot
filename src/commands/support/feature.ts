@@ -1,10 +1,12 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import ucid from "unique-custom-id";
 import config from "../../../config.json" with { type: "json" };
 import { createEntry } from "../../firestore/support.ts";
 import type { CommandCallbackOpts } from "../../types/command.ts";
 import type { Log } from "../../types/log.ts";
 import type { SupportDoc } from "../../types/support.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 import { log } from "../../utils/discord/log.ts";
 
 export default {
@@ -15,7 +17,7 @@ export default {
   async callback({ client, message, args }: CommandCallbackOpts) {
     try {
       const { emojis, support, premiumServer } = config;
-      const { check, x } = emojis;
+      const { check } = emojis;
       const { reports } = support;
 
       const reportId = ucid.format("short");
@@ -23,14 +25,12 @@ export default {
       const content = args.join(" ");
       if (!content) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ No description provided")
-              .setDescription(
-                "Please provide a description of the feature you want to suggest.",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ No Description Provided",
+            description:
+              "Please provide a description of the feature you want to suggest.",
+          }),
         });
       }
 
@@ -40,14 +40,12 @@ export default {
       if (!guild || !reportsChannel) {
         console.error("Feature request system not configured properly.");
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Feature request system unavailable")
-              .setDescription(
-                "The feature request system is not set up correctly. Please contact the bot developers.",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Feature Request System Unavailable",
+            description:
+              "The feature request system is not set up correctly. Please contact the bot developers.",
+          }),
         });
       }
 
@@ -58,10 +56,7 @@ export default {
         title: "💻 New Feature Request",
         description: `\`\`\`${content.slice(0, 2000)}\`\`\``,
         fields: [
-          {
-            name: "Request ID",
-            value: `\`${reportId}\``,
-          },
+          { name: "Request ID", value: `\`${reportId}\`` },
           {
             name: "User",
             value: `${message.author.tag} (${message.author.id})`,
@@ -80,25 +75,29 @@ export default {
       await message.react(check);
 
       await message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("💻 Feature Request Sent")
-            .setDescription(
-              "Your feature request has been submitted to bot developers successfully.",
-            )
-            .setFields(
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: 0xffcc00,
+            components: [
+              { type: "text", content: "### 💻 Feature Request Sent" },
               {
-                name: "ID",
-                value: String(reportId),
-                inline: true,
+                type: "text",
+                content:
+                  "Your feature request has been submitted to bot developers successfully.",
               },
+              { type: "separator", spacing: "small", divider: false },
               {
-                name: "Date",
-                value: new Date().toLocaleString(),
-                inline: true,
+                type: "text",
+                content: [
+                  `**ID**: \`${reportId}\``,
+                  `**Date**: ${new Date().toLocaleString()}`,
+                ].join("\n"),
               },
-            ),
-        ],
+            ],
+          },
+        ]),
       });
 
       createEntry({
@@ -121,14 +120,12 @@ export default {
     } catch (err) {
       console.error(err);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Error submitting feature request")
-            .setDescription(
-              "An error occurred while submitting your feature request.",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Error Submitting Feature Request",
+          description:
+            "An error occurred while submitting your feature request.",
+        }),
       });
     }
   },

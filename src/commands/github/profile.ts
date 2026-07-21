@@ -4,8 +4,10 @@ import {
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
+  MessageFlags,
 } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 import { generateGitHubHeatMap } from "../../utils/misc/githubActivityGraph.ts";
 
 export default {
@@ -18,14 +20,12 @@ export default {
       const username = args[0];
       if (!username) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ No username provided")
-              .setDescription(
-                "Please provide a GitHub username or profile URL.\nExample: `;profile octocat` or `;profile https://github.com/octocat`",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ No Username Provided",
+            description:
+              "Please provide a GitHub username or profile URL.\nExample: `;profile octocat` or `;profile https://github.com/octocat`",
+          }),
         });
       }
 
@@ -36,14 +36,12 @@ export default {
 
       if (!match) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Invalid username or URL")
-              .setDescription(
-                "Please provide a valid GitHub username or profile URL.\nExample: `;profile octocat` or `;profile https://github.com/octocat`",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Invalid Username or URL",
+            description:
+              "Please provide a valid GitHub username or profile URL.\nExample: `;profile octocat` or `;profile https://github.com/octocat`",
+          }),
         });
       }
 
@@ -53,14 +51,12 @@ export default {
       const res = await fetch(apiUrl);
       if (!res.ok) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ GitHub Profile Not Found")
-              .setDescription(
-                "Please provide a valid GitHub username or profile URL.\nExample: `;profile octocat` or `;profile https://github.com/octocat`",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ GitHub Profile Not Found",
+            description:
+              "Please provide a valid GitHub username or profile URL.\nExample: `;profile octocat`",
+          }),
         });
       }
 
@@ -120,7 +116,13 @@ export default {
       });
     } catch (err) {
       console.error(err);
-      message.reply("An error occurred while fetching the user information.");
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Error",
+          description: "An error occurred while fetching the user information.",
+        }),
+      });
     }
   },
 };

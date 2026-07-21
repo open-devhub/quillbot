@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
 import config from "../../../config.json" with { type: "json" };
@@ -7,6 +7,8 @@ import {
   parseCodeBlock,
   parseCodeCommandInput,
 } from "../../utils/code/codeInput.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -25,7 +27,7 @@ export default {
       args,
     );
 
-    let code;
+    let code: string | undefined;
 
     if (parsedBlock) {
       code = parsedBlock.code;
@@ -44,18 +46,16 @@ export default {
         if (!channel?.isTextBased()) throw new Error("Channel not found");
 
         const fetchedMessage = await channel.messages.fetch(messageId);
-
         const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
           await reaction.users.remove(client.user!.id).catch(() => {});
           await message.react(x);
           return message.reply({
-            embeds: [
-              new EmbedBuilder()
-                .setTitle("❌ No code block found!")
-                .setColor(0xd21872),
-            ],
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: "❌ No Code Block Found!",
+            }),
           });
         }
 
@@ -64,25 +64,24 @@ export default {
         await reaction.users.remove(client.user!.id).catch(() => {});
         await message.react(x);
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Failed to fetch message")
-              .setDescription(String(err))
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Failed to Fetch Message",
+            description: String(err),
+          }),
         });
       }
     } else {
-      const embed = new EmbedBuilder()
-        .setTitle("❌ Format error!")
-        .setDescription(
-          `Use ;whatlang command with code block (or pass a message link)`,
-        )
-        .setColor(0xd21872)
-        .setTimestamp();
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
-      return message.reply({ embeds: [embed] });
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Format Error!",
+          description:
+            "Use `;whatlang` with a code block (or pass a message link).",
+        }),
+      });
     }
 
     let langsDetected = "";
@@ -104,15 +103,14 @@ export default {
 
       langsDetected = chatCompletion.choices?.[0]?.message?.content || "";
     } catch (err) {
-      console.error("Suggest command error:", err);
+      console.error("whatlang command error:", err);
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(warn);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("⚠️ Failed to get language detection")
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "⚠️ Failed to Get Language Detection",
+        }),
       });
     }
 
@@ -120,14 +118,12 @@ export default {
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(warn);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("⚠️ No languages detected")
-            .setDescription(
-              "The bot could not detect any programming languages for the provided code.",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "⚠️ No Languages Detected",
+          description:
+            "The bot could not detect any programming languages for the provided code.",
+        }),
       });
     }
 
@@ -136,19 +132,33 @@ export default {
       .map((l) => l.trim())
       .filter((l) => l.length > 0);
 
-    const embed = new EmbedBuilder()
-      .setTitle(
-        `💡 Detected Language${safeLangsDetected.length > 1 ? "s" : ""}`,
-      )
-      .setDescription(
-        safeLangsDetected.map((l, i) => `${i + 1}. **${l}**`).join("\n") ||
-          "No languages detected",
-      )
-      .setColor(0x18d272)
-      .setFooter({ text: `${message.author.tag} | ${safeLangsDetected[0]}` })
-      .setTimestamp();
+    const list =
+      safeLangsDetected.map((l, i) => `${i + 1}. **${l}**`).join("\n") ||
+      "No languages detected";
+
     await reaction.users.remove(client.user!.id).catch(() => {});
     await message.react(check);
-    return message.reply({ embeds: [embed] });
+
+    return message.reply({
+      flags: MessageFlags.IsComponentsV2,
+      components: buildComponents([
+        {
+          type: "container",
+          accentColor: 0x18d272,
+          components: [
+            {
+              type: "text",
+              content: `### 💡 Detected Language${safeLangsDetected.length > 1 ? "s" : ""}`,
+            },
+            { type: "text", content: list },
+            { type: "separator", spacing: "small" },
+            {
+              type: "text",
+              content: `-# ${message.author.tag} • ${safeLangsDetected[0] || "unknown"}`,
+            },
+          ],
+        },
+      ]),
+    });
   },
 };

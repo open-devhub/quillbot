@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
 import config from "../../../config.json" with { type: "json" };
@@ -7,6 +7,8 @@ import {
   parseCodeBlock,
   parseCodeCommandInput,
 } from "../../utils/code/codeInput.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -27,7 +29,8 @@ export default {
       langFromArgs,
     } = parseCodeCommandInput(message.content, args);
 
-    let lang, code;
+    let lang: string | undefined;
+    let code: string | undefined;
 
     if (parsedBlock) {
       lang = parsedBlock.lang || langFromArgs;
@@ -47,18 +50,16 @@ export default {
         if (!channel?.isTextBased()) throw new Error("Channel not found");
 
         const fetchedMessage = await channel.messages.fetch(messageId);
-
         const fetchedCodeBlock = parseCodeBlock(fetchedMessage.content);
 
         if (!fetchedCodeBlock) {
           await reaction.users.remove(client.user!.id).catch(() => {});
           await message.react(x);
           return message.reply({
-            embeds: [
-              new EmbedBuilder()
-                .setTitle("❌ No code found to suggest!")
-                .setColor(0xd21872),
-            ],
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: "❌ No Code Found to Suggest!",
+            }),
           });
         }
 
@@ -68,25 +69,24 @@ export default {
         await reaction.users.remove(client.user!.id).catch(() => {});
         await message.react(x);
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Failed to fetch message")
-              .setDescription(String(err))
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Failed to Fetch Message",
+            description: String(err),
+          }),
         });
       }
     } else {
-      const embed = new EmbedBuilder()
-        .setTitle("❌ Format error!")
-        .setDescription(
-          `Use ;suggestion command with code block (or pass a message link)`,
-        )
-        .setColor(0xd21872)
-        .setTimestamp();
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(x);
-      return message.reply({ embeds: [embed] });
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Format Error!",
+          description:
+            "Use `;suggest` with a code block (or pass a message link).",
+        }),
+      });
     }
 
     let suggestion = "";
@@ -118,11 +118,10 @@ export default {
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(warn);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("⚠️ Failed to get suggestions")
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "⚠️ Failed to Get Suggestions",
+        }),
       });
     }
 
@@ -130,27 +129,37 @@ export default {
       await reaction.users.remove(client.user!.id).catch(() => {});
       await message.react(warn);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("⚠️ No suggestions available")
-            .setDescription(
-              "No suggestions could be generated for the provided code.",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "⚠️ No Suggestions Available",
+          description:
+            "No suggestions could be generated for the provided code.",
+        }),
       });
     }
 
-    const safeSuggestion = suggestion.slice(0, 1900);
+    const safeSuggestion = suggestion.slice(0, 3500);
 
-    const embed = new EmbedBuilder()
-      .setTitle("💡 Code Improvement Suggestions")
-      .setDescription(safeSuggestion)
-      .setColor(0x18d272)
-      .setFooter({ text: `${message.author.tag} | ${lang}` })
-      .setTimestamp();
     await reaction.users.remove(client.user!.id).catch(() => {});
     await message.react(check);
-    return message.reply({ embeds: [embed] });
+
+    return message.reply({
+      flags: MessageFlags.IsComponentsV2,
+      components: buildComponents([
+        {
+          type: "container",
+          accentColor: 0x18d272,
+          components: [
+            { type: "text", content: "### 💡 Code Improvement Suggestions" },
+            { type: "text", content: safeSuggestion },
+            { type: "separator", spacing: "small" },
+            {
+              type: "text",
+              content: `-# ${message.author.tag} • ${lang || "unknown"}`,
+            },
+          ],
+        },
+      ]),
+    });
   },
 };

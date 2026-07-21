@@ -1,11 +1,9 @@
-import {
-  ActionRowBuilder,
-  EmbedBuilder,
-  StringSelectMenuBuilder,
-} from "discord.js";
+import { MessageFlags } from "discord.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 import { readFile } from "../../utils/fs/fileOps.ts";
 import { parseChangelog } from "../../utils/parse/parseChangelog.ts";
 
@@ -27,45 +25,63 @@ export default {
 
       if (versions.length === 0) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("📝 Changelog")
-              .setDescription("No changelog available.")
-              .setColor(0x7289da),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "📝 Changelog",
+            description: "No changelog available.",
+            color: 0x7289da,
+          }),
         });
       }
 
       const latest = versions[0];
 
-      const embed = new EmbedBuilder()
-        .setTitle("📝 Latest Changes")
-        .setDescription(
-          latest?.content || "No changes listed for the latest version.",
-        )
-        .setColor(0x7289da);
-
-      const selectMenu = new StringSelectMenuBuilder()
-        .setCustomId("changelog_select")
-        .setPlaceholder("Select a version to view its changes")
-        .addOptions(
-          versions.map((v, i) => ({
-            label: (v.title.length > 100
-              ? v.title.slice(0, 97) + "..."
-              : v.title
-            ).replace(/`/g, ""),
-            value: i.toString(),
-            ...(i === 0 ? { description: "Latest version" } : {}),
-          })),
-        );
-
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        selectMenu,
-      );
-
-      await message.reply({ embeds: [embed], components: [row] });
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildComponents([
+          {
+            type: "container",
+            accentColor: 0x7289da,
+            components: [
+              { type: "text", content: "### 📝 Latest Changes" },
+              {
+                type: "text",
+                content:
+                  latest?.content ||
+                  "No changes listed for the latest version.",
+              },
+              { type: "separator", spacing: "small" },
+              {
+                type: "actionRow",
+                components: [
+                  {
+                    type: "stringSelect",
+                    customId: "changelog_select",
+                    placeholder: "Select a version to view its changes",
+                    options: versions.map((v, i) => ({
+                      label: (v.title.length > 100
+                        ? v.title.slice(0, 97) + "..."
+                        : v.title
+                      ).replace(/`/g, ""),
+                      value: i.toString(),
+                      ...(i === 0 ? { description: "Latest version" } : {}),
+                    })),
+                  },
+                ],
+              },
+            ],
+          },
+        ]),
+      });
     } catch (err) {
       console.error("Error fetching changelog:", err);
+      return message.reply({
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Failed to Load Changelog",
+          description: "An error occurred while reading the changelog.",
+        }),
+      });
     }
   },
 };

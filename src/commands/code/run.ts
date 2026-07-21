@@ -1,11 +1,4 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ComponentType,
-  EmbedBuilder,
-  codeBlock,
-} from "discord.js";
+import { ComponentType, MessageFlags, codeBlock } from "discord.js";
 import "dotenv/config";
 import { Groq } from "groq-sdk";
 import config from "../../../config.json" with { type: "json" };
@@ -14,6 +7,8 @@ import {
   parseCodeBlock,
   parseCodeCommandInput,
 } from "../../utils/code/codeInput.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -123,7 +118,6 @@ function findLanguageId(
   return fuzzyMatch ? fuzzyMatch.id : null;
 }
 
-// run code with judge0 api
 async function runCode(lang: string, code: string) {
   try {
     const languages = await getLanguages();
@@ -210,11 +204,10 @@ export default {
 
         if (!fetchedCodeBlock) {
           return message.reply({
-            embeds: [
-              new EmbedBuilder()
-                .setTitle("❌ No code found to run!")
-                .setColor(0xd21872),
-            ],
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: "❌ No Code Found to Run!",
+            }),
           });
         }
 
@@ -222,37 +215,33 @@ export default {
         code = fetchedCodeBlock.code ?? "";
       } catch (err) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Failed to fetch message")
-              .setDescription(String(err))
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Failed to Fetch Message!!",
+            description: String(err),
+          }),
         });
       }
     } else {
       await message.react(x);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Format error!")
-            .setDescription("Use ;run with a code block or message link.")
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Format Error!",
+          description: "Use ;run with a code block or message link.",
+        }),
       });
     }
 
     if (!lang) {
       await message.react(x);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Language required")
-            .setDescription(
-              "Specify the language with `;run <lang>` or use a code block with a language tag.",
-            )
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Language Required!",
+          description:
+            "Specify the language with `;run <lang>` or use a code block with a language tag.",
+        }),
       });
     }
 
@@ -262,49 +251,99 @@ export default {
 
       await reaction.users.remove(client.user!.id).catch(() => {});
 
-      const embed = new EmbedBuilder()
-        .setFooter({ text: `${message.author.tag} | ${lang}` })
-        .setTimestamp();
-
       const isSuccess = output.success && output.exitCode === 3;
+      const footer = `-# ${message.author.tag} • ${lang}`;
 
       if (!output.stdout && !output.stderr) {
-        embed
-          .setTitle("✅ Success!")
-          .setDescription("Code executed without output.")
-          .setColor(0x4caf50);
         await message.react(check);
-        return message.reply({ embeds: [embed] });
-      }
-
-      if (output.stdout) {
-        embed.setDescription(codeBlock(output.stdout.slice(0, 1000)));
-      }
-
-      if (output.stderr) {
-        embed.setDescription(codeBlock(output.stderr.slice(0, 1000)));
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildComponents([
+            {
+              type: "container",
+              accentColor: 0x4caf50,
+              components: [
+                { type: "text", content: "### ✅ Success!" },
+                {
+                  type: "text",
+                  content: "Code executed without output.",
+                },
+                { type: "separator", spacing: "small" },
+                { type: "text", content: footer },
+              ],
+            },
+          ]),
+        });
       }
 
       if (isSuccess) {
-        embed.setTitle("🧪 Output").setColor(0x4caf50);
         await message.react(check);
-        return message.reply({ embeds: [embed] });
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildComponents([
+            {
+              type: "container",
+              accentColor: 0x4caf50,
+              components: [
+                { type: "text", content: "### 🧪 Output" },
+                {
+                  type: "text",
+                  content: codeBlock(
+                    (output.stdout || output.stderr || "").slice(0, 3500),
+                  ),
+                },
+                { type: "separator", spacing: "small" },
+                { type: "text", content: footer },
+              ],
+            },
+          ]),
+        });
       }
 
-      embed.setTitle("❌ Compilation error!").setColor(0xd21872);
       await message.react(x);
 
+      const errorText = (
+        output.stderr ||
+        output.stdout ||
+        "Unknown error"
+      ).slice(0, 3500);
+
       if (output.stderr) {
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId("explain_fix")
-            .setLabel("Explain and Fix")
-            .setStyle(ButtonStyle.Success),
-        );
+        const components = buildComponents([
+          {
+            type: "container",
+            accentColor: 0xd21872,
+            components: [
+              { type: "text", content: "### ❌ Compilation error!" },
+              {
+                type: "text",
+                content: codeBlock(errorText),
+              },
+              { type: "separator" },
+              {
+                type: "section",
+                components: [
+                  {
+                    type: "text",
+                    content: "Need help understanding or fixing this?",
+                  },
+                ],
+                accessory: {
+                  type: "button",
+                  style: "success",
+                  label: "Explain and Fix",
+                  customId: "explain_fix",
+                },
+              },
+              { type: "separator", spacing: "small" },
+              { type: "text", content: footer },
+            ],
+          },
+        ]);
 
         const sent = await message.reply({
-          embeds: [embed],
-          components: [row],
+          flags: MessageFlags.IsComponentsV2,
+          components,
         });
 
         const collector = sent.createMessageComponentCollector({
@@ -342,41 +381,98 @@ export default {
               max_completion_tokens: 640,
             });
 
-            const fixText = fixCompletion?.choices[0]?.message?.content?.slice(
-              0,
-              1900,
-            );
+            const fixText =
+              fixCompletion?.choices[0]?.message?.content?.slice(0, 3500) ||
+              "Fix not available";
 
             await interaction.followUp({
-              embeds: [
-                new EmbedBuilder()
-                  .setTitle("🛠️ Fix")
-                  .setDescription(fixText || "Fix not available")
-                  .setColor(0x18d272),
-              ],
+              flags: MessageFlags.IsComponentsV2,
+              components: buildComponents([
+                {
+                  type: "container",
+                  accentColor: 0x18d272,
+                  components: [
+                    { type: "text", content: "### 🛠️ Fix" },
+                    { type: "text", content: fixText },
+                  ],
+                },
+              ]),
             });
 
-            await interaction.message.edit({ components: [] });
+            await interaction.message.edit({
+              components: buildComponents([
+                {
+                  type: "container",
+                  accentColor: 0xd21872,
+                  components: [
+                    { type: "text", content: "### ❌ Compilation error!" },
+                    {
+                      type: "text",
+                      content: codeBlock(errorText),
+                    },
+                    { type: "separator", spacing: "small" },
+                    { type: "text", content: footer },
+                  ],
+                },
+              ]),
+            });
           } catch {
             explained = false;
           }
         });
 
-        collector.on("end", () => {
-          if (!explained) sent.edit({ components: [] }).catch(() => {});
+        collector.on("end", async () => {
+          if (!explained) {
+            await sent
+              .edit({
+                components: buildComponents([
+                  {
+                    type: "container",
+                    accentColor: 0xd21872,
+                    components: [
+                      { type: "text", content: "### ❌ Compilation error!" },
+                      {
+                        type: "text",
+                        content: codeBlock(errorText),
+                      },
+                      { type: "separator", spacing: "small" },
+                      { type: "text", content: footer },
+                    ],
+                  },
+                ]),
+              })
+              .catch(() => {});
+          }
         });
       } else {
-        await message.reply({ embeds: [embed] });
+        // rare
+        return message.reply({
+          flags: MessageFlags.IsComponentsV2,
+          components: buildComponents([
+            {
+              type: "container",
+              accentColor: 0xd21872,
+              components: [
+                { type: "text", content: "### ❌ Compilation error!" },
+                {
+                  type: "text",
+                  content: codeBlock(errorText),
+                },
+                { type: "separator", spacing: "small" },
+                { type: "text", content: footer },
+              ],
+            },
+          ]),
+        });
       }
     } catch (err) {
       await message.react(x);
       return message.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle("❌ Error running code")
-            .setDescription(`\`\`\`\n${String(err)}\n\`\`\``)
-            .setColor(0xd21872),
-        ],
+        flags: MessageFlags.IsComponentsV2,
+        components: buildErrorComponent({
+          title: "❌ Error Running Code!",
+          description: `\`\`\`\n${String(err)}\n\`\`\``,
+        }),
       });
     }
   },

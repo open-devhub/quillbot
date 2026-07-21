@@ -1,11 +1,8 @@
-import {
-  ActionRowBuilder,
-  EmbedBuilder,
-  StringSelectMenuBuilder,
-  StringSelectMenuInteraction,
-} from "discord.js";
+import { MessageFlags, StringSelectMenuInteraction } from "discord.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import { buildComponents } from "../utils/components/buildComponents.ts";
+import { buildErrorComponent } from "../utils/components/buildError.ts";
 import { readFile } from "../utils/fs/fileOps.ts";
 import { parseChangelog } from "../utils/parse/parseChangelog.ts";
 
@@ -29,41 +26,55 @@ export default {
 
     if (!versions[selectedIndex]) {
       return interaction.reply({
-        content: "❌ Selected version not found.",
-        ephemeral: true,
+        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+        components: buildErrorComponent({
+          title: "❌ Version Not Found",
+          description: "The selected version could not be found.",
+        }),
       });
     }
 
     const selected = versions[selectedIndex];
 
-    const embed = new EmbedBuilder()
-      .setTitle("📝 Changelog")
-      .setDescription(selected.content || "No changes listed for this version.")
-      .setColor(0x7289da)
-      .setFooter({ text: `Viewing: ${selected.title}` });
-
-    // Rebuild the exact same dropdown so the user can switch versions again
-    const selectMenu = new StringSelectMenuBuilder()
-      .setCustomId("changelog_select")
-      .setPlaceholder("Select a version to view its changes")
-      .addOptions(
-        versions.map((v, i) => ({
-          label: (v.title.length > 100
-            ? v.title.slice(0, 97) + "..."
-            : v.title
-          ).replace(/`/g, ""),
-          value: i.toString(),
-          ...(i === 0 ? { description: "Latest version" } : {}),
-        })),
-      );
-
-    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-      selectMenu,
-    );
-
     await interaction.update({
-      embeds: [embed],
-      components: [row],
+      components: buildComponents([
+        {
+          type: "container",
+          accentColor: 0x7289da,
+          components: [
+            { type: "text", content: "### 📝 Changelog" },
+            {
+              type: "text",
+              content:
+                selected.content || "No changes listed for this version.",
+            },
+            { type: "separator", spacing: "small" },
+            {
+              type: "text",
+              content: `-# Viewing: ${selected.title}`,
+            },
+            {
+              type: "actionRow",
+              components: [
+                {
+                  type: "stringSelect",
+                  customId: "changelog_select",
+                  placeholder: "Select a version to view its changes",
+                  options: versions.map((v, i) => ({
+                    label: (v.title.length > 100
+                      ? v.title.slice(0, 97) + "..."
+                      : v.title
+                    ).replace(/`/g, ""),
+                    value: i.toString(),
+                    default: i === selectedIndex,
+                    ...(i === 0 ? { description: "Latest version" } : {}),
+                  })),
+                },
+              ],
+            },
+          ],
+        },
+      ]),
     });
   },
 };

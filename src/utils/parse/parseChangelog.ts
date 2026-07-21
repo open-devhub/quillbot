@@ -24,7 +24,7 @@ export function parseChangelog(content: string): VersionSection[] {
     if (title) {
       versions.push({
         title,
-        content: `## ${title}\n\n${body}`,
+        content: `### ${title}\n\n${body}`,
       });
     }
   }

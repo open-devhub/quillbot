@@ -3,8 +3,10 @@ import {
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
+  MessageFlags,
 } from "discord.js";
 import type { CommandCallbackOpts } from "../../types/command.ts";
+import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
 export default {
   name: "repo",
@@ -16,14 +18,12 @@ export default {
       const repoUrl = args[0];
       if (!repoUrl) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ No repository URL provided")
-              .setDescription(
-                "Please provide a GitHub repository URL.\nExample: `;repo https://github.com/owner/repo`",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ No Repository URL Provided",
+            description:
+              "Please provide a GitHub repository URL.\nExample: `;repo https://github.com/owner/repo`",
+          }),
         });
       }
 
@@ -37,14 +37,12 @@ export default {
         ) || repoUrl.match(/^([^\/]+)\/([^\/]+)$/);
       if (!match) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle("❌ Invalid repository URL")
-              .setDescription(
-                "Please provide a valid GitHub repository URL.\nExample: `;repo https://github.com/owner/repo`",
-              )
-              .setColor(0xd21872),
-          ],
+          flags: MessageFlags.IsComponentsV2,
+          components: buildErrorComponent({
+            title: "❌ Invalid Repository URL",
+            description:
+              "Please provide a valid GitHub repository URL.\nExample: `;repo https://github.com/owner/repo`",
+          }),
         });
       }
       const owner = match[1];
@@ -54,7 +52,13 @@ export default {
       fetch(apiUrl)
         .then((res) => {
           if (!res.ok) {
-            throw new Error("Repository not found");
+            return message.reply({
+              flags: MessageFlags.IsComponentsV2,
+              components: buildErrorComponent({
+                title: "❌ Repository Not Found",
+                description: `Could not find \`${owner}/${repo}\` on GitHub.`,
+              }),
+            });
           }
           return res.json();
         })
@@ -112,9 +116,14 @@ export default {
         })
         .catch((err) => {
           console.error(err);
-          message.reply(
-            "An error occurred while fetching the repository information.",
-          );
+          return message.reply({
+            flags: MessageFlags.IsComponentsV2,
+            components: buildErrorComponent({
+              title: "❌ Error",
+              description:
+                "An error occurred while fetching the repository information.",
+            }),
+          });
         });
     } catch (err) {
       console.error(err);
