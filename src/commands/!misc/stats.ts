@@ -32,7 +32,7 @@ export default {
               components: [
                 {
                   type: "text",
-                  content: `### 📍 Server Statistics\n${serverStats.name || "Unknown Server"}`,
+                  content: `### 📍 Server Statistics: ${serverStats.name || "Unknown Server"}`,
                 },
                 { type: "separator", spacing: "small" },
                 {
