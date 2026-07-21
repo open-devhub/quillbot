@@ -4,132 +4,167 @@ import type { CommandCallbackOpts } from "../../types/command.ts";
 import { buildComponents } from "../../utils/components/buildComponents.ts";
 import { buildErrorComponent } from "../../utils/components/buildError.ts";
 
-async function getMetaDescription(url: string): Promise<string> {
-  try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (compatible; QuillBot/1.0; +https://github.com/)",
-      },
-    });
-    if (!res.ok) return "";
-
-    const html = await res.text();
-
-    const ogMatch =
-      html.match(
-        /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i,
-      ) ||
-      html.match(
-        /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i,
-      );
-
-    const metaMatch =
-      html.match(
-        /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i,
-      ) ||
-      html.match(
-        /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i,
-      );
-
-    const raw = (ogMatch?.[1] || metaMatch?.[1] || "").trim();
-    if (!raw) return "";
-
-    return raw
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/\s+/g, " ")
-      .trim();
-  } catch {
-    return "";
-  }
-}
-
 export default {
-  name: "mdn",
-  description: "Search MDN Web Docs",
-  aliases: ["mozilla", "mdnsearch"],
-  usage: "mdn <term>",
+  name: "wiki",
+  description: "Search Wikipedia articles",
+  usage: "wiki <term>",
+  aliases: ["wikipedia", "wikisearch"],
+
   async callback({ message, args }: CommandCallbackOpts) {
     try {
       const query = args.join(" ");
+
       if (!query) {
         return message.reply({
-          flags: MessageFlags.IsComponentsV2,
           components: buildErrorComponent({
-            title: "❌ Missing Search Term",
-            description: "Please provide a search term, e.g. `;mdn WeakMap`",
+            title: "Missing search term",
+            description:
+              "Please provide a search term, e.g. `++wiki JavaScript`",
           }),
+          flags: MessageFlags.IsComponentsV2,
         });
       }
+
+      const controller1 = new AbortController();
+      const timeoutId1 = setTimeout(() => controller1.abort(), 10000);
 
       const res = await fetch(
-        `https://developer.mozilla.org/api/v1/search?q=${encodeURIComponent(query)}&locale=en-US`,
+        `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
+          query,
+        )}&utf8=&format=json`,
       );
+
+      clearTimeout(timeoutId1);
+
       const data = await res.json();
 
-      if (!data.documents || data.documents.length === 0) {
+      if (!data.query || !data.query.search || data.query.search.length === 0) {
         return message.reply({
-          flags: MessageFlags.IsComponentsV2,
           components: buildErrorComponent({
-            title: "No Results Found",
-            description: `¯\\_(ツ)_/¯ No MDN results found for **${query}**`,
+            title: "No Wikipedia results found",
+            description: `No articles were found for **${query}**`,
           }),
+          flags: MessageFlags.IsComponentsV2,
         });
       }
 
-      const doc = data.documents[0];
-      const url = `https://developer.mozilla.org${doc.mdn_url}`;
+      const article = data.query.search[0];
+      const title = article.title;
+      const url = `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`;
 
-      let description = await getMetaDescription(url);
+      const controller2 = new AbortController();
+      const timeoutId2 = setTimeout(() => controller2.abort(), 10000);
 
-      if (!description && doc.excerpt) {
-        description = doc.excerpt.replace(/<[^>]+>/g, "").trim();
-      }
+      const pageRes = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro=true&explaintext=true&piprop=thumbnail&pithumbsize=300&format=json&titles=${encodeURIComponent(title)}`,
+      );
 
-      if (description.length > 500) {
-        description = description.slice(0, 497) + "...";
-      }
+      clearTimeout(timeoutId2);
 
-      return message.reply({
-        flags: MessageFlags.IsComponentsV2,
-        components: buildComponents([
-          {
-            type: "container",
-            accentColor: 0x83d0f2,
-            components: [
-              { type: "text", content: `### ${doc.title}` },
-              {
-                type: "text",
-                content: description || "No description available.",
-              },
-              { type: "separator", spacing: "small" },
-              {
-                type: "section",
-                components: [{ type: "text", content: "\u200b" }],
-                accessory: {
+      const pageData = await pageRes.json();
+
+      const page = Object.values(pageData.query.pages)[0] as {
+        extract?: string;
+        thumbnail?: {
+          source?: string;
+        };
+      };
+
+      const extract = page?.extract ?? "No extract available.";
+      const thumbnail = page?.thumbnail?.source;
+
+      const components = buildComponents([
+        {
+          type: "container",
+          accentColor: "#ffffff",
+          components: [
+            {
+              type: "section",
+              components: [
+                {
+                  type: "text",
+                  content: `### ${title}\n`,
+                },
+                {
+                  type: "text",
+                  content:
+                    extract.length > 800
+                      ? extract.slice(0, extract.lastIndexOf(" ", 800)) + " ..."
+                      : extract,
+                },
+              ],
+              ...(thumbnail
+                ? {
+                    accessory: {
+                      type: "thumbnail",
+                      url: thumbnail,
+                      description: title,
+                    },
+                  }
+                : {
+                    accessory: {
+                      type: "button",
+                      style: "link",
+                      label: "Read on Wikipedia",
+                      url,
+                    },
+                  }),
+            },
+
+            {
+              type: "separator",
+            },
+
+            {
+              type: "actionRow",
+              components: [
+                {
                   type: "button",
                   style: "link",
-                  label: "Open on MDN",
+                  label: "Read on Wikipedia",
                   url,
                 },
-              },
-            ],
-          },
-        ]),
-      });
-    } catch (err) {
-      console.error(err);
+              ],
+            },
+
+            {
+              type: "text",
+              content: "-# Source: wikipedia.org",
+            },
+          ],
+        },
+      ]);
+
       return message.reply({
+        components,
         flags: MessageFlags.IsComponentsV2,
+      });
+    } catch (err: unknown) {
+      const error = err as {
+        name?: string;
+        code?: string;
+      };
+
+      if (error.name === "AbortError" || error.code === "ETIMEDOUT") {
+        return message.reply({
+          components: buildErrorComponent({
+            title: "Wikipedia request timed out",
+            description:
+              "The request to Wikipedia took too long and was aborted.",
+          }),
+          flags: ["IsComponentsV2"],
+        });
+      }
+
+      console.error(err);
+
+      return message.reply({
         components: buildErrorComponent({
-          title: "❌ Failed to Fetch MDN Results",
+          title: "Failed to fetch Wikipedia results",
           description:
-            "An error occurred while fetching results from MDN Web Docs.",
+            "An error occurred while fetching results from Wikipedia.",
         }),
+        flags: MessageFlags.IsComponentsV2,
       });
     }
   },
