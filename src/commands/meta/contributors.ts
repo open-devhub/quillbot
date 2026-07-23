@@ -1,5 +1,6 @@
-import { EmbedBuilder } from "discord.js";
+import { MessageFlags } from "discord.js";
 import type { SubcommandCallbackOpts } from "../../types/command.ts";
+import { buildComponents } from "../../utils/components/buildComponents.ts";
 
 export default {
   name: "contributors",
@@ -17,20 +18,41 @@ export default {
       .catch(() => "Unable to fetch contributors");
 
     return message.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("💻 GitHub Contributors")
-          .setDescription(
-            contributors
-              .slice(0, 30)
-              .map((c: string) => `- [@${c}](https://github.com/${c})`)
-              .join("\n") +
-              (contributors.length > 30
-                ? `\nand ${contributors.length - 30} more...`
-                : ""),
-          )
-          .setColor(0x7289da),
-      ],
+      flags: MessageFlags.IsComponentsV2,
+      components: buildComponents([
+        {
+          type: "container",
+          accentColor: 0x7289da,
+          components: [
+            { type: "text", content: `### 💻 GitHub Contributors` },
+            { type: "separator", spacing: "small" },
+            {
+              type: "text",
+              content:
+                contributors
+                  .slice(0, 30)
+                  .map((c: string) => `- [@${c}](https://github.com/${c})`)
+                  .join("\n") +
+                (contributors.length > 30
+                  ? `\nand ${contributors.length - 30} more...`
+                  : ""),
+            },
+            { type: "separator", spacing: "small" },
+
+            {
+              type: "actionRow",
+              components: [
+                {
+                  type: "button",
+                  style: "link",
+                  label: "View All Contributors",
+                  url: "https://github.com/open-devhub/quillbot/contributors",
+                },
+              ],
+            },
+          ],
+        },
+      ]),
     });
   },
 };
